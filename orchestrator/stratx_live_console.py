@@ -1445,18 +1445,20 @@ def print_mql5_diff(parent_code: str, child_code: str):
                 print(f"{Colors.LIME_BOLD}{line}{Colors.ENDC}", flush=True)
             elif line.startswith('-') and not line.startswith('---'):
                 print(f"{Colors.RED_BOLD}{line}{Colors.ENDC}", flush=True)
-def format_trade_blotter(enriched_losers_df: pd.DataFrame) -> str:
+def format_trade_blotter(enriched_losers_df: pd.DataFrame, label: str = "LOSING") -> str:
     """Converts raw CSV trade data into a human-readable tape dissection blotter."""
     blotter = ""
-    worst_losers = enriched_losers_df.sort_values(by='R', ascending=True).head(5) if 'R' in enriched_losers_df.columns else enriched_losers_df.head(5)
-    
+    ascending = (label.upper() == "LOSING")
+    worst_losers = enriched_losers_df.sort_values(by='R', ascending=ascending).head(5) if 'R' in enriched_losers_df.columns else enriched_losers_df.head(5)
+
     for idx, (_, row) in enumerate(worst_losers.iterrows(), 1):
-        blotter += f"--- LOSING TRADE #{idx} ---\n"
+        r_val = row.get('R', -1.0)
+        outcome = "Hit Stop Loss" if r_val < 0 else ("Hit Target / Trail" if r_val > 0 else "Scratch")
+        blotter += f"--- {label.upper()} TRADE #{idx} ---\n"
         blotter += f"Time: {row.get('time_open', 'N/A')} | Side: {row.get('side', 'N/A')} | Entry: {row.get('entry', 'N/A')}\n"
-        blotter += f"Result: {row.get('R', -1.0):.2f}R (Hit Stop Loss) | MAE: {row.get('MAE_R', 0.99):.2f}R (Adverse Excursion)\n"
-        blotter += f"Market Context: Regime={row.get('market_regime', 'N/A')}, ADX={row.get('adx', 'N/A')}, VWAP_Dist={row.get('vwap_dist_%', 'N/A')}%\n"
-        blotter += f"Microstructure: Active Pattern={row.get('active_pattern', 'None')}, OLS Slope={row.get('lr_slope', 'N/A')}, DXY Beta={row.get('dxy_beta', 'N/A')}\n\n"
-    
+        blotter += f"Result: {r_val:.2f}R ({outcome}) | MAE: {row.get('MAE_R', 0.0):.2f}R (Adverse) | MFE: {row.get('MFE_R', 0.0):.2f}R (Favorable)\n"
+        blotter += f"Market Context: Regime={row.get('market_regime', 'N/A')}, GMT Hour={row.get('gmt_hour', 'N/A')}\n\n"
+
     return blotter
 
 # =====================================================================
@@ -4224,7 +4226,9 @@ void OnTick()
                 state["last_population_enrichment"] = population_enrichment
 
                 losing_trades = enriched_population_df[enriched_population_df['R'] < 0].head(8) if 'R' in enriched_population_df.columns else enriched_population_df.head(8)
-                trade_blotter = format_trade_blotter(losing_trades) if sample_is_sufficient else f"[SAMPLE INSUFFICIENT — N={trade_count} trades recorded]"
+                winning_trades = enriched_population_df[enriched_population_df['R'] > 0].head(5) if 'R' in enriched_population_df.columns else enriched_population_df.head(0)
+                trade_blotter = format_trade_blotter(losing_trades, label="LOSING") if sample_is_sufficient else f"[SAMPLE INSUFFICIENT — N={trade_count} trades recorded]"
+                winner_blotter = format_trade_blotter(winning_trades, label="WINNING") if sample_is_sufficient and len(winning_trades) else "[NO WINNERS IN POPULATION — 0% win cohort]"
                 brain_history = read_from_brain([active_thesis["name"].upper(), "DE40", "X1X"])
 
                 # --- MATCHED-WINNER COMPARATIVE ANALYSIS (Tier-1 core behaviour) ---
@@ -4245,8 +4249,11 @@ void OnTick()
 Active Goal: {goal_id} ({active_thesis['name']} - {active_thesis['title']})
 Evidence Provenance: {provenance_tag}
 
-TRADE BLOTTER:
+TRADE BLOTTER (worst losers):
 {trade_blotter}
+
+WINNING TRADE BLOTTER (for contrast — what do winners do differently?):
+{winner_blotter}
 
 MATCHED-WINNER COMPARATIVE ANALYSIS (what separates losers from winners in the SAME population):
 {matched_winner_block}
@@ -4279,6 +4286,117 @@ Output JSON with neutral structure:
                     trade_autopsies = autopsy_raw.get("trade_autopsy", "")
 
                 # -----------------------------------------------------------------
+                # QUANT RESEARCHER (Ollama Pro): economic rationale & anomaly validity
+                # -----------------------------------------------------------------
+                if sample_is_sufficient:
+                    quant_prompt = f"""[STRATX QUANT RESEARCHER: ECONOMIC RATIONALE & ANOMALY VALIDITY]
+Active Goal: {goal_id} | Module: {active_thesis['name']} — {active_thesis['title']}
+Session: {active_thesis['session']}
+Quant Mandate: {active_thesis['quant_mandate']}
+Known Danger: {active_thesis['danger_critique']}
+Evidence Provenance: {provenance_tag}
+Forensic Autopsy: {causal_failure} (Class: {failure_class})
+
+FULL-POPULATION WR/RR/TRADE ENRICHMENT:
+{population_enrichment_block}
+
+YOUR TASK:
+1. Assess whether the economic rationale for this anomaly (why it should exist and persist) is
+   supported or contradicted by the enriched population evidence above.
+2. Identify WHERE the anomaly is alive (which hours/regimes show positive expectancy) and
+   WHERE it is structurally dead.
+3. Judge whether the current failure is a THESIS problem (anomaly invalid) or an
+   IMPLEMENTATION problem (anomaly valid, capture mechanics broken).
+Output JSON:
+{{
+  "quant_research_view": "<economic rationale assessment grounded in the population evidence>",
+  "anomaly_alive_where": "<hours/regimes with genuine positive expectancy, or NONE>",
+  "thesis_vs_implementation": "<THESIS_INVALID | IMPLEMENTATION_BROKEN | MIXED — with one-line reason>"
+}}
+"""
+                    quant_raw = stream_llm("QUANT RESEARCHER", quant_prompt)
+                    quant_research_view = (
+                        f"{quant_raw.get('quant_research_view', '')} | Anomaly alive: "
+                        f"{quant_raw.get('anomaly_alive_where', 'N/A')} | Verdict: "
+                        f"{quant_raw.get('thesis_vs_implementation', 'N/A')}"
+                    )
+                else:
+                    quant_research_view = (f"[BYPASSED — N={trade_count} < 5]: anomaly validity cannot be assessed "
+                                           f"without a real population; frequency restoration precedes thesis judgment.")
+
+                # -----------------------------------------------------------------
+                # EXECUTION SPECIALIST (Ollama Pro): spread/slippage/MAE-MFE audit
+                # -----------------------------------------------------------------
+                if sample_is_sufficient:
+                    exec_prompt = f"""[STRATX EXECUTION SPECIALIST: MICROSTRUCTURE & FRICTION AUDIT]
+Active Goal: {goal_id} | Module: {active_thesis['name']}
+Evidence Provenance: {provenance_tag}
+Failure Class: {failure_class}
+
+LOSING TRADE TAPE (with MAE/MFE excursion):
+{trade_blotter}
+
+WINNING TRADE TAPE (for execution contrast):
+{winner_blotter}
+
+FULL-POPULATION WR/RR/TRADE ENRICHMENT:
+{population_enrichment_block}
+
+YOUR TASK:
+1. Audit execution quality from the excursion data: are losers dying instantly (MAE hits stop
+   immediately = entry timing wrong) or giving back open profit (high MFE then loss = exit problem)?
+2. Contrast winner excursion profiles against losers — do winners ever dip deep before recovering
+   (stop too tight) or never look back (entry timing is the edge)?
+3. Assess whether spread/slippage friction on DE40 M1 could plausibly explain the WR/RR gap.
+Output JSON:
+{{
+  "execution_view": "<friction & excursion audit grounded in the MAE/MFE tape>",
+  "dominant_execution_flaw": "<ENTRY_TIMING | EXIT_TIMING | STOP_PLACEMENT | FRICTION_DOMINATES | NONE_EVIDENT>",
+  "excursion_evidence": "<one line of concrete MAE/MFE numbers supporting the flaw call>"
+}}
+"""
+                    exec_raw = stream_llm("EXECUTION SPECIALIST", exec_prompt)
+                    execution_view = (
+                        f"{exec_raw.get('execution_view', '')} | Flaw: "
+                        f"{exec_raw.get('dominant_execution_flaw', 'N/A')} | Evidence: "
+                        f"{exec_raw.get('excursion_evidence', 'N/A')}"
+                    )
+                else:
+                    execution_view = (f"[BYPASSED — N={trade_count} < 5]: no excursion tape to audit.")
+
+                # -----------------------------------------------------------------
+                # STRATX HISTORIAN (Ollama Pro): brain memory pattern analysis
+                # -----------------------------------------------------------------
+                historian_prompt = f"""[STRATX HISTORIAN: INSTITUTIONAL MEMORY ANALYSIS]
+Active Goal: {goal_id} | Module: {active_thesis['name']}
+Current Failure Class: {failure_class}
+Current Causal Statement: {causal_failure}
+Current Repair Level: {cur_level} (fails at level: {state.get('consecutive_fails_at_level', 0)})
+
+BRAIN MEMORY — EVERY PAST FIX ATTEMPT, ITS OUTCOME AND STATUS:
+{brain_history}
+
+YOUR TASK:
+1. Mine the memory above for PATTERNS: which families of fixes were tried, how many times,
+   and with what outcome (DEBUNKED vs TESTING vs successful).
+2. Identify fix families the desk keeps re-proposing in new wording (semantic duplicates) —
+   these are EIV-exhausted directions that must not be re-tested.
+3. Name the ONE repair direction that has genuinely NEVER been tested on this module.
+Output JSON:
+{{
+  "historian_view": "<pattern analysis of the memory ledger>",
+  "exhausted_directions": ["<fix family already debunked>"],
+  "untested_direction": "<the single most promising direction with zero prior attempts>"
+}}
+"""
+                historian_raw = stream_llm("STRATX HISTORIAN", historian_prompt)
+                historian_view = (
+                    f"{historian_raw.get('historian_view', '')} | Exhausted: "
+                    f"{historian_raw.get('exhausted_directions', [])} | Untested: "
+                    f"{historian_raw.get('untested_direction', 'N/A')}"
+                )
+
+                # -----------------------------------------------------------------
                 # STATISTICIAN AUDIT (GLM-5.2 Thinking via NanoGPT)
                 # -----------------------------------------------------------------
                 stat_prompt = f"""[STATISTICIAN MATHEMATICAL AUDIT]
@@ -4306,9 +4424,14 @@ Active Goal: {goal_id} | Module: {active_thesis['name']}
 Failure Category: {failure_class}
 Causal Statement: {causal_failure}
 Statistician Assessment: {stat_view}
+Quant Researcher View: {quant_research_view}
+Execution Specialist View: {execution_view}
+Historian Memory Analysis: {historian_view}
 
 YOUR TASK:
-Actively attempt to DISPROVE the proposed edge. Highlight severe secondary risks (e.g. trade count collapse, curve fitting, spread friction).
+Actively attempt to DISPROVE the proposed edge AND attack the specialist consensus above where
+it is weak. Highlight severe secondary risks (e.g. trade count collapse, curve fitting, spread
+friction). Explicitly flag any proposed direction the Historian has marked as exhausted.
 Output JSON:
 {{
   "red_team_critique": "<adversarial refutation identifying fatal flaws or over-filtering risks>"
@@ -4323,15 +4446,27 @@ Output JSON:
                 council_prompt = f"""[STRATX LLM COUNCIL JUDGE: SYNTHESIS & EXPERIMENT DESIGN]
 Active Goal: {goal_id} ({active_thesis['name']})
 Evidence Provenance: {provenance_tag}
-Market Specialist Assessment: {causal_failure} (Class: {failure_class})
-Statistician Audit: {stat_view}
-Red Team Adversarial Critique: {red_team_view}
+Current Repair Level: {cur_level}
+
+FULL 9-ROLE BENCH — SPECIALIST TESTIMONY:
+• Market Structure Specialist: {causal_failure} (Class: {failure_class})
+• Quant Researcher: {quant_research_view}
+• Execution Specialist: {execution_view}
+• StratX Historian: {historian_view}
+• Statistician: {stat_view}
+• Red Team Skeptic: {red_team_view}
 
 FULL-POPULATION WR/RR/TRADE ENRICHMENT (every trade, bucketed by hour & regime):
 {population_enrichment_block}
 
+MATCHED-WINNER COMPARATIVE ANALYSIS:
+{matched_winner_block}
+
 YOUR TASK:
-Synthesize council confidence, evidence confidence, degree of disagreement, and define the NEXT SINGLE CAUSAL RESEARCH QUESTION and EXACT MUTATION.
+Synthesize ALL six specialist testimonies above into council confidence, evidence confidence,
+degree of disagreement, and define the NEXT SINGLE CAUSAL RESEARCH QUESTION and EXACT MUTATION.
+Weight the Historian's exhausted-directions list heavily: NEVER mandate a mutation from an
+EIV-exhausted fix family. Prefer the Historian's untested direction when the evidence supports it.
 
 You are NOT forced to mandate a mutation. If the evidence does not justify one, set
 "council_verdict" to one of: INSUFFICIENT_EVIDENCE | NO_MUTATION_YET | REQUIRES_MORE_FORENSICS |
@@ -4359,6 +4494,9 @@ Output JSON with neutral structural keys:
                 print(f"🏛️  STRATX COUNCIL SYNTHESIS: [{goal_id} — {active_thesis['name']}]", flush=True)
                 print(f"  Provenance: {provenance_tag} | Failure Class: {failure_class}", flush=True)
                 print(f"  Confidence: {conf_pct}% | Disagreement: {disagree}", flush=True)
+                print(f"  Historian — Untested Direction: {historian_raw.get('untested_direction', 'N/A')}", flush=True)
+                print(f"  Quant — Thesis vs Implementation: {quant_raw.get('thesis_vs_implementation', 'N/A') if sample_is_sufficient else 'BYPASSED (N<5)'}", flush=True)
+                print(f"  Execution — Dominant Flaw: {exec_raw.get('dominant_execution_flaw', 'N/A') if sample_is_sufficient else 'BYPASSED (N<5)'}", flush=True)
                 print(f"  Research Question: {research_q}", flush=True)
                 print(f"  Single Causal Mutation: {causal_mutation}", flush=True)
                 print(f"{'='*80}{Colors.ENDC}\n", flush=True)
@@ -4502,6 +4640,9 @@ DIRECTIVES:
                 # undefined `peer_critique` defect that crashed the 3rd repair attempt).
                 peer_critique = (
                     f"Statistician: {stat_view}\n"
+                    f"Quant Researcher: {quant_research_view}\n"
+                    f"Execution Specialist: {execution_view}\n"
+                    f"Historian: {historian_view}\n"
                     f"Red Team: {red_team_view}\n"
                     f"Council verdict: {head_quant_raw['council_verdict']} | Research Q: {research_q} | Mandated mutation: {causal_mutation}"
                 )
