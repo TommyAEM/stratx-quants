@@ -68,6 +68,7 @@ from orchestrator.stratx_live_console import (
     safe_parse_json,
     check_pass_gates,
     rank_theses_by_discovery,
+    build_evidence_derived_directive,
     MODULE_MIN_TRADES_PER_YEAR,
     CHAMPION_MIN_TRADES,
     AUTHORITATIVE_GATES,
@@ -644,6 +645,89 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
         o6, r6 = rank_theses_by_discovery(t6, screen_two)
         self.assertEqual([t["name"] for t in o6], ["SECOND", "FIRST", "MID"])
         self.assertEqual([r["name"] for r in r6], ["SECOND", "FIRST"])
+
+    def test_V_evidence_derived_antistall_directive(self):
+        """TEST V (no repair recipes): the anti-stall forced directive must be
+        derived from the MEASURED failure map — naming the diagnosis and citing
+        the numbers — never a predefined trading solution. Deterministic."""
+        # Dead population -> population collapse directive
+        d1 = build_evidence_derived_directive("L1_PARAMETER", "FREQUENCY_COLLAPSE",
+                                              {"total_trades": 3, "win_rate": 0.0, "profit_factor": 0.0})
+        self.assertIn("POPULATION COLLAPSE", d1)
+        self.assertIn("N=3", d1)
+        # Catastrophic drawdown on a live population -> drawdown tail, cites numbers
+        dd_metrics = {"total_trades": 1272, "win_rate": 0.741, "profit_factor": 1.16,
+                      "max_drawdown": 0.256, "max_consecutive_losses": 5}
+        d2 = build_evidence_derived_directive("L3_INDICATOR_LOGIC", None, dd_metrics)
+        self.assertIn("DRAWDOWN TAIL", d2)
+        self.assertIn("25.6%", d2)
+        self.assertIn("frequency restoration is FORBIDDEN", d2)
+        # Payoff asymmetry: high WR, weak PF -> payoff directive with implied R
+        pa_metrics = {"total_trades": 400, "win_rate": 0.74, "profit_factor": 1.16,
+                      "max_drawdown": 0.08, "max_consecutive_losses": 3}
+        d3 = build_evidence_derived_directive("L2_SESSION_TIME", None, pa_metrics)
+        self.assertIn("PAYOFF ASYMMETRY", d3)
+        self.assertIn("~0.41R", d3)  # 1.16 * 0.26 / 0.74 = 0.4076
+        # Loss clustering beats weak-edge branch when consec above ceiling
+        lc_metrics = {"total_trades": 300, "win_rate": 0.55, "profit_factor": 1.20,
+                      "max_drawdown": 0.08, "max_consecutive_losses": 9}
+        d4 = build_evidence_derived_directive("L1_PARAMETER", None, lc_metrics)
+        self.assertIn("LOSS CLUSTERING", d4)
+        # Weak edge
+        d5 = build_evidence_derived_directive("L1_PARAMETER", None,
+                                              {"total_trades": 200, "win_rate": 0.52, "profit_factor": 1.20,
+                                               "max_drawdown": 0.05, "max_consecutive_losses": 4})
+        self.assertIn("WEAK EDGE", d5)
+        # Near-canonical -> unmet-gates directive
+        d6 = build_evidence_derived_directive("L4_ARCHITECTURE", None,
+                                              {"total_trades": 300, "win_rate": 0.66, "profit_factor": 1.80,
+                                               "max_drawdown": 0.05, "max_consecutive_losses": 3})
+        self.assertIn("CANONICAL GATES UNMET", d6)
+        # NO PREDEFINED RECIPES anywhere in any branch
+        banned = ["session widening", "runner capture", "indicator relaxation",
+                  "loosen the tightest", "expand the active trading window",
+                  "drop one filter entirely", "inverting the thesis"]
+        for d in (d1, d2, d3, d4, d5, d6):
+            for b in banned:
+                self.assertNotIn(b, d.lower())
+        # Deterministic
+        self.assertEqual(d2, build_evidence_derived_directive("L3_INDICATOR_LOGIC", None, dd_metrics))
+        # Gates sourced from the authoritative config
+        self.assertIn(f"{AUTHORITATIVE_GATES['RESEARCH_INCUMBENT_MAX_DD']*100:.0f}%", d2)
+        self.assertEqual(AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_RR"], 1.00)
+
+    def test_W_child_reforensics_hard_block(self):
+        """TEST W (P0.2/P0.6): a review routing CHILD_REFORENSICS_REQUIRED must
+        block the next generation until a fresh child failure map exists —
+        enforced by validate_workflow_gates, completed by an actual forensics
+        record. History showed required=true/completed=false while later
+        iterations ran; this test proves that state is now a hard violation."""
+        engine = SelfReviewEngine()
+        review_record = {
+            "implementation_fidelity": "MATCH",
+            "experiment_design_quality": "VALID",
+            "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+            "workflow_gates": {"self_review_completed": True,
+                               "child_reforensics_required": True,
+                               "child_reforensics_completed": False},
+        }
+        # No reforensics record -> mutation FORBIDDEN
+        out = engine.validate_workflow_gates({}, review_record, None)
+        self.assertFalse(out["is_allowed"])
+        self.assertTrue(any("CHILD_REFORENSICS" in v for v in out["violations"]))
+        # The completed flag alone is not enough — an actual record must exist
+        review_record["workflow_gates"]["child_reforensics_completed"] = True
+        out2 = engine.validate_workflow_gates({}, review_record, None)
+        self.assertFalse(out2["is_allowed"])
+        # Actual fresh forensics record -> block released
+        reforensics_record = {"iteration": 2, "module": "MOD", "population_n": 42,
+                              "enrichment_available": True, "matched_winner_available": True}
+        out3 = engine.validate_workflow_gates({}, review_record, reforensics_record)
+        self.assertTrue(out3["is_allowed"])
+        # A non-required route never blocks
+        review_record["recommended_route"] = "CONTINUE"
+        out4 = engine.validate_workflow_gates({}, review_record, None)
+        self.assertTrue(out4["is_allowed"])
 
 
 if __name__ == "__main__":

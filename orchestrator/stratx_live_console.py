@@ -11,7 +11,7 @@ Hardened Production Architecture with 100% Crash-Proof Exception Handlers:
 4. Approved Indicator & Concept Toolbox (toolbox.py).
 5. Graphified Tagged Brain Memory (brain_memory.py).
 6. Physical MetaEditor & MT5 Strategy Tester execution (mt5_adapter.py).
-7. Hard Risk Gate: Maximum Consecutive Losses <= 8, Balance Drawdown <= 3.0%.
+7. Hard Risk Gates: single source of truth = AUTHORITATIVE_GATES (portfolio combined MaxDD < 10% at 1% risk / 1 concurrent position; canonical module MaxDD <= 6%; research-incumbent ceiling 10%; consecutive-loss ceilings 4 canonical / 8 hard).
 """
 
 import os
@@ -66,8 +66,9 @@ from skills.self_review_engine import SelfReviewEngine
 # A module is NOT the portfolio: each module must independently sustain
 # >= 20 logical trades/year. The portfolio reaches its aggregate target
 # by SUMMING specialist modules, never by weakening this floor.
+# NOTE: the value itself lives in AUTHORITATIVE_GATES["MIN_TRADES_ANNUAL"];
+# MODULE_MIN_TRADES_PER_YEAR is bound to it right after that dict below.
 # =====================================================================
-MODULE_MIN_TRADES_PER_YEAR = 20.0
 
 # Canonical Self-Review goal statuses (status 'DONE' is FORBIDDEN for self-review)
 SELF_REVIEW_STATUSES = ["ACTIVE", "TESTING", "REASSESSING", "PASSED", "ESCALATING", "BLOCKED", "EXHAUSTED"]
@@ -305,12 +306,16 @@ AUTHORITATIVE_GATES = {
     "MODULE_CANONICAL_MIN_PF": 2.00,      # PF >= 2.00 for canonical X1X module acceptance
     "RESEARCH_INCUMBENT_MIN_PF": 1.10,    # PF >= 1.10 minimum viable economic floor
     "MODULE_CANONICAL_MIN_WR": 0.70,      # WR >= 70.0% for canonical X1X module acceptance
+    "MODULE_CANONICAL_MIN_RR": 1.00,      # Realised payoff >= 1.00R for canonical X1X module acceptance
     "RESEARCH_INCUMBENT_MIN_WR": 0.50,    # WR >= 50.0% discovery floor
     "MIN_TRADES_ANNUAL": 20.0,            # >= 20.0 trades/year frequency floor
     "MAX_CONSECUTIVE_LOSSES_CANONICAL": 4,# <= 4 consecutive losses for canonical acceptance
     "MAX_CONSECUTIVE_LOSSES_CEILING": 8,  # <= 8 consecutive losses hard ceiling
     "MAX_WALKFORWARD_DECAY": 0.10,        # <= 10.0% max decay allowed on Year 1 & Walk-Forward
 }
+
+# Backwards-compatible alias — the dict above is the single source of truth.
+MODULE_MIN_TRADES_PER_YEAR = AUTHORITATIVE_GATES["MIN_TRADES_ANNUAL"]
 
 # A champion whose trade population is statistically non-existent must never
 # own the baseline. Below this floor the champion is DEAD and gets recycled.
@@ -980,6 +985,78 @@ def rank_theses_by_discovery(theses: List[Dict[str, Any]],
     return ordered, report
 
 
+def build_evidence_derived_directive(cur_level: str, failure_class: Optional[str],
+                                     metrics: Optional[Dict[str, Any]]) -> str:
+    """
+    ANTI-STALL DIRECTIVE — EVIDENCE-DERIVED, NEVER A REPAIR RECIPE.
+    When the council refuses to mandate a mutation repeatedly, the orchestrator
+    must still force a physical MT5 experiment — but the CONTENT of that
+    directive comes from the measured failure map (population size, drawdown
+    tail, payoff asymmetry, loss clustering), never from a predefined ladder of
+    trading solutions. It names the DIAGNOSIS and cites the measured numbers;
+    the council/architect selects the repair lever from the evidence.
+    Pure and deterministic: same metrics -> same directive.
+    """
+    m = metrics or {}
+    n = int(m.get("total_trades", 0) or 0)
+    wr = float(m.get("win_rate", 0.0) or 0.0)
+    pf = float(m.get("profit_factor", 0.0) or 0.0)
+    dd = float(m.get("max_drawdown", 0.0) or 0.0)
+    consec = int(m.get("max_consecutive_losses", 0) or 0)
+    implied_payoff = (pf * (1.0 - wr) / wr) if 0.0 < wr < 1.0 else 0.0
+    dd_ceiling = AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MAX_DD"]
+    consec_ceiling = AUTHORITATIVE_GATES["MAX_CONSECUTIVE_LOSSES_CEILING"]
+
+    if n < CHAMPION_MIN_TRADES or failure_class == "FREQUENCY_COLLAPSE":
+        return (
+            f"EVIDENCE-DERIVED REPAIR TARGET [{cur_level}] — POPULATION COLLAPSE: measured population is "
+            f"N={n} trades (statistically non-existent; the module needs >= "
+            f"{AUTHORITATIVE_GATES['MIN_TRADES_ANNUAL']:.0f}/yr). Diagnosis: the entry chain excludes nearly "
+            f"all setups. From the ACTUAL EA code, identify the single binding constraint that excludes the "
+            f"most setups and change exactly that one. Name the gate you touched and cite why the population "
+            f"evidence indicts it. No other change is permitted this iteration."
+        )
+    if dd > dd_ceiling:
+        return (
+            f"EVIDENCE-DERIVED REPAIR TARGET [{cur_level}] — DRAWDOWN TAIL: measured MaxDD {dd*100:.1f}% exceeds "
+            f"the {dd_ceiling*100:.0f}% incumbent ceiling (WR={wr*100:.1f}%, PF={pf:.2f}, implied payoff "
+            f"~{implied_payoff:.2f}R, {consec} consecutive losses). Diagnosis: the loss tail dominates the "
+            f"distribution. Localise WHERE the tail lives (hours, regimes, entry type) from the losing-cluster "
+            f"and matched-winner evidence, then repair the mechanism producing it. The repair lever is chosen "
+            f"from that evidence — frequency restoration is FORBIDDEN (population N={n} is not the problem)."
+        )
+    if wr >= 0.70 and pf < 1.30:
+        return (
+            f"EVIDENCE-DERIVED REPAIR TARGET [{cur_level}] — PAYOFF ASYMMETRY: WR={wr*100:.1f}% with PF={pf:.2f} "
+            f"implies winners average only ~{implied_payoff:.2f}R against full-size losers. Diagnosis: the "
+            f"exit/risk geometry pays winners less than losers cost. Use the enrichment buckets (AvgWinR vs "
+            f"AvgLossR, MFE of losers, MAE of winners) to select the lever; any repair that does not raise "
+            f"realised payoff toward >= 1.0R will be reverted."
+        )
+    if consec > consec_ceiling:
+        return (
+            f"EVIDENCE-DERIVED REPAIR TARGET [{cur_level}] — LOSS CLUSTERING: {consec} consecutive losses "
+            f"(ceiling {consec_ceiling}) over N={n} trades. Diagnosis: losses arrive in regime clusters, not "
+            f"independently. Locate the cluster from the losing-cluster map, verify with matched winners "
+            f"whether the window separates losers from winners, and repair that specific exposure."
+        )
+    if pf < 1.50:
+        return (
+            f"EVIDENCE-DERIVED REPAIR TARGET [{cur_level}] — WEAK EDGE: PF={pf:.2f} over N={n} trades "
+            f"(WR={wr*100:.1f}%). Diagnosis: expectancy is too thin to survive costs and robustness gates. "
+            f"Rank the losing clusters by total R cost from the enrichment evidence and attack the single most "
+            f"expensive one; cite the bucket you are attacking."
+        )
+    return (
+        f"EVIDENCE-DERIVED REPAIR TARGET [{cur_level}] — CANONICAL GATES UNMET: "
+        f"WR={wr*100:.1f}% (need {AUTHORITATIVE_GATES['MODULE_CANONICAL_MIN_WR']*100:.0f}%), "
+        f"PF={pf:.2f} (need {AUTHORITATIVE_GATES['MODULE_CANONICAL_MIN_PF']:.2f}), "
+        f"DD={dd*100:.1f}% (need <= {AUTHORITATIVE_GATES['MODULE_CANONICAL_MAX_DD']*100:.0f}%). "
+        f"Nominate the highest-EIV repair from the current failure map and matched-winner evidence; "
+        f"the directive names the unmet gates, the evidence chooses the lever."
+    )
+
+
 def compute_population_enrichment(trade_df: pd.DataFrame) -> Optional[Dict[str, Any]]:
     """
     FULL-POPULATION WR/RR/TRADE ENRICHMENT (Self-Heal core behaviour).
@@ -1414,7 +1491,11 @@ def print_self_review_hud(goal_id: str, active_module: str, attempt: int,
                            healing_action: str):
     print(f"\n{Colors.PURPLE_BOLD}{'='*80}", flush=True)
     print(f"🎯 ACTIVE SELF-REVIEW GOAL: [{goal_id}] — {active_module} ACCEPTANCE", flush=True)
-    print(f"   Target Criteria: WR >= 70.0% | PF >= 2.00 | Realised Payoff >= 1.00 | Trades >= {MODULE_MIN_TRADES_PER_YEAR:.1f}/yr", flush=True)
+    print(f"   Target Criteria: WR >= {AUTHORITATIVE_GATES['MODULE_CANONICAL_MIN_WR']*100:.1f}% | "
+          f"PF >= {AUTHORITATIVE_GATES['MODULE_CANONICAL_MIN_PF']:.2f} | "
+          f"Realised Payoff >= {AUTHORITATIVE_GATES['MODULE_CANONICAL_MIN_RR']:.2f} | "
+          f"MaxDD <= {AUTHORITATIVE_GATES['MODULE_CANONICAL_MAX_DD']*100:.1f}% | "
+          f"Trades >= {AUTHORITATIVE_GATES['MIN_TRADES_ANNUAL']:.1f}/yr", flush=True)
     print(f"   Status: IN PROGRESS (Attempt #{attempt} under Goal {goal_id})", flush=True)
     print(f"{Colors.PURPLE}{'-'*80}{Colors.ENDC}", flush=True)
     
@@ -1423,12 +1504,24 @@ def print_self_review_hud(goal_id: str, active_module: str, attempt: int,
         champ_wr = champion_metrics.get('win_rate', 0.0) * 100.0
         champ_pf = champion_metrics.get('profit_factor', 0.0)
         champ_dd = champion_metrics.get('max_drawdown', 0.0) * 100.0
-        print(f" 🏆 CURRENT CHAMPION: Trades={champ_trades} | WR={champ_wr:.1f}% | PF={champ_pf:.2f} | MaxDD={champ_dd:.1f}%", flush=True)
+        champ_rr = champion_metrics.get('risk_reward', 0.0)
+        champ_accepted = (champion_metrics.get('win_rate', 0.0) >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_WR"]
+                          and champ_pf >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_PF"]
+                          and champion_metrics.get('max_drawdown', 1.0) <= AUTHORITATIVE_GATES["MODULE_CANONICAL_MAX_DD"]
+                          and champ_rr >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_RR"])
+        champ_label = (f"{Colors.LIME_BOLD}ACCEPTED (canonical pre-pass){Colors.ENDC}" if champ_accepted
+                       else f"{Colors.CYAN_BOLD}RESEARCH INCUMBENT — NOT ACCEPTED (canonical gates unmet){Colors.ENDC}")
+        print(f" 🏆 BASELINE: Trades={champ_trades} | WR={champ_wr:.1f}% | PF={champ_pf:.2f} | MaxDD={champ_dd:.1f}% | {champ_label}", flush=True)
     else:
-        print(f" 🏆 CURRENT CHAMPION: [NONE — EVALUATING BASELINE SEED]", flush=True)
+        print(f" 🏆 BASELINE: [NONE — EVALUATING BASELINE SEED]", flush=True)
         
     if last_child_result:
-        c_status = f"{Colors.LIME_BOLD}PROMOTED{Colors.ENDC}" if last_child_result.get("promoted") else f"{Colors.RED_BOLD}REJECTED{Colors.ENDC}"
+        if last_child_result.get("accepted"):
+            c_status = f"{Colors.LIME_BOLD}CANONICAL PRE-PASS (WF + review pending){Colors.ENDC}"
+        elif last_child_result.get("promoted"):
+            c_status = f"{Colors.CYAN_BOLD}RESEARCH INCUMBENT — ACCEPTANCE FAIL{Colors.ENDC}"
+        else:
+            c_status = f"{Colors.RED_BOLD}REJECTED — SELF_HEAL_REQUIRED{Colors.ENDC}"
         c_trades = last_child_result.get('trades', 0)
         c_wr = last_child_result.get('wr', 0.0) * 100.0
         c_pf = last_child_result.get('pf', 0.0)
@@ -4566,9 +4659,11 @@ void OnTick()
                         parent_id=active_thesis["name"],
                         goal_id=goal_id,
                         goal_definition=f"{active_thesis['name']} institutional acceptance under X1X module gates",
-                        goal_metrics={"win_rate": 0.70, "profit_factor": 2.00, "risk_reward": 1.00,
-                                      "min_trades_per_year": MODULE_MIN_TRADES_PER_YEAR},
-                        goal_constraints={"max_drawdown": 0.20}
+                        goal_metrics={"win_rate": AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_WR"],
+                                      "profit_factor": AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_PF"],
+                                      "risk_reward": AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_RR"],
+                                      "min_trades_per_year": AUTHORITATIVE_GATES["MIN_TRADES_ANNUAL"]},
+                        goal_constraints={"max_drawdown": AUTHORITATIVE_GATES["MODULE_CANONICAL_MAX_DD"]}
                     )
                     state["self_review_session"] = sr_session
                     state["self_review_goal_id"] = goal_id
@@ -4617,24 +4712,31 @@ void OnTick()
                 act_implied_rr = ((act_pf * (1.0 - act_wr)) / act_wr) if (act_wr > 0 and act_wr < 1.0) else 0.0
 
                 if act_trades < 10:
-                    healing_action = f"RESTORING FREQUENCY (N={act_trades} < 20/yr): Loosening over-tight Block 2/3 gates and broadening Block 4 trigger geometry."
-                elif act_dd > 0.10:
-                    healing_action = f"ATTACKING SEVERE DRAWDOWN ({act_dd*100:.1f}% > 10% ceiling): Diagnosing why {act_wr*100:.1f}% WR produces PF {act_pf:.2f} & {act_dd*100:.1f}% DD. Forensics focusing on loss tail, exit efficiency & consecutive losses."
+                    healing_action = (f"FREQUENCY BELOW FLOOR (N={act_trades} < {AUTHORITATIVE_GATES['MIN_TRADES_ANNUAL']:.0f}/yr): forensics must name the "
+                                      f"specific gate/trigger that excludes setups from the actual code BEFORE any repair is proposed.")
+                elif act_dd > AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MAX_DD"]:
+                    healing_action = (f"SEVERE DRAWDOWN ({act_dd*100:.1f}% > {AUTHORITATIVE_GATES['RESEARCH_INCUMBENT_MAX_DD']*100:.0f}% incumbent ceiling): forensics must "
+                                      f"establish why {act_wr*100:.1f}% WR yields PF {act_pf:.2f} — loss-tail composition, MAE/MFE asymmetry, "
+                                      f"consecutive-loss regimes — BEFORE any repair is proposed.")
                 elif act_wr >= 0.70 and act_pf < 1.30:
-                    healing_action = f"DIAGNOSING ASYMMETRIC PAYOFF (WR={act_wr*100:.1f}%, PF={act_pf:.2f}): Realized payoff ratio is severely compressed (~{act_implied_rr:.2f}R). Investigating stop distance and runner capture."
+                    healing_action = (f"ASYMMETRIC PAYOFF (WR={act_wr*100:.1f}%, PF={act_pf:.2f}): realised payoff compressed (~{act_implied_rr:.2f}R). "
+                                      f"Forensics must quantify AvgWinR vs AvgLossR and MFE/MAE behaviour BEFORE any repair is proposed.")
                 elif act_consec >= 6:
-                    healing_action = f"ATTACKING LOSS CLUSTERING: Investigating regime drift and adverse market hours during {act_consec}-loss sequence."
+                    healing_action = (f"LOSS CLUSTERING ({act_consec} consecutive): forensics must locate the regime/hours of the cluster and test "
+                                      f"whether matched winners share it BEFORE any repair is proposed.")
                 elif act_pf < 1.50:
-                    healing_action = f"SHARPENING EDGE (PF={act_pf:.2f} < 1.50): Pruning worst losing hour/regime clusters to expand profit factor."
+                    healing_action = (f"WEAK EDGE (PF={act_pf:.2f} < 1.50): forensics must rank losing clusters by total R cost and identify what "
+                                      f"matched winners have that losers lack BEFORE any repair is proposed.")
                 else:
-                    healing_action = f"REFINING CANONICAL ACCEPTANCE (WR={act_wr*100:.1f}%, PF={act_pf:.2f}, DD={act_dd*100:.1f}%): Executing institutional gate verification."
+                    healing_action = (f"CANONICAL VERIFICATION (WR={act_wr*100:.1f}%, PF={act_pf:.2f}, DD={act_dd*100:.1f}%): confirming gate "
+                                      f"evidence and robustness before acceptance.")
 
                 print_self_review_hud(
                     goal_id=goal_id,
                     active_module=active_thesis['name'],
                     attempt=attempt_num,
                     champion_metrics=champ_metrics,
-                    last_child_result={"trades": last_child_metrics.get("total_trades", 0), "wr": last_child_metrics.get("win_rate", 0.0), "pf": last_child_metrics.get("profit_factor", 0.0), "promoted": last_child_promoted} if last_child_metrics else None,
+                    last_child_result={"trades": last_child_metrics.get("total_trades", 0), "wr": last_child_metrics.get("win_rate", 0.0), "pf": last_child_metrics.get("profit_factor", 0.0), "promoted": last_child_promoted, "accepted": state.get("last_child_accepted", False)} if last_child_metrics else None,
                     delta_info=last_delta_info,
                     unmet_dims=unmet_dims,
                     healing_action=healing_action
@@ -4661,6 +4763,35 @@ void OnTick()
                 matched_winners = compute_matched_winner_analysis(trade_df) if sample_is_sufficient else None
                 matched_winner_block = format_matched_winner_block(matched_winners)
                 state["last_matched_winner_comparison"] = matched_winners
+
+                # --- CHILD REFORENSICS COMPLETION (Self-Heal state machine) ---
+                # The full-population enrichment + matched-winner pass above IS the
+                # mandatory fresh child forensics. Mark the demanding review record
+                # completed (same object lives in the session history) and release
+                # the mutation block. On a dead population the requirement stays
+                # pending — only population restoration is evidence-driven there.
+                if state.get("reforensics_pending"):
+                    if sample_is_sufficient:
+                        state["reforensics_pending"] = False
+                        state["last_reforensics_record"] = {
+                            "iteration": it,
+                            "module": active_thesis["name"],
+                            "population_n": trade_count,
+                            "enrichment_available": population_enrichment is not None,
+                            "matched_winner_available": matched_winners is not None,
+                        }
+                        _last_rec = state.get("last_review_record")
+                        if isinstance(_last_rec, dict):
+                            _wg = _last_rec.setdefault("workflow_gates", {})
+                            if _wg.get("child_reforensics_required"):
+                                _wg["child_reforensics_completed"] = True
+                        print(f"🧬 {Colors.LIME_BOLD}[CHILD REFORENSICS COMPLETED]: fresh failure map built on N={trade_count} "
+                              f"trades (full-population enrichment + matched-winner comparison). "
+                              f"Mutation block released.{Colors.ENDC}\n", flush=True)
+                    else:
+                        print(f"🧬 {Colors.YELLOW_BOLD}[CHILD REFORENSICS PENDING]: population N={trade_count} < 5 — a failure map "
+                              f"cannot be built on a dead population. Only population restoration is permitted; "
+                              f"reforensics completes on the next live child.{Colors.ENDC}\n", flush=True)
 
                 # -----------------------------------------------------------------
                 # FORENSIC AUTOPSY (MARKET STRUCTURE SPECIALIST)
@@ -5079,15 +5210,20 @@ Output JSON with neutral structural keys:
                         forced_mutation = (f"HISTORIAN-NOMINATED UNTESTED DIRECTION [{cur_level}]: "
                                            f"{untested.strip()}")
                     else:
-                        forced_mutation = FORCED_FREQUENCY_RESTORATION.get(
-                            cur_level, FORCED_FREQUENCY_RESTORATION["L1_PARAMETER"])
+                        # NO PREDEFINED REPAIR LADDER: the forced directive is derived
+                        # from the measured failure map (population, DD tail, payoff
+                        # asymmetry, loss clustering) — never from a recipe list.
+                        forced_mutation = build_evidence_derived_directive(
+                            cur_level, failure_class, last_child_metrics or champ_metrics)
                     print(f"🚨 {Colors.RED_BOLD}[ANTI-STALL OVERRIDE]: Council refused mutation "
                           f"{state['consecutive_non_mutation']}x consecutively under unmet goal {goal_id}. "
-                          f"Forcing deterministic {cur_level} frequency-restoration mutation so Self-Healing "
-                          f"produces REAL MT5 evidence this iteration.{Colors.ENDC}\n", flush=True)
+                          f"Forcing an EVIDENCE-DERIVED {cur_level} experiment (diagnosis from the measured "
+                          f"failure map — no predefined repair recipe) so Self-Healing produces REAL MT5 "
+                          f"evidence this iteration.{Colors.ENDC}\n", flush=True)
                     causal_mutation = forced_mutation
-                    research_q = (f"Does the forced {cur_level} frequency-restoration change restore a "
-                                  f"statistically valid trade population (N>=20) without destroying expectancy?")
+                    research_q = ("Does the evidence-derived forced repair improve the diagnosed failure "
+                                  "dimension while keeping a statistically valid population (N>=20) and "
+                                  "without degrading PF/DD?")
                     if not failure_class:
                         failure_class = "FREQUENCY_COLLAPSE"
                     state["consecutive_non_mutation"] = 0
@@ -5107,6 +5243,22 @@ Output JSON with neutral structural keys:
                     self.self_review.advance_iteration(sr_session)
                     state["self_review_session"] = sr_session
                     self._escalate_repair_ladder(state, active_thesis["name"])
+                    save_checkpoint(state)
+                    continue
+
+                # --- CHILD REFORENSICS HARD BLOCK (Self-Heal state machine) ---
+                # A mutation is FORBIDDEN while a required child-reforensics step is
+                # incomplete on a live population. Normally the forensics section
+                # above completes and clears the requirement in the same iteration;
+                # this guard catches any path that bypassed it. On a dead population
+                # the only evidence-driven action is restoring the population, so the
+                # block does not fire there — reforensics completes on the next live child.
+                if state.get("reforensics_pending") and sample_is_sufficient:
+                    print(f"⛔ {Colors.RED_BOLD}[NEXT MUTATION FORBIDDEN — CHILD_REFORENSICS_REQUIRED]: the previous child "
+                          f"demanded a fresh failure map and it is not complete. Forensics-only iteration; "
+                          f"the architect stays idle.{Colors.ENDC}\n", flush=True)
+                    self.self_review.advance_iteration(sr_session)
+                    state["self_review_session"] = sr_session
                     save_checkpoint(state)
                     continue
 
@@ -5458,9 +5610,9 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                 c_wr = child_metrics.get("win_rate", 0.0)
                 c_consec = child_metrics.get("max_consecutive_losses", 0)
 
-                dd_blocked = (c_dd > 0.10)  # Absolute 10% hard DD ceiling
-                pf_blocked = (c_pf < 1.10)  # Absolute minimum viable profit factor
-                consec_blocked = (c_consec > 8)  # Loss cluster blowout ceiling
+                dd_blocked = (c_dd > AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MAX_DD"])
+                pf_blocked = (c_pf < AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MIN_PF"])
+                consec_blocked = (c_consec > AUTHORITATIVE_GATES["MAX_CONSECUTIVE_LOSSES_CEILING"])
 
                 promotion_allowed = (
                     (t_quant["passed"] or not has_champion) 
@@ -5478,11 +5630,11 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                 elif delta_info["is_freq_collapse"]:
                     print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN]: Frequency collapse ({child_metrics.get('total_trades', 0)} < 5 trades). Champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
                 elif dd_blocked:
-                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — CATASTROPHIC DRAWDOWN]: Child MaxDD={c_dd*100:.1f}% exceeds hard 10.0% ceiling. Self-heal required.{Colors.ENDC}", flush=True)
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — CATASTROPHIC DRAWDOWN]: Child MaxDD={c_dd*100:.1f}% exceeds hard {AUTHORITATIVE_GATES['RESEARCH_INCUMBENT_MAX_DD']*100:.1f}% ceiling. Self-heal required.{Colors.ENDC}", flush=True)
                 elif pf_blocked:
-                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — SUB-ECONOMIC PF]: Child PF={c_pf:.2f} < 1.10 minimum floor. Self-heal required.{Colors.ENDC}", flush=True)
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — SUB-ECONOMIC PF]: Child PF={c_pf:.2f} < {AUTHORITATIVE_GATES['RESEARCH_INCUMBENT_MIN_PF']:.2f} minimum floor. Self-heal required.{Colors.ENDC}", flush=True)
                 elif consec_blocked:
-                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — LOSS CLUSTER BLOWOUT]: Child consecutive losses={c_consec} > 8. Self-heal required.{Colors.ENDC}", flush=True)
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — LOSS CLUSTER BLOWOUT]: Child consecutive losses={c_consec} > {AUTHORITATIVE_GATES['MAX_CONSECUTIVE_LOSSES_CEILING']}. Self-heal required.{Colors.ENDC}", flush=True)
                 elif not t_quant["passed"] and has_champion:
                     print(f"📉 {Colors.YELLOW}[T-QUANT BLOCK]: t={t_quant['t_stat']}, p={t_quant['p_value']} — edge not statistically significant; champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
 
@@ -5495,8 +5647,10 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                         and c_pf >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_PF"]
                         and c_dd <= AUTHORITATIVE_GATES["MODULE_CANONICAL_MAX_DD"]
                         and c_consec <= AUTHORITATIVE_GATES["MAX_CONSECUTIVE_LOSSES_CANONICAL"]
+                        and child_metrics.get("risk_reward", 0.0) >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_RR"]
                     )
                     last_child_promoted = True
+                    state["last_child_accepted"] = bool(is_canonical_accepted)
                     state["champion_code"] = child_code
                     state["champion_metrics"] = dict(child_metrics)
                     state["champion_params"] = None
@@ -5509,12 +5663,15 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     
                     if is_canonical_accepted:
                         state["lineage_note"] = (
-                            f"🏆 ACCEPTED MODULE (CANONICAL X1X): Candidate passed all institutional gates "
+                            f"CANONICAL PRE-PASS: Candidate met all canonical metric gates "
                             f"(WR={child_metrics['win_rate']*100:.1f}%, PF={child_metrics['profit_factor']:.2f}, "
-                            f"MaxDD={child_metrics['max_drawdown']*100:.1f}% <= 6%). Module admitted to portfolio."
+                            f"MaxDD={child_metrics['max_drawdown']*100:.1f}% <= {AUTHORITATIVE_GATES['MODULE_CANONICAL_MAX_DD']*100:.0f}%, "
+                            f"RR>={AUTHORITATIVE_GATES['MODULE_CANONICAL_MIN_RR']:.2f}). NOT yet accepted: walk-forward validation, "
+                            f"independent review and governor admission remain mandatory."
                         )
-                        print(f"🏛️ {Colors.LIME_BOLD}[ACCEPTED MODULE — CANONICAL X1X CHAMPION]: Passed all hard institutional gates! "
-                              f"(WR={c_wr*100:.1f}%, PF={c_pf:.2f}, DD={c_dd*100:.1f}%). Admitted to master portfolio.{Colors.ENDC}\n", flush=True)
+                        print(f"🏛️ {Colors.LIME_BOLD}[CANONICAL PRE-PASS]: All metric gates met "
+                              f"(WR={c_wr*100:.1f}%, PF={c_pf:.2f}, DD={c_dd*100:.1f}%). Candidate enters the admission pipeline — "
+                              f"walk-forward + independent review still required before ACCEPTED status.{Colors.ENDC}\n", flush=True)
                     else:
                         state["lineage_note"] = (
                             f"RESEARCH INCUMBENT UPDATED: Candidate improved baseline fitness "
@@ -5526,6 +5683,7 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                               f"Retained as research parent; continuing Self-Healing under {goal_id}.{Colors.ENDC}\n", flush=True)
                 else:
                     last_child_promoted = False
+                    state["last_child_accepted"] = False
                     # --- TIE-STALL DETECTION: an identical dead result is a FAILED ---
                     # --- EXPERIMENT, not a rollback to a meaningful champion.     ---
                     identical_dead_tie = (
@@ -5615,6 +5773,13 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     "causal_belief_update": sr_result["review_record"]["causal_belief_update"],
                     "recommended_route": sr_result["review_record"]["recommended_route"]
                 }
+                state["last_review_record"] = sr_result["review_record"]
+                _wf_gates = sr_result["review_record"].get("workflow_gates", {})
+                if _wf_gates.get("child_reforensics_required") and not _wf_gates.get("child_reforensics_completed"):
+                    state["reforensics_pending"] = True
+                    print(f"🧬 {Colors.YELLOW_BOLD}[CHILD REFORENSICS REQUIRED]: the review route demands a FRESH failure map "
+                          f"of the child population BEFORE the next mutation. Mutation FORBIDDEN until forensics "
+                          f"complete on the new child.{Colors.ENDC}\n", flush=True)
                 print(f"🔁 {Colors.PURPLE_BOLD}[SELF-REVIEW {goal_id} | Iteration {sr_session.get('iteration')}]: "
                       f"Prediction {sr_result['review_record']['prediction_match']} | Belief {sr_result['review_record']['causal_belief_update']} | "
                       f"Goal: {sr_result['goal_status']} | Unmet: {sr_result['unmet_dimensions'][:2]}{Colors.ENDC}\n", flush=True)
@@ -5660,16 +5825,17 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                 #     synthesized master EA. Robustness PASS = survived the Sobol plateau/DSR
                 #     gauntlet (best_opt_params not None). Unique Alpha PASS = duplication check.)
                 is_institutional_quality = (
-                    child_metrics.get("win_rate", 0) >= 0.70 and 
-                    child_metrics.get("profit_factor", 0) >= 2.00 and 
-                    child_metrics.get("risk_reward", 0.0) >= 1.00 and
+                    child_metrics.get("win_rate", 0) >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_WR"] and 
+                    child_metrics.get("profit_factor", 0) >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_PF"] and 
+                    child_metrics.get("risk_reward", 0.0) >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_RR"] and
+                    child_metrics.get("max_drawdown", 1.0) <= AUTHORITATIVE_GATES["MODULE_CANONICAL_MAX_DD"] and
                     wf_passed
                 )
 
                 # 3. MODULE ADMISSION PIPELINE (Mission §17/§18/§19):
                 #    SELF_REVIEW exit gatekeeper -> INDEPENDENT REVIEW -> GOVERNOR -> admit/freeze.
                 #    Reviewer or Governor rejection REOPENS THE SAME GOAL — never workflow completion.
-                if is_institutional_quality and annualized_trades >= MODULE_MIN_TRADES_PER_YEAR:
+                if is_institutional_quality and annualized_trades >= AUTHORITATIVE_GATES["MIN_TRADES_ANNUAL"]:
                     exit_check = self.self_review.can_exit_self_review(sr_session)
                     if not exit_check["can_exit"]:
                         print(f"⛔ {Colors.YELLOW_BOLD}[SELF-REVIEW EXIT FORBIDDEN]: {exit_check['reason']} — "
