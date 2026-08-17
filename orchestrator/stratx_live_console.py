@@ -700,40 +700,77 @@ def compute_child_parent_delta(parent_metrics: Optional[Dict[str, Any]], child_m
                                parent_df: pd.DataFrame, child_df: pd.DataFrame) -> Dict[str, Any]:
     """
     Computes exact trade population delta, frequency shift, and gate restrictions.
-    Prevents diagnosing a 1-trade child as a valid statistical sample.
+    Prevents reporting child absolute metrics as delta improvement over a non-existent parent.
     """
-    p_trades = parent_metrics.get("total_trades", len(parent_df)) if parent_metrics else len(parent_df)
+    has_valid_parent = parent_metrics is not None and parent_metrics.get("total_trades", 0) > 0 and parent_df is not None and len(parent_df) > 0
+    
+    p_trades = parent_metrics.get("total_trades", len(parent_df)) if has_valid_parent else 0
     c_trades = child_metrics.get("total_trades", len(child_df))
     
-    delta_trades = c_trades - p_trades
-    pct_trade_change = ((c_trades - p_trades) / max(p_trades, 1)) * 100.0 if p_trades > 0 else 0.0
-    
-    p_wr = parent_metrics.get("win_rate", 0.0) if parent_metrics else 0.0
+    p_wr = parent_metrics.get("win_rate", 0.0) if has_valid_parent else 0.0
     c_wr = child_metrics.get("win_rate", 0.0)
-    delta_wr = (c_wr - p_wr) * 100.0
     
-    p_pf = parent_metrics.get("profit_factor", 0.0) if parent_metrics else 0.0
+    p_pf = parent_metrics.get("profit_factor", 0.0) if has_valid_parent else 0.0
     c_pf = child_metrics.get("profit_factor", 0.0)
-    delta_pf = c_pf - p_pf
+    
+    p_dd = parent_metrics.get("max_drawdown", 0.0) if has_valid_parent else 0.0
+    c_dd = child_metrics.get("max_drawdown", 0.0)
+    
+    p_rr = parent_metrics.get("risk_reward", 0.0) if has_valid_parent else 0.0
+    c_rr = child_metrics.get("risk_reward", 0.0)
+    
+    if has_valid_parent:
+        delta_trades = c_trades - p_trades
+        pct_trade_change = ((c_trades - p_trades) / max(p_trades, 1)) * 100.0 if p_trades > 0 else 0.0
+        delta_wr = (c_wr - p_wr) * 100.0
+        delta_pf = c_pf - p_pf
+        delta_dd = (c_dd - p_dd) * 100.0
+        delta_rr = c_rr - p_rr
+    else:
+        delta_trades = 0
+        pct_trade_change = 0.0
+        delta_wr = 0.0
+        delta_pf = 0.0
+        delta_dd = 0.0
+        delta_rr = 0.0
     
     is_freq_collapse = (
-        (c_trades < 5 and p_trades >= 5)
-        or (c_trades == 0 and p_trades > 0)
-        or (p_trades >= 20 and c_trades <= 0.20 * p_trades)  # >= 80% population destruction
+        has_valid_parent and (
+            (c_trades < 5 and p_trades >= 5)
+            or (c_trades == 0 and p_trades > 0)
+            or (p_trades >= 20 and c_trades <= 0.20 * p_trades)  # >= 80% population destruction
+        )
     )
     is_sample_insufficient = c_trades < 5
     
-    if is_freq_collapse:
+    # Check payoff asymmetry & catastrophic drawdown
+    implied_payoff = ((c_pf * (1.0 - c_wr)) / c_wr) if (c_wr > 0 and c_wr < 1.0) else 0.0
+    is_payoff_asymmetric = (c_wr >= 0.70 and c_pf < 1.30 and c_trades >= 20)
+    is_dd_catastrophic = (c_dd > 0.10)
+    
+    if not has_valid_parent:
+        verdict = f"INITIAL SEED BASELINE: N={c_trades} | WR={c_wr*100:.1f}% | PF={c_pf:.2f} | DD={c_dd*100:.1f}%"
+        if is_dd_catastrophic:
+            primary_question = f"Why does baseline produce catastrophic {c_dd*100:.1f}% DD despite {c_wr*100:.1f}% WR? Implied payoff is compressed to {implied_payoff:.2f}R."
+        else:
+            primary_question = f"How do we evolve this initial baseline toward WR >= 70% and PF >= 2.00?"
+    elif is_freq_collapse:
         verdict = f"FREQUENCY COLLAPSE: Child eliminated {abs(delta_trades)} trades ({pct_trade_change:.1f}% reduction). Child is NOT statistically interpretable on its own."
         primary_question = f"Why did the mutation eliminate {abs(delta_trades)} parent trades? Which specific gate in Block 2, 3, or 4 caused the filter over-restriction?"
     elif is_sample_insufficient:
         verdict = f"SAMPLE INSUFFICIENT (N={c_trades} < 5). Cannot perform cluster forensics on single child trade."
         primary_question = f"How do we widen signal criteria to reach minimum statistical sample size (>= {MODULE_MIN_TRADES_PER_YEAR:.0f} trades/yr)?"
-    elif delta_pf > 0 and delta_wr >= 0:
-        verdict = f"ALPHA IMPROVEMENT: Child increased PF by {delta_pf:+.2f} and WR by {delta_wr:+.1f}% across {c_trades} trades."
+    elif is_dd_catastrophic:
+        verdict = f"CATASTROPHIC DRAWDOWN ({c_dd*100:.1f}% > 10% ceiling): High WR ({c_wr*100:.1f}%) masked by tiny wins vs huge loss tail (implied payoff ~{implied_payoff:.2f}R)."
+        primary_question = f"Why did consecutive losses / adverse excursion cause {c_dd*100:.1f}% DD? How do we repair the stop/exit architecture to truncate the loss tail?"
+    elif is_payoff_asymmetric:
+        verdict = f"PAYOFF COMPRESSION: WR {c_wr*100:.1f}% but PF only {c_pf:.2f} (Implied Win/Loss Payoff ~{implied_payoff:.2f}R). Winners too small compared to losses."
+        primary_question = f"Why are winners being cut prematurely while losers take full stops? How do we improve runner capture and reduce average loss size?"
+    elif delta_pf > 0 and delta_wr >= 0 and not is_dd_catastrophic:
+        verdict = f"ALPHA IMPROVEMENT: Child increased PF by {delta_pf:+.2f} (from {p_pf:.2f} to {c_pf:.2f}) and WR by {delta_wr:+.1f}% across {c_trades} trades."
         primary_question = f"Does the child improvement retain walk-forward stability and low drawdowns?"
     else:
-        verdict = f"PERFORMANCE DEGRADATION: Child PF changed by {delta_pf:+.2f}, WR by {delta_wr:+.1f}% across {c_trades} trades."
+        verdict = f"PERFORMANCE DEGRADATION: Child PF changed by {delta_pf:+.2f} (from {p_pf:.2f} to {c_pf:.2f}), WR by {delta_wr:+.1f}% across {c_trades} trades."
         primary_question = f"Why did the child underperform parent across the {c_trades} executed trades?"
 
     # --- Mission §9: trade-level population delta (who was removed/added/flipped) ---
@@ -4751,7 +4788,29 @@ void OnTick()
 
                 # Print Persistent Self-Review HUD
                 _, _, unmet_dims = check_pass_gates(champ_metrics or {}, current_phase) if champ_metrics else (False, [], ["Initial Baseline Unverified"])
-                healing_action = "Refining setup geometry & session gating to restore frequency and pass institutional gates."
+                
+                # Compute Dynamic Context-Aware Healing Action
+                act_metrics = last_child_metrics or champ_metrics or {}
+                act_trades = act_metrics.get("total_trades", 0)
+                act_wr = act_metrics.get("win_rate", 0.0)
+                act_pf = act_metrics.get("profit_factor", 0.0)
+                act_dd = act_metrics.get("max_drawdown", 0.0)
+                act_consec = act_metrics.get("max_consecutive_losses", 0)
+                act_implied_rr = ((act_pf * (1.0 - act_wr)) / act_wr) if (act_wr > 0 and act_wr < 1.0) else 0.0
+
+                if act_trades < 10:
+                    healing_action = f"RESTORING FREQUENCY (N={act_trades} < 20/yr): Loosening over-tight Block 2/3 gates and broadening Block 4 trigger geometry."
+                elif act_dd > 0.10:
+                    healing_action = f"ATTACKING SEVERE DRAWDOWN ({act_dd*100:.1f}% > 10% ceiling): Diagnosing why {act_wr*100:.1f}% WR produces PF {act_pf:.2f} & {act_dd*100:.1f}% DD. Forensics focusing on loss tail, exit efficiency & consecutive losses."
+                elif act_wr >= 0.70 and act_pf < 1.30:
+                    healing_action = f"DIAGNOSING ASYMMETRIC PAYOFF (WR={act_wr*100:.1f}%, PF={act_pf:.2f}): Realized payoff ratio is severely compressed (~{act_implied_rr:.2f}R). Investigating stop distance and runner capture."
+                elif act_consec >= 6:
+                    healing_action = f"ATTACKING LOSS CLUSTERING: Investigating regime drift and adverse market hours during {act_consec}-loss sequence."
+                elif act_pf < 1.50:
+                    healing_action = f"SHARPENING EDGE (PF={act_pf:.2f} < 1.50): Pruning worst losing hour/regime clusters to expand profit factor."
+                else:
+                    healing_action = f"REFINING CANONICAL ACCEPTANCE (WR={act_wr*100:.1f}%, PF={act_pf:.2f}, DD={act_dd*100:.1f}%): Executing institutional gate verification."
+
                 print_self_review_hud(
                     goal_id=goal_id,
                     active_module=active_thesis['name'],
@@ -5538,14 +5597,37 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     has_champion = False
                     champ_metrics = None
 
-                promotion_allowed = (t_quant["passed"] or not has_champion) and not delta_info["is_freq_collapse"] and not child_is_dead
+                # --- HARD RISK GATES FOR PROMOTION ---
+                c_dd = child_metrics.get("max_drawdown", 1.0)
+                c_pf = child_metrics.get("profit_factor", 0.0)
+                c_wr = child_metrics.get("win_rate", 0.0)
+                c_consec = child_metrics.get("max_consecutive_losses", 0)
+
+                dd_blocked = (c_dd > 0.10)  # Absolute 10% hard DD ceiling
+                pf_blocked = (c_pf < 1.10)  # Absolute minimum viable profit factor
+                consec_blocked = (c_consec > 8)  # Loss cluster blowout ceiling
+
+                promotion_allowed = (
+                    (t_quant["passed"] or not has_champion) 
+                    and not delta_info["is_freq_collapse"] 
+                    and not child_is_dead
+                    and not dd_blocked
+                    and not pf_blocked
+                    and not consec_blocked
+                )
 
                 if complexity_pen > 0:
                     print(f"🧮 {Colors.YELLOW}[COMPLEXITY PENALTY]: -{complexity_pen * 100.0:.1f} fitness pts (indicator/input over limit).{Colors.ENDC}", flush=True)
                 if child_is_dead:
-                    print(f"📉 {Colors.RED_BOLD}[PROMOTION BLOCKED]: Child is DEAD (N={child_metrics.get('total_trades', 0)} < {CHAMPION_MIN_TRADES} or dead_strategy). Champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN]: Child is DEAD (N={child_metrics.get('total_trades', 0)} < {CHAMPION_MIN_TRADES} or dead_strategy). Champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
                 elif delta_info["is_freq_collapse"]:
-                    print(f"📉 {Colors.RED_BOLD}[PROMOTION BLOCKED]: Frequency collapse ({child_metrics.get('total_trades', 0)} < 5 trades). Champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN]: Frequency collapse ({child_metrics.get('total_trades', 0)} < 5 trades). Champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
+                elif dd_blocked:
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — CATASTROPHIC DRAWDOWN]: Child MaxDD={c_dd*100:.1f}% exceeds hard 10.0% ceiling. Self-heal required.{Colors.ENDC}", flush=True)
+                elif pf_blocked:
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — SUB-ECONOMIC PF]: Child PF={c_pf:.2f} < 1.10 minimum floor. Self-heal required.{Colors.ENDC}", flush=True)
+                elif consec_blocked:
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — LOSS CLUSTER BLOWOUT]: Child consecutive losses={c_consec} > 8. Self-heal required.{Colors.ENDC}", flush=True)
                 elif not t_quant["passed"] and has_champion:
                     print(f"📉 {Colors.YELLOW}[T-QUANT BLOCK]: t={t_quant['t_stat']}, p={t_quant['p_value']} — edge not statistically significant; champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
 

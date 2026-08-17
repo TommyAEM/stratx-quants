@@ -1,21 +1,1161 @@
 {
-  "iteration": 0,
+  "iteration": 109,
   "research_phase": "PHASE_1_DISCOVERY",
-  "active_thesis_index": 0,
-  "repair_level_idx": 0,
+  "repair_level_idx": 3,
   "consecutive_fails_at_level": 0,
   "goal_status": "ACTIVE",
   "portfolio_modules": [],
   "portfolio_target_modules": 5,
   "portfolio_target_trades": 120,
-  "champion_thesis": null,
+  "champion_thesis": "X1X_M1_PDC",
   "champion_code": null,
   "champion_metrics": null,
   "champion_params": null,
-  "champion_score": -1e18,
-  "thesis_iteration_count": 0,
-  "lineage_note": "Starting autonomous quantitative search across 16 institutional DE40 theses.",
+  "champion_score": -1e+18,
+  "thesis_iteration_count": 1,
+  "lineage_note": "BASELINE_RESET: Previous 25.6% DD candidate rejected by hard risk gates.",
   "iterations_since_improvement": 0,
   "temperature": 0.0,
-  "forced_jab": null
+  "forced_jab": null,
+  "consecutive_non_mutation": 2,
+  "self_review_session": {
+    "self_review_id": "SREV_0292BCFA",
+    "mission_id": "de40-x1x",
+    "module_id": "X1X_M1_FBO",
+    "parent_id": "X1X_M1_FBO",
+    "current_candidate_id": "X1X_M1_PDC_IT107",
+    "goal_id": "SR_M1_001",
+    "goal_definition": "X1X_M1_FBO institutional acceptance under X1X module gates",
+    "goal_metrics": {
+      "win_rate": 0.7,
+      "profit_factor": 2.0,
+      "risk_reward": 1.0,
+      "min_trades_per_year": 20.0
+    },
+    "goal_constraints": {
+      "max_drawdown": 0.2
+    },
+    "goal_status": "ACTIVE",
+    "status": "ACTIVE",
+    "iteration": 61,
+    "history": [
+      {
+        "iteration": 3,
+        "candidate_id": "X1X_M1_FBO_IT52",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.66 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 50.0% < 70.0% (Deficit: 20.0%)",
+          "Profit Factor: 1.66 < 2.00 (Deficit: 0.34)",
+          "Trades/Year: 6.0 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_5233AC6D",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_3",
+          "experiment_id": "EXP_IT52_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT52",
+          "timestamp": "2026-08-17T19:51:10.017469+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L2_SESSION_TIME frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 9.4314,
+            "losers_removed": 94,
+            "winners_removed": 87,
+            "frequency_retention_pct": 800.0,
+            "same_trades": 0,
+            "new_trades": 7
+          },
+          "prediction_match": "CONFIRMED",
+          "target_failure_status": "IMPROVED",
+          "new_failure_families": [],
+          "improved_dimensions": [
+            "Eliminated 94 unprofitable trades",
+            "Net expectancy increased by +9.43R",
+            "Captured 7 new valid alpha trade opportunities"
+          ],
+          "damaged_dimensions": [
+            "Pruned 87 high-value winning trades"
+          ],
+          "causal_belief_update": "SUPPORTED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [],
+          "strategy_lesson": "Strategy alpha holds: Loss cluster identified. is empirically valid.",
+          "research_method_lesson": "Single well-isolated causal feature effectively prunes bad trade cohort without collateral damage.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T19:51:10.017469+00:00"
+      },
+      {
+        "iteration": 6,
+        "candidate_id": "X1X_M1_FBO_IT55",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.66 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 50.0% < 70.0% (Deficit: 20.0%)",
+          "Profit Factor: 1.66 < 2.00 (Deficit: 0.34)",
+          "Trades/Year: 6.0 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_1E4817A0",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_6",
+          "experiment_id": "EXP_IT55_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT55",
+          "timestamp": "2026-08-17T19:56:00.181042+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L3_INDICATOR_LOGIC frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 7,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T19:56:00.181042+00:00"
+      },
+      {
+        "iteration": 9,
+        "candidate_id": "X1X_M1_FBO_IT58",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.66 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 50.0% < 70.0% (Deficit: 20.0%)",
+          "Profit Factor: 1.66 < 2.00 (Deficit: 0.34)",
+          "Trades/Year: 6.0 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_5BA35FAF",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_9",
+          "experiment_id": "EXP_IT58_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT58",
+          "timestamp": "2026-08-17T20:01:30.375494+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L4_ARCHITECTURE frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 7,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:01:30.375494+00:00"
+      },
+      {
+        "iteration": 12,
+        "candidate_id": "X1X_M1_FBO_IT61",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.66 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 50.0% < 70.0% (Deficit: 20.0%)",
+          "Profit Factor: 1.66 < 2.00 (Deficit: 0.34)",
+          "Trades/Year: 6.0 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_C8314903",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_12",
+          "experiment_id": "EXP_IT61_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT61",
+          "timestamp": "2026-08-17T20:07:01.993944+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L5_PIVOT_NEW_ALPHA frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 7,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:07:01.993944+00:00"
+      },
+      {
+        "iteration": 15,
+        "candidate_id": "X1X_M1_FBO_IT64",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.66 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 50.0% < 70.0% (Deficit: 20.0%)",
+          "Profit Factor: 1.66 < 2.00 (Deficit: 0.34)",
+          "Trades/Year: 6.0 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_13879B5A",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_15",
+          "experiment_id": "EXP_IT64_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT64",
+          "timestamp": "2026-08-17T20:11:54.255077+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L2_SESSION_TIME frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 7,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:11:54.255077+00:00"
+      },
+      {
+        "iteration": 18,
+        "candidate_id": "X1X_M1_FBO_IT67",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.66 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 50.0% < 70.0% (Deficit: 20.0%)",
+          "Profit Factor: 1.66 < 2.00 (Deficit: 0.34)",
+          "Trades/Year: 6.0 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_8518DDEA",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_18",
+          "experiment_id": "EXP_IT67_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT67",
+          "timestamp": "2026-08-17T20:16:40.196069+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L3_INDICATOR_LOGIC frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 7,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:16:40.196069+00:00"
+      },
+      {
+        "iteration": 21,
+        "candidate_id": "X1X_M1_FBO_IT70",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.66 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 50.0% < 70.0% (Deficit: 20.0%)",
+          "Profit Factor: 1.66 < 2.00 (Deficit: 0.34)",
+          "Trades/Year: 6.0 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_C358CD9F",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_21",
+          "experiment_id": "EXP_IT70_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT70",
+          "timestamp": "2026-08-17T20:22:16.203250+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L4_ARCHITECTURE frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 7,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:22:16.203250+00:00"
+      },
+      {
+        "iteration": 24,
+        "candidate_id": "X1X_M1_FBO_IT73",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.66 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 50.0% < 70.0% (Deficit: 20.0%)",
+          "Profit Factor: 1.66 < 2.00 (Deficit: 0.34)",
+          "Trades/Year: 6.0 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_11DAC56B",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_24",
+          "experiment_id": "EXP_IT73_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT73",
+          "timestamp": "2026-08-17T20:27:46.818895+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L5_PIVOT_NEW_ALPHA frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 7,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:27:46.818895+00:00"
+      },
+      {
+        "iteration": 27,
+        "candidate_id": "X1X_M1_FBO_IT76",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [],
+        "unmet_dimensions": [
+          "Win Rate: 28.6% < 70.0% (Deficit: 41.4%)",
+          "Profit Factor: 0.30 < 2.00 (Deficit: 1.70)",
+          "Risk/Reward: 0.75 < 1.00 (Deficit: 0.25)",
+          "Trades/Year: 5.3 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_5975BDEA",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_27",
+          "experiment_id": "EXP_IT76_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT76",
+          "timestamp": "2026-08-17T20:32:44.064636+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L2_SESSION_TIME frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": -6.82,
+            "losers_removed": 4,
+            "winners_removed": 3,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 0,
+            "new_trades": 6
+          },
+          "prediction_match": "CONTRADICTED",
+          "target_failure_status": "IMPROVED",
+          "new_failure_families": [],
+          "improved_dimensions": [
+            "Eliminated 4 unprofitable trades",
+            "Captured 6 new valid alpha trade opportunities"
+          ],
+          "damaged_dimensions": [
+            "Pruned 3 high-value winning trades"
+          ],
+          "causal_belief_update": "REFUTED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta -6.82R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Hypothesis refutation: Loss cluster identified. destroyed high-expectancy trades.",
+          "research_method_lesson": "Filter accretion on this feature causes out-of-sample damage. Pivot to entry timing or stop architecture.",
+          "recommended_route": "SELF_HEALER_HYPOTHESIS_PIVOT",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": false,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:32:44.064636+00:00"
+      },
+      {
+        "iteration": 30,
+        "candidate_id": "X1X_M1_FBO_IT79",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [],
+        "unmet_dimensions": [
+          "Win Rate: 28.6% < 70.0% (Deficit: 41.4%)",
+          "Profit Factor: 0.30 < 2.00 (Deficit: 1.70)",
+          "Risk/Reward: 0.75 < 1.00 (Deficit: 0.25)",
+          "Trades/Year: 5.3 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_5ABFE811",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_30",
+          "experiment_id": "EXP_IT79_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT79",
+          "timestamp": "2026-08-17T20:38:40.935560+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L3_INDICATOR_LOGIC frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 6,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:38:40.935560+00:00"
+      },
+      {
+        "iteration": 33,
+        "candidate_id": "X1X_M1_FBO_IT82",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [],
+        "unmet_dimensions": [
+          "Win Rate: 28.6% < 70.0% (Deficit: 41.4%)",
+          "Profit Factor: 0.30 < 2.00 (Deficit: 1.70)",
+          "Risk/Reward: 0.75 < 1.00 (Deficit: 0.25)",
+          "Trades/Year: 5.3 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_D17A7501",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_33",
+          "experiment_id": "EXP_IT82_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT82",
+          "timestamp": "2026-08-17T20:44:28.606997+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L4_ARCHITECTURE frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 6,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:44:28.606997+00:00"
+      },
+      {
+        "iteration": 36,
+        "candidate_id": "X1X_M1_FBO_IT85",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [],
+        "unmet_dimensions": [
+          "Win Rate: 28.6% < 70.0% (Deficit: 41.4%)",
+          "Profit Factor: 0.30 < 2.00 (Deficit: 1.70)",
+          "Risk/Reward: 0.75 < 1.00 (Deficit: 0.25)",
+          "Trades/Year: 5.3 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_4E2028B4",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_36",
+          "experiment_id": "EXP_IT85_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT85",
+          "timestamp": "2026-08-17T20:50:46.977993+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L5_PIVOT_NEW_ALPHA frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 0.0,
+            "losers_removed": 0,
+            "winners_removed": 0,
+            "frequency_retention_pct": 100.0,
+            "same_trades": 6,
+            "new_trades": 0
+          },
+          "prediction_match": "INCONCLUSIVE",
+          "target_failure_status": "UNCHANGED",
+          "new_failure_families": [],
+          "improved_dimensions": [],
+          "damaged_dimensions": [],
+          "causal_belief_update": "WEAKENED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta +0.00R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Marginal trade shift; feature lacks decisive causal edge.",
+          "research_method_lesson": "Survey parameter neighborhood or test alternative volatility normalization.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T20:50:46.977993+00:00"
+      },
+      {
+        "iteration": 51,
+        "candidate_id": "X1X_M1_FBO_IT100",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Risk/Reward: 1.43 >= 1.00"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 33.3% < 70.0% (Deficit: 36.7%)",
+          "Profit Factor: 0.71 < 2.00 (Deficit: 1.29)",
+          "Trades/Year: 6.8 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_66586893",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_51",
+          "experiment_id": "EXP_IT100_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT100",
+          "timestamp": "2026-08-17T21:45:52.295077+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L5_PIVOT_NEW_ALPHA frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 4.4014,
+            "losers_removed": 94,
+            "winners_removed": 87,
+            "frequency_retention_pct": 45.0,
+            "same_trades": 0,
+            "new_trades": 8
+          },
+          "prediction_match": "CONFIRMED",
+          "target_failure_status": "IMPROVED",
+          "new_failure_families": [
+            "FREQUENCY_COLLAPSE"
+          ],
+          "improved_dimensions": [
+            "Eliminated 94 unprofitable trades",
+            "Net expectancy increased by +4.40R",
+            "Captured 8 new valid alpha trade opportunities"
+          ],
+          "damaged_dimensions": [
+            "Pruned 87 high-value winning trades",
+            "Frequency collapse: 55.0% trade volume dropped"
+          ],
+          "causal_belief_update": "SUPPORTED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [],
+          "strategy_lesson": "Strategy alpha holds: Loss cluster identified. is empirically valid.",
+          "research_method_lesson": "Single well-isolated causal feature effectively prunes bad trade cohort without collateral damage.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T21:45:52.295077+00:00"
+      },
+      {
+        "iteration": 54,
+        "candidate_id": "X1X_M1_FBO_IT103",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [],
+        "unmet_dimensions": [
+          "Win Rate: 28.6% < 70.0% (Deficit: 41.4%)",
+          "Profit Factor: 0.30 < 2.00 (Deficit: 1.70)",
+          "Risk/Reward: 0.75 < 1.00 (Deficit: 0.25)",
+          "Trades/Year: 5.3 < 20.0 (Volume deficit)"
+        ],
+        "review_record": {
+          "review_id": "REV_C2E0C61A",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_54",
+          "experiment_id": "EXP_IT103_X1X_M1_FBO",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_FBO_IT103",
+          "timestamp": "2026-08-17T21:55:54.200532+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L1_PARAMETER frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": 2.6114,
+            "losers_removed": 94,
+            "winners_removed": 87,
+            "frequency_retention_pct": 35.0,
+            "same_trades": 0,
+            "new_trades": 6
+          },
+          "prediction_match": "CONFIRMED",
+          "target_failure_status": "IMPROVED",
+          "new_failure_families": [
+            "FREQUENCY_COLLAPSE"
+          ],
+          "improved_dimensions": [
+            "Eliminated 94 unprofitable trades",
+            "Net expectancy increased by +2.61R",
+            "Captured 6 new valid alpha trade opportunities"
+          ],
+          "damaged_dimensions": [
+            "Pruned 87 high-value winning trades",
+            "Frequency collapse: 65.0% trade volume dropped"
+          ],
+          "causal_belief_update": "SUPPORTED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [],
+          "strategy_lesson": "Strategy alpha holds: Loss cluster identified. is empirically valid.",
+          "research_method_lesson": "Single well-isolated causal feature effectively prunes bad trade cohort without collateral damage.",
+          "recommended_route": "CHILD_REFORENSICS_REQUIRED",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": true,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T21:55:54.200532+00:00"
+      },
+      {
+        "iteration": 58,
+        "candidate_id": "X1X_M1_PDC_IT107",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Win Rate: 74.1% >= 70.0%",
+          "Trades/Year: 956.4 >= 20.0"
+        ],
+        "unmet_dimensions": [
+          "Profit Factor: 1.16 < 2.00 (Deficit: 0.84)",
+          "Risk/Reward: 0.40 < 1.00 (Deficit: 0.60)",
+          "Drawdown breach: 0.3 > max allowed 0.2"
+        ],
+        "review_record": {
+          "review_id": "REV_5A6C2849",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_58",
+          "experiment_id": "EXP_IT107_X1X_M1_PDC",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_PDC_IT107",
+          "timestamp": "2026-08-17T22:24:16.087591+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L3_INDICATOR_LOGIC frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": -123.7286,
+            "losers_removed": 88,
+            "winners_removed": 78,
+            "frequency_retention_pct": 702.76,
+            "same_trades": 15,
+            "new_trades": 473
+          },
+          "prediction_match": "CONTRADICTED",
+          "target_failure_status": "IMPROVED",
+          "new_failure_families": [],
+          "improved_dimensions": [
+            "Eliminated 88 unprofitable trades",
+            "Captured 473 new valid alpha trade opportunities"
+          ],
+          "damaged_dimensions": [
+            "Pruned 78 high-value winning trades"
+          ],
+          "causal_belief_update": "REFUTED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta -123.73R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Hypothesis refutation: Loss cluster identified. destroyed high-expectancy trades.",
+          "research_method_lesson": "Filter accretion on this feature causes out-of-sample damage. Pivot to entry timing or stop architecture.",
+          "recommended_route": "SELF_HEALER_HYPOTHESIS_PIVOT",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": false,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T22:24:16.087591+00:00"
+      }
+    ],
+    "current_failure_map": [],
+    "current_hypothesis_ids": [],
+    "current_experiment_ids": [],
+    "created_at": "2026-08-17T19:16:40.360192+00:00",
+    "updated_at": "2026-08-17T22:29:22.496981+00:00"
+  },
+  "self_review_goal_id": "SR_M1_001",
+  "awaiting_memory_commit": false,
+  "last_matched_winner_comparison": {
+    "loser_count": 290,
+    "winner_count": 198,
+    "top_separating_features": [
+      {
+        "feature": "entry",
+        "loser_median": 18100.25,
+        "winner_median": 18367.175,
+        "effect_size": 0.187
+      },
+      {
+        "feature": "gmt_hour",
+        "loser_median": 11.0,
+        "winner_median": 11.0,
+        "effect_size": 0.0
+      },
+      {
+        "feature": "side",
+        "loser_dist": {
+          "BUY": 0.572,
+          "SELL": 0.428
+        },
+        "winner_dist": {
+          "BUY": 0.636,
+          "SELL": 0.364
+        },
+        "effect_size": null
+      }
+    ]
+  },
+  "last_population_enrichment": {
+    "population_n": 488,
+    "overall": {
+      "n": 488,
+      "win_rate": 0.4057,
+      "avg_R": -0.268,
+      "avg_winner_R": 0.804,
+      "avg_loser_R": 1.0,
+      "realized_RR": 0.8,
+      "expectancy_R": -0.268
+    },
+    "by_gmt_hour": {
+      "7": {
+        "n": 34,
+        "win_rate": 0.3824,
+        "avg_R": -0.308,
+        "avg_winner_R": 0.848,
+        "avg_loser_R": 1.023,
+        "realized_RR": 0.83,
+        "expectancy_R": -0.308
+      },
+      "8": {
+        "n": 29,
+        "win_rate": 0.1724,
+        "avg_R": -0.703,
+        "avg_winner_R": 0.706,
+        "avg_loser_R": 0.996,
+        "realized_RR": 0.71,
+        "expectancy_R": -0.703
+      },
+      "9": {
+        "n": 54,
+        "win_rate": 0.4815,
+        "avg_R": 0.039,
+        "avg_winner_R": 1.118,
+        "avg_loser_R": 0.963,
+        "realized_RR": 1.16,
+        "expectancy_R": 0.039
+      },
+      "10": {
+        "n": 86,
+        "win_rate": 0.3372,
+        "avg_R": -0.343,
+        "avg_winner_R": 0.974,
+        "avg_loser_R": 1.013,
+        "realized_RR": 0.96,
+        "expectancy_R": -0.343
+      },
+      "11": {
+        "n": 72,
+        "win_rate": 0.4306,
+        "avg_R": -0.256,
+        "avg_winner_R": 0.744,
+        "avg_loser_R": 1.012,
+        "realized_RR": 0.74,
+        "expectancy_R": -0.256
+      },
+      "12": {
+        "n": 57,
+        "win_rate": 0.4737,
+        "avg_R": -0.206,
+        "avg_winner_R": 0.657,
+        "avg_loser_R": 0.983,
+        "realized_RR": 0.67,
+        "expectancy_R": -0.206
+      },
+      "13": {
+        "n": 48,
+        "win_rate": 0.4583,
+        "avg_R": -0.265,
+        "avg_winner_R": 0.62,
+        "avg_loser_R": 1.015,
+        "realized_RR": 0.61,
+        "expectancy_R": -0.265
+      },
+      "14": {
+        "n": 33,
+        "win_rate": 0.3939,
+        "avg_R": -0.368,
+        "avg_winner_R": 0.652,
+        "avg_loser_R": 1.032,
+        "realized_RR": 0.63,
+        "expectancy_R": -0.368
+      },
+      "15": {
+        "n": 38,
+        "win_rate": 0.4211,
+        "avg_R": -0.294,
+        "avg_winner_R": 0.731,
+        "avg_loser_R": 1.039,
+        "realized_RR": 0.7,
+        "expectancy_R": -0.294
+      },
+      "16": {
+        "n": 37,
+        "win_rate": 0.4324,
+        "avg_R": -0.169,
+        "avg_winner_R": 0.797,
+        "avg_loser_R": 0.905,
+        "realized_RR": 0.88,
+        "expectancy_R": -0.169
+      }
+    },
+    "by_regime": {
+      "Regime_0_Low_Vol_Chop": {
+        "n": 202,
+        "win_rate": 0.4059,
+        "avg_R": -0.236,
+        "avg_winner_R": 0.854,
+        "avg_loser_R": 0.981,
+        "realized_RR": 0.87,
+        "expectancy_R": -0.236
+      },
+      "Regime_1_Bull_Trend": {
+        "n": 215,
+        "win_rate": 0.4047,
+        "avg_R": -0.277,
+        "avg_winner_R": 0.794,
+        "avg_loser_R": 1.006,
+        "realized_RR": 0.79,
+        "expectancy_R": -0.277
+      },
+      "Regime_2_High_Vol_Bear": {
+        "n": 71,
+        "win_rate": 0.4085,
+        "avg_R": -0.329,
+        "avg_winner_R": 0.696,
+        "avg_loser_R": 1.036,
+        "realized_RR": 0.67,
+        "expectancy_R": -0.329
+      }
+    }
+  },
+  "last_self_review": {
+    "goal_status": "REASSESSING",
+    "unmet_dimensions": [
+      "NO_MUTATION_VERDICT \u2014 forensics-only iteration, no physical evidence produced"
+    ],
+    "prediction_match": "NOT_TESTABLE",
+    "causal_belief_update": "UNCHANGED",
+    "recommended_route": " council_refusal_streak=2"
+  },
+  "last_child_parent_delta": {
+    "parent_trades": 181,
+    "child_trades": 1272,
+    "delta_trades": 1091,
+    "pct_trade_change": 602.7624309392265,
+    "delta_wr_pct": 74.14,
+    "delta_pf": 1.16,
+    "same_trades": 15,
+    "removed_trades": 166,
+    "new_trades": 473,
+    "winner_removed": 78,
+    "loser_removed": 88,
+    "loser_to_winner": 1,
+    "winner_to_loser": 4,
+    "net_R_delta": -123.7286,
+    "losers_removed_count": 88,
+    "winners_removed_count": 78,
+    "frequency_retention_pct": 702.76,
+    "same_trade_count": 15,
+    "new_trade_count": 473,
+    "is_freq_collapse": false,
+    "is_sample_insufficient": false,
+    "verdict": "ALPHA IMPROVEMENT: Child increased PF by +1.16 and WR by +74.1% across 1272 trades.",
+    "primary_question": "Does the child improvement retain walk-forward stability and low drawdowns?"
+  },
+  "last_evidence_quality": {
+    "n_trades": 1272,
+    "wf_passed": false,
+    "wf_evidence_available": true,
+    "prediction_match": "CONTRADICTED",
+    "implementation_fidelity": "MATCH",
+    "matched_winner_comparison": {
+      "loser_count": 94,
+      "winner_count": 87,
+      "top_separating_features": [
+        {
+          "feature": "MAE_R",
+          "loser_median": 0.9968,
+          "winner_median": 0.3086,
+          "effect_size": 1.893
+        },
+        {
+          "feature": "MFE_R",
+          "loser_median": 0.3459,
+          "winner_median": 0.9953,
+          "effect_size": 1.768
+        },
+        {
+          "feature": "entry",
+          "loser_median": 17915.955,
+          "winner_median": 18115.78,
+          "effect_size": 0.135
+        },
+        {
+          "feature": "gmt_hour",
+          "loser_median": 9.0,
+          "winner_median": 9.0,
+          "effect_size": 0.0
+        },
+        {
+          "feature": "side",
+          "loser_dist": {
+            "BUY": 0.521,
+            "SELL": 0.479
+          },
+          "winner_dist": {
+            "BUY": 0.609,
+            "SELL": 0.391
+          },
+          "effect_size": null
+        }
+      ]
+    }
+  },
+  "landscape_maps_used": 1,
+  "last_landscape_map": {
+    "params": {
+      "InpRiskPercent": 1.5,
+      "InpMinBreakATR": 0.15,
+      "InpMaxBreakATR": 2.5,
+      "InpMaxBarsOutside": 8,
+      "InpDispBodyATR": 0.2,
+      "InpFillFraction": 0.6
+    },
+    "runs": 13,
+    "score": -7.77,
+    "trades": 20
+  },
+  "edge_screen_file": "C:\\Trading\\DE40-Research\\evidence\\edge_screen.json"
 }
