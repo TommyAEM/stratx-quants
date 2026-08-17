@@ -135,6 +135,32 @@ MODEL_GATEWAYS = {
             "model": StratXLLMClient.NANOGPT_MODEL
         }
     ],
+    "ollama_glm": [
+        {
+            "name": "Ollama GLM-5.2 (glm-5.2 / glm-4)",
+            "url": "http://localhost:11434/v1/chat/completions",
+            "key": "ollama",
+            "model": "glm-5.2"
+        },
+        {
+            "name": "Ollama Cloud Pro Backup (deepseek-v4-pro:0813-cloud)",
+            "url": "http://localhost:11434/v1/chat/completions",
+            "key": "ollama",
+            "model": "deepseek-v4-pro:0813-cloud"
+        },
+        {
+            "name": "NanoGPT Thinking Backup (GLM-5.2 Thinking)",
+            "url": f"{StratXLLMClient.NANOGPT_BASE_URL}/chat/completions",
+            "key": StratXLLMClient.NANOGPT_KEY,
+            "model": "zai-org/glm-5.2:thinking"
+        },
+        {
+            "name": "Alibaba Dedicated Workspace (DeepSeek V4 Pro 0813 Backup)",
+            "url": ALIBABA_DEDICATED_URL,
+            "key": ALIBABA_DEDICATED_KEY,
+            "model": "deepseek-v4-pro-0813"
+        }
+    ],
     "nanogpt_glm_thinking": [
         {
             "name": "NanoGPT Thinking (GLM-5.2 Thinking)",
@@ -562,7 +588,7 @@ ROLE_MODEL_TIER = {
     "STATISTICIAN": "nanogpt_muse_spark",            # Audits sample size, DSR, overfitting & math via Meta Muse Spark 1.2 on NanoGPT
     "MARKET STRUCTURE SPECIALIST": "alibaba_pro",    # Validates order flow & session sweeps via Alibaba Dedicated Pro
     "EXECUTION SPECIALIST": "alibaba_pro",           # Audits spread sensitivity, tick points & slippage via Alibaba Dedicated Pro
-    "RED TEAM SKEPTIC": "nanogpt_glm_thinking",      # Deep adversarial thinking to disprove edge via GLM-5.2 Thinking
+    "RED TEAM SKEPTIC": "ollama_glm",                # Deep adversarial thinking to disprove edge via GLM-5.2 on Ollama
     "STRATX HISTORIAN": "alibaba_pro",               # Deep memory synthesis via Alibaba Dedicated Pro
     "COUNCIL JUDGE": "alibaba_pro",                  # Synthesizes consensus & research question via Alibaba Dedicated Pro
     "MQL5 ARCHITECT": "alibaba_pro",                 # Complete 6-Block C++/MQL5 code synthesis via Alibaba Dedicated Pro
