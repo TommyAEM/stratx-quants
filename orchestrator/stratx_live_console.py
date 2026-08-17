@@ -143,10 +143,18 @@ MODEL_GATEWAYS = {
             "model": "zai-org/glm-5.2:thinking"
         },
         {
-            "name": "Ollama Cloud Pro Backup (deepseek-v4-pro:0813-cloud)",
-            "url": "http://localhost:11434/v1/chat/completions",
-            "key": "ollama",
-            "model": "deepseek-v4-pro:0813-cloud"
+            "name": "Alibaba Dedicated Workspace (DeepSeek V4 Pro 0813 Backup)",
+            "url": ALIBABA_DEDICATED_URL,
+            "key": ALIBABA_DEDICATED_KEY,
+            "model": "deepseek-v4-pro-0813"
+        }
+    ],
+    "nanogpt_muse_spark": [
+        {
+            "name": "NanoGPT (Meta Muse Spark 1.2 Contributor - Max Thinking)",
+            "url": f"{StratXLLMClient.NANOGPT_BASE_URL}/chat/completions",
+            "key": StratXLLMClient.NANOGPT_KEY,
+            "model": "meta/muse-spark-1.2-contributor"
         },
         {
             "name": "Alibaba Dedicated Workspace (DeepSeek V4 Pro 0813 Backup)",
@@ -550,12 +558,12 @@ def get_quant_knowledge() -> str:
 # =====================================================================
 ROLE_MODEL_TIER = {
     # --- 7 CANONICAL STRATX LLM COUNCIL ROLES ---
-    "QUANT RESEARCHER": "ollama_pro",                # Evaluates economic rationale & anomaly validity via Ollama Pro
+    "QUANT RESEARCHER": "nanogpt_muse_spark",        # Long-Horizon Investigator: Evaluates economic rationale & anomaly validity via Meta Muse Spark 1.2
     "STATISTICIAN": "nanogpt_glm_thinking",          # Audits sample size, DSR, overfitting & math via GLM-5.2 Thinking
     "MARKET STRUCTURE SPECIALIST": "alibaba_pro",    # Validates order flow & session sweeps via Alibaba Dedicated Pro
     "EXECUTION SPECIALIST": "ollama_pro",            # Audits spread sensitivity, tick points & slippage via Ollama Pro
     "RED TEAM SKEPTIC": "nanogpt_glm_thinking",      # Deep adversarial thinking to disprove edge via GLM-5.2 Thinking
-    "STRATX HISTORIAN": "ollama_pro",                # Queries brain memory & past knowledge via Ollama Pro
+    "STRATX HISTORIAN": "nanogpt_muse_spark",        # Long-Horizon Investigator: Deep memory synthesis via Meta Muse Spark 1.2
     "COUNCIL JUDGE": "alibaba_pro",                  # Synthesizes consensus & research question via Alibaba Dedicated Pro
     "MQL5 ARCHITECT": "alibaba_pro",                 # Complete 6-Block C++/MQL5 code synthesis via Alibaba Dedicated Pro
     "MQL5 ARCHITECT (SYNTAX FIX)": "alibaba_pro"     # Fast MetaEditor syntax repair via Alibaba Dedicated Pro
