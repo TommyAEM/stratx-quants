@@ -1,9 +1,9 @@
 //+------------------------------------------------------------------+
 //| X1X_M1_FBO.mq5 - DE40 False Breakout Reversal (X1X Flagship)      |
-//| Causal Mutation: Regime Filter (Session & Volatility Gates)       |
+//| Causal Mutation: European Session Window + Choppiness Gate        |
 //+------------------------------------------------------------------+
 #property copyright "StratX Institutional Quant Desk"
-#property version   "2.20-DE40"
+#property version   "2.21-DE40"
 #property strict
 #include <Trade/Trade.mqh>
 
@@ -21,18 +21,20 @@ input int    InpMaxBarsOutside     = 8;      // Max bars outside before abort
 input double InpDispBodyATR        = 0.8;    // Displacement candle body min (ATR)
 input double InpFillFraction       = 0.5;    // Equilibrium retrace depth into zone (50%)
 
-// Sessions (Frankfurt / London European Core Hours GMT)
+// Sessions (European Core Hours GMT)
 input int    InpAsiaStartGMT       = 0;      // Asian session start (GMT)
 input int    InpAsiaEndGMT         = 7;      // Asian session end (GMT)
 input int    InpTradeStartGMT      = 7;      // Trading start (Frankfurt Open 07:00 GMT)
 input int    InpTradeEndGMT        = 16;     // Trading end (16:30 GMT)
 input int    InpTradeEndMin        = 30;
 
-// Regime Filter (Session & Volatility Gates)
-input int    InpRegimeSessionStartGMT = 8;        // Regime session start (GMT) - high volatility window
-input int    InpRegimeSessionEndGMT   = 12;       // Regime session end (GMT)
-input double InpMinATRVolatility      = 0.0;      // Min ATR for volatility gate (points)
-input double InpMaxATRVolatility      = 999.9;    // Max ATR for volatility gate (points)
+// Choppiness Filter (Mutation)
+input int    InpChoppinessPeriod   = 14;      // Choppiness Index period
+input double InpChoppinessThreshold = 50.0;   // Max Choppiness (0-100) to allow trade
+
+// Volatility Gate (kept wide open by default)
+input double InpMinATRVolatility   = 0.0;     // Min ATR for volatility gate (points)
+input double InpMaxATRVolatility   = 999.9;   // Max ATR for volatility gate (points)
 
 // FBL Exit Management (Flagship Pattern)
 input bool   InpEnablePartialClose = true;   // 50% partial close at 1.0R
@@ -44,6 +46,7 @@ input double InpATRTrailMultiplier   = 1.5;    // 1.5x ATR trailing distance
 input double InpRunnerMaxR           = 3.0;    // Runner max target (3.0R)
 
 int      atr_handle = INVALID_HANDLE;
+int      ci_handle  = INVALID_HANDLE;
 datetime last_bar_time = 0;
 
 // Setup State Machine
@@ -131,14 +134,11 @@ void UpdateAsiaLevels()
 }
 
 //=== BLOCK 3: REGIME & CONFLUENCE GATES (MUTATION) ===
-bool IsRegimeSession()
+bool IsChoppinessGate()
 {
-   int h, m;
-   GetHourMin(h, m);
-   int now_m = h * 60 + m;
-   int start_m = InpRegimeSessionStartGMT * 60;
-   int end_m = InpRegimeSessionEndGMT * 60;
-   return (now_m >= start_m && now_m <= end_m);
+   double ci[1];
+   if(CopyBuffer(ci_handle, 0, 1, 1, ci) < 1) return false;
+   return (ci[0] < InpChoppinessThreshold);
 }
 
 bool IsVolatilityGate(double atr)
@@ -230,6 +230,15 @@ int OnInit()
    trade.SetExpertMagicNumber((ulong)InpMagic);
    atr_handle = iATR(_Symbol, _Period, 14);
    if(atr_handle == INVALID_HANDLE) return INIT_FAILED;
+   
+   // Choppiness Index handle (requires custom indicator "ChoppinessIndex" installed)
+   ci_handle = iCustom(_Symbol, _Period, "ChoppinessIndex", InpChoppinessPeriod);
+   if(ci_handle == INVALID_HANDLE) 
+   {
+      Print("Failed to load ChoppinessIndex indicator");
+      return INIT_FAILED;
+   }
+   
    return INIT_SUCCEEDED;
 }
 
@@ -251,7 +260,7 @@ void OnTick()
    if(atr <= 0.0) return;
 
    //=== BLOCK 3: REGIME & CONFLUENCE GATES ===
-   if(!IsRegimeSession()) return;
+   if(!IsChoppinessGate()) return;
    if(!IsVolatilityGate(atr)) return;
 
    double high1 = iHigh(_Symbol, _Period, 1);

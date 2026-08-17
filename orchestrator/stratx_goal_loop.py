@@ -123,11 +123,24 @@ class StratXGoalLoopOrchestrator:
         c_wr = float(metrics.get("win_rate", 0.0))
         c_pf = float(metrics.get("profit_factor", 0.0))
         c_rr = float(metrics.get("risk_reward", metrics.get("payoff_ratio", 0.0)))
-        c_dd = float(metrics.get("max_drawdown", metrics.get("equity_dd", 0.0)))
-        if c_dd > 1.0 and c_dd <= 100.0:
-            c_dd /= 100.0
-        elif c_dd > 100.0:
-            c_dd = 0.15
+        c_dd_raw = float(metrics.get("max_drawdown", metrics.get("equity_dd", 0.0)))
+        gate_dd_raw = float(gates["max_drawdown"])
+        dd_evidence_invalid = False
+        dd_raw_mode = False
+        if c_dd_raw <= 1.0:
+            c_dd = c_dd_raw                      # fraction units
+        elif c_dd_raw <= 100.0:
+            c_dd = c_dd_raw / 100.0              # percent units -> fraction
+        elif gate_dd_raw > 100.0:
+            # Both sides are raw point/currency units: compare raw-to-raw.
+            c_dd = c_dd_raw
+            dd_raw_mode = True
+        else:
+            # Evidence integrity: metric claims > 100% while the gate is a
+            # fraction — units cannot be reconciled. The previous version
+            # silently fabricated c_dd = 0.15; that is now forbidden.
+            dd_evidence_invalid = True
+            c_dd = c_dd_raw
             
         c_val = float(metrics.get("val_retention", metrics.get("val_pf_retention_pct", 100.0)))
         if c_val > 1.0:
@@ -158,11 +171,16 @@ class StratXGoalLoopOrchestrator:
             failures.append(f"Payoff RR: {c_rr:.2f} < {gates['min_risk_reward']:.2f}")
 
         # 5. Max Drawdown
-        max_dd_thresh = gates["max_drawdown"] if gates["max_drawdown"] <= 1.0 else gates["max_drawdown"] / 1000.0
-        if c_dd <= max_dd_thresh + 1e-4:
-            met.append(f"MaxDD: {c_dd*100:.1f}% <= {max_dd_thresh*100:.1f}%")
+        if dd_raw_mode:
+            max_dd_thresh = gate_dd_raw
         else:
-            failures.append(f"MaxDD: {c_dd*100:.1f}% > {max_dd_thresh*100:.1f}%")
+            max_dd_thresh = gate_dd_raw if gate_dd_raw <= 1.0 else gate_dd_raw / 1000.0
+        if dd_evidence_invalid:
+            failures.append(f"MaxDD: EVIDENCE_INVALID (raw reading {c_dd_raw} incompatible with fractional gate {gate_dd_raw} — drawdown gate unverifiable)")
+        elif c_dd <= max_dd_thresh + 1e-4:
+            met.append(f"MaxDD: {c_dd if dd_raw_mode else c_dd*100:.1f}{'' if dd_raw_mode else '%'} <= {max_dd_thresh if dd_raw_mode else max_dd_thresh*100:.1f}{'' if dd_raw_mode else '%'}")
+        else:
+            failures.append(f"MaxDD: {c_dd if dd_raw_mode else c_dd*100:.1f}{'' if dd_raw_mode else '%'} > {max_dd_thresh if dd_raw_mode else max_dd_thresh*100:.1f}{'' if dd_raw_mode else '%'}")
 
         # 6. VAL Retention
         min_val_thresh = gates["min_val_retention"] if gates["min_val_retention"] <= 1.0 else gates["min_val_retention"] / 100.0
@@ -209,7 +227,13 @@ class StratXGoalLoopOrchestrator:
     def deterministic_goal_evaluator(self, goal: Dict[str, Any], evidence: Dict[str, Any]) -> Dict[str, Any]:
         metrics = evidence.get("canonical_metrics", {})
         phase = goal.get("research_phase", "PHASE_3_CANONICAL_X1X")
-        custom_crit = goal.get("target_criteria")
+        custom_crit = dict(goal.get("target_criteria") or {})
+        # A raw-unit drawdown constraint (e.g. 1000 points) declared on the goal
+        # is authoritative for the DD gate and enables raw-to-raw comparison
+        # (no unit fabrication in either direction).
+        constraints = goal.get("goal_constraints", goal.get("constraints", {}))
+        if "max_drawdown" in constraints and "max_drawdown" not in custom_crit:
+            custom_crit["max_drawdown"] = constraints["max_drawdown"]
         passed, met, unmet = self.check_tiered_pass_gates(metrics, phase, custom_criteria=custom_crit)
         return {
             "passed": passed,
@@ -276,7 +300,9 @@ class StratXGoalLoopOrchestrator:
         cur_idx = self.REPAIR_LEVELS.index(self.current_repair_level)
         goal["consecutive_failures"] = goal.get("consecutive_failures", 0) + 1
 
-        if goal["consecutive_failures"] >= 3 or goal.get("iteration", 1) >= self.iteration_safety_threshold:
+        # Mission §11: repair level is driven by FAILURE EXHAUSTION (EIV), never
+        # by the raw iteration counter. Removed: `or iteration >= safety_threshold`.
+        if goal["consecutive_failures"] >= 3:
             if cur_idx < len(self.REPAIR_LEVELS) - 1:
                 old_lvl = self.current_repair_level
                 self.current_repair_level = self.REPAIR_LEVELS[cur_idx + 1]
@@ -392,13 +418,29 @@ class StratXGoalLoopOrchestrator:
                 else:
                     child_metrics = {"total_trades": 55, "win_rate": 0.52, "profit_factor": 1.15, "risk_reward": 0.50, "max_drawdown": 0.20, "val_retention": 0.60}
 
-                # 6. Child Delta & Re-Forensics
+                # 6. Child Delta & Re-Forensics — computed from the ACTUAL parent
+                # metrics lineage (previous evaluated candidate), never hardcoded.
+                parent_metrics = None
+                for h in reversed(state.get("history", [])):
+                    if isinstance(h, dict) and h.get("metrics"):
+                        parent_metrics = h["metrics"]
+                        break
+                p_trades = float(parent_metrics.get("total_trades", parent_metrics.get("trades_per_year", 0))) if parent_metrics else 0.0
+                c_trades = float(child_metrics.get("total_trades", child_metrics.get("trades_per_year", 0)))
                 child_delta = {
-                    "net_R_delta": 2.5 if child_metrics.get("profit_factor", 1.0) > 1.2 else -1.0,
-                    "losers_removed_count": 2,
+                    "parent_trades": p_trades,
+                    "child_trades": c_trades,
+                    "net_R_delta": round(float(child_metrics.get("profit_factor", 0)) - float(parent_metrics.get("profit_factor", 0)), 4) if parent_metrics else 0.0,
+                    "delta_wr_pct": round((float(child_metrics.get("win_rate", 0)) - float(parent_metrics.get("win_rate", 0))) * 100.0, 2) if parent_metrics else 0.0,
+                    "losers_removed_count": 0,   # trade-level lineage requires per-trade populations (not available at this tier)
                     "winners_removed_count": 0,
-                    "frequency_retention_pct": 95.0
+                    "frequency_retention_pct": round(c_trades / p_trades * 100.0, 2) if p_trades > 0 else 100.0,
+                    "is_freq_collapse": (c_trades < 5 <= p_trades) or (c_trades == 0 and p_trades > 0),
+                    "is_sample_insufficient": c_trades < 5
                 }
+                if child_delta["is_sample_insufficient"]:
+                    # Mission §7: no cluster forensics / causal claims on a tiny child.
+                    print(f"   -> [SAMPLE_INSUFFICIENT: child N={c_trades:.0f} < 5] Primary question: why did the mutation destroy the trade population?")
 
                 # 7. Self-Review Output (Memory Only)
                 review_record = {
@@ -479,7 +521,17 @@ class StratXGoalLoopOrchestrator:
 
                 elif current_phase == "PHASE_3_CANONICAL_X1X":
                     print(f"\n>>> Strict X1X Gates Met on Iteration {it}. Submitting to Independent Reviewer. <<<")
-                    reviewer_admit = True
+                    # Deterministic adversarial re-verification — the previous
+                    # `reviewer_admit = True` hardcoded PASS is removed. The reviewer
+                    # actively looks for reasons to distrust the claim (Mission §17/§18).
+                    reviewer_objections = []
+                    if child_delta.get("is_freq_collapse"):
+                        reviewer_objections.append("FREQUENCY_COLLAPSE vs parent population")
+                    if child_delta.get("is_sample_insufficient"):
+                        reviewer_objections.append(f"SAMPLE_INSUFFICIENT: child N={child_delta.get('child_trades')} < 5")
+                    if parent_metrics and c_trades < 0.5 * p_trades:
+                        reviewer_objections.append(f"Frequency halved vs parent ({p_trades:.0f} -> {c_trades:.0f}) without justification")
+                    reviewer_admit = len(reviewer_objections) == 0
                     
                     if reviewer_admit:
                         state["goal_status"] = "PASSED"

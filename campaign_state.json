@@ -1,5 +1,5 @@
 {
-  "iteration": 10,
+  "iteration": 28,
   "research_phase": "PHASE_1_DISCOVERY",
   "repair_level_idx": 0,
   "consecutive_fails_at_level": 0,
@@ -23,9 +23,9 @@
   },
   "champion_params": null,
   "champion_score": -82.0,
-  "thesis_iteration_count": 10,
-  "lineage_note": "ROLLBACK ALERT: The last mutation DEGRADED the strategy (fitness -1000095.0 vs champion -82.0 | WR=0.0% PF=0.00 DD=100.0%). The engine has reverted to the last best champion code. You MUST explore a DIFFERENT, mutually exclusive hypothesis than the last failed attempt.",
-  "iterations_since_improvement": 3,
+  "thesis_iteration_count": 28,
+  "lineage_note": "ROLLBACK ALERT: The last mutation DEGRADED the strategy (fitness -82.0 vs champion -82.0 | WR=0.0% PF=0.00 DD=1.0%). The engine has reverted to the last best champion code. You MUST explore a DIFFERENT, mutually exclusive hypothesis than the last failed attempt.",
+  "iterations_since_improvement": 1,
   "temperature": 1.0,
-  "forced_jab": "INVERT THE LOGIC: If the strategy buys breakouts, change it to fade breakouts (sell)."
+  "forced_jab": "INDICATOR SWAP: Remove the primary trend/regime filter and replace it with a Choppiness Index or ADX filter."
 }

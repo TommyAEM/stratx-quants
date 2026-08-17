@@ -72,13 +72,45 @@ def _save_persistent_store(memories: List[Dict[str, Any]]):
     VECTOR_STORE_FILE.write_text(json.dumps(memories, indent=2), encoding="utf-8")
 
 def commit_tripartite_memory(head_quant_result: Dict[str, Any], child_metrics: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
-    """Commits an experiment outcome to the Vector DB and updates confidence scores."""
+    """Commits an experiment outcome to the Vector DB and updates confidence scores.
+    Belief movement is evidence-quality weighted (sample size, validation stability,
+    prediction match, implementation fidelity) and outcomes are contextual
+    (SUPPORTED_IN_CONTEXT / REFUTED / INCONCLUSIVE...), not binary SUCCESS/FAILED."""
     tags = head_quant_result.get("memory_tags", ["GENERAL_REPAIR"])
     fix_description = head_quant_result.get("reasoning", "") or head_quant_result.get("recommended_fix", "MQL5 Strategy Mutation")
     passed = (child_metrics.get("win_rate", 0) >= 0.70 and 
               child_metrics.get("profit_factor", 0) >= 2.00 and 
               child_metrics.get("max_drawdown", 1.0) <= 0.06 and
               child_metrics.get("max_consecutive_losses", 99) <= 4)
+
+    # --- Evidence-quality weight (Tier-2 §4) ---
+    eq = state.get("last_evidence_quality") or {}
+    weight = 1.0
+    n = int(eq.get("n_trades", child_metrics.get("total_trades", 0)) or 0)
+    if n < 5:
+        weight *= 0.25
+    elif n < 15:
+        weight *= 0.60
+    if eq and not eq.get("wf_evidence_available", True):
+        weight *= 0.50
+    elif eq and not eq.get("wf_passed", True):
+        weight *= 0.60
+    if eq.get("implementation_fidelity") == "MISMATCH":
+        weight *= 0.30
+    weight = max(0.10, min(1.50, weight))
+
+    # --- Contextual outcome (Mission §12) ---
+    belief = (state.get("last_self_review") or {}).get("causal_belief_update")
+    if passed and belief == "SUPPORTED":
+        outcome_context = "SUPPORTED_IN_CONTEXT"
+    elif passed:
+        outcome_context = "CONTEXT_DEPENDENT"
+    elif belief == "REFUTED":
+        outcome_context = "REFUTED"
+    elif belief == "WEAKENED":
+        outcome_context = "FAILED_IN_CONTEXT"
+    else:
+        outcome_context = "INCONCLUSIVE"
     
     it = state.get("iteration", 0)
     mission_id = state.get("mission_id", "de40-x1x")
@@ -91,11 +123,11 @@ def commit_tripartite_memory(head_quant_result: Dict[str, Any], child_metrics: D
             old_confidence = m.get("confidence", 0.50)
             break
 
-    # Calculate new confidence delta (+0.10 on pass, -0.15 on fail)
+    # Confidence delta scaled by evidence weight (+0.10 on pass, -0.15 on fail)
     if passed:
-        new_confidence = min(1.0, old_confidence + 0.10)
+        new_confidence = min(1.0, old_confidence + 0.10 * weight)
     else:
-        new_confidence = max(0.0, old_confidence - 0.15)
+        new_confidence = max(0.0, old_confidence - 0.15 * weight)
         
     if new_confidence >= 0.70:
         status = "VALIDATED"
@@ -107,6 +139,25 @@ def commit_tripartite_memory(head_quant_result: Dict[str, Any], child_metrics: D
     doc_text = f"{' '.join(tags)}: {fix_description[:500]}"
     vector = embedder.embed(doc_text)
 
+    # --- MemSkill-style evidence lineage: the fields that repeatedly prove ---
+    # --- necessary to identify filter accretion are preserved on every record ---
+    delta = state.get("last_child_parent_delta") or {}
+    lineage = {
+        "parent_trades": delta.get("parent_trades"),
+        "child_trades": delta.get("child_trades"),
+        "frequency_delta_pct": delta.get("pct_trade_change"),
+        "frequency_retention_pct": delta.get("frequency_retention_pct"),
+        "losers_removed": delta.get("losers_removed_count"),
+        "winners_removed": delta.get("winners_removed_count"),
+        "loser_to_winner": delta.get("loser_to_winner"),
+        "winner_to_loser": delta.get("winner_to_loser"),
+        "is_freq_collapse": delta.get("is_freq_collapse"),
+        "is_sample_insufficient": delta.get("is_sample_insufficient"),
+        "causal_hypothesis": (state.get("last_self_review") or {}).get("unmet_dimensions"),
+        "validation_outcome": "PASS" if eq.get("wf_passed") else ("UNAVAILABLE" if not eq.get("wf_evidence_available", True) else "FAIL"),
+        "matched_winner_comparison": eq.get("matched_winner_comparison"),
+    }
+
     entry = {
         "id": mem_id,
         "document": doc_text,
@@ -114,6 +165,9 @@ def commit_tripartite_memory(head_quant_result: Dict[str, Any], child_metrics: D
         "confidence": round(new_confidence, 2),
         "status": status,
         "passed": passed,
+        "outcome_context": outcome_context,
+        "evidence_weight": round(weight, 3),
+        "evidence_lineage": lineage,
         "win_rate": round(child_metrics.get("win_rate", 0.0), 2),
         "profit_factor": round(child_metrics.get("profit_factor", 0.0), 2),
         "max_drawdown": round(child_metrics.get("max_drawdown", 0.0), 3),
@@ -147,7 +201,9 @@ def commit_tripartite_memory(head_quant_result: Dict[str, Any], child_metrics: D
         "tags": tags,
         "confidence": round(new_confidence, 2),
         "status": status,
-        "passed": passed
+        "passed": passed,
+        "outcome_context": outcome_context,
+        "evidence_weight": round(weight, 3)
     }
 
 def load_brain_context(query_tags: Optional[List[str]] = None) -> str:
