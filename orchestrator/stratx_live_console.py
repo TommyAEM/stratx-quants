@@ -902,6 +902,92 @@ def format_population_enrichment_block(enr: Optional[Dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+# =====================================================================
+# CONSTRUCTIVE LANDSCAPE MAPPING (builder mode, not evaluation mode)
+# =====================================================================
+# When the council stall-detects (refusals / no-op children / dead lineages),
+# the engine stops DEBATING parameters and MEASURES them: a greedy coordinate
+# sweep over the module's numeric inputs via physical MT5 runs with
+# [TesterInputs] overrides (no recompiles). The best measured region becomes
+# the new compounding baseline. This converts "LLM guesses one mutation at a
+# time" into "map the landscape, then build from the best measured point."
+
+LANDSCAPE_FREQ_FLOOR = 27  # 20 trades/yr x 1.33yr physical window
+
+def apply_params_to_code(code: str, params: Dict[str, Any]) -> str:
+    """Deterministically patches `input` default values in MQL5 source."""
+    for k, v in params.items():
+        pat = re.compile(r'(input\s+\w+\s+' + re.escape(k) + r'\s*=\s*)[^;]+;')
+        code = pat.sub(lambda m: m.group(1) + str(v) + ';', code)
+    return code
+
+def run_landscape_mapping(module_name: str, base_code: str, max_runs: int = 16) -> Optional[Dict[str, Any]]:
+    """Greedy coordinate sweep over the module's numeric inputs using physical
+    MT5 backtests (input overrides, no recompile between runs). Frequency-first
+    selection: configs reaching the 20/yr floor outrank everything; otherwise
+    maximize trade count, then fitness. Returns winning params + metrics."""
+    from orchestrator.mt5_adapter import extract_optimizable_inputs
+    dims = extract_optimizable_inputs(base_code, max_params=6)
+    if not dims:
+        return None
+
+    results: List[Dict[str, Any]] = []
+
+    def _evaluate(params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        if len(results) >= max_runs:
+            return None
+        try:
+            metrics, _, rp = run_real_vantage_backtest(module_name, base_code, params=params)
+        except Exception as e:
+            print(f"   ⚠️ landscape run failed ({e}); skipping config.", flush=True)
+            return None
+        rec = {"params": dict(params), "trades": metrics.get("total_trades", 0),
+               "win_rate": metrics.get("win_rate", 0.0), "profit_factor": metrics.get("profit_factor", 0.0),
+               "max_drawdown": metrics.get("max_drawdown", 1.0),
+               "score": score_strategy_metrics(metrics), "report": rp.name}
+        results.append(rec)
+        print(f"   🧭 [{len(results)}/{max_runs}] {params} -> N={rec['trades']} "
+              f"WR={rec['win_rate']*100:.0f}% PF={rec['profit_factor']:.2f} score={rec['score']:.1f}", flush=True)
+        return rec
+
+    def _rank(rec: Dict[str, Any]):
+        freq_ok = rec["trades"] >= LANDSCAPE_FREQ_FLOOR
+        return (1 if freq_ok else 0, rec["trades"], rec["score"])
+
+    print(f"\n🧭 {Colors.CYAN_BOLD}[LANDSCAPE MAPPING — {module_name}]: measuring the parameter landscape "
+          f"with physical MT5 runs instead of debating it (budget {max_runs} runs).{Colors.ENDC}\n", flush=True)
+
+    current = {d["name"]: d["default"] for d in dims}
+    best = _evaluate(current)  # run 1: baseline as-coded
+    if best is None:
+        return None
+
+    for d in dims:
+        for cand in {d["start"], d["stop"]}:
+            if cand == current[d["name"]]:
+                continue
+            trial_params = {**current, d["name"]: cand}
+            rec = _evaluate(trial_params)
+            if rec and _rank(rec) > _rank(best):
+                current[d["name"]] = cand
+                best = rec
+                print(f"   ⬆️ adopting {d['name']}={cand} (new best region)", flush=True)
+
+    out = {"module": module_name, "params": current, "metrics": {
+                "total_trades": best["trades"], "win_rate": best["win_rate"],
+                "profit_factor": best["profit_factor"], "max_drawdown": best["max_drawdown"]},
+           "score": best["score"], "runs": len(results), "results": results}
+    try:
+        Path(f"C:/Trading/DE40-Research/evidence/landscape_map_{module_name}.json").write_text(
+            json.dumps(out, indent=2, default=str), encoding="utf-8")
+    except Exception:
+        pass
+    print(f"🧭 {Colors.LIME_BOLD}[LANDSCAPE MAP COMPLETE]: best region {current} -> N={best['trades']} "
+          f"WR={best['win_rate']*100:.0f}% PF={best['profit_factor']:.2f} (score {best['score']:.1f}). "
+          f"Map saved to evidence/landscape_map_{module_name}.json{Colors.ENDC}\n", flush=True)
+    return out
+
+
 def enforce_memory_commitment(state: Dict[str, Any], module_name: str) -> bool:
     """
     MEMORY COMMITMENT INVARIANT (Mission §12 / Regression TEST F).
@@ -4166,6 +4252,8 @@ void OnTick()
                     state["iterations_since_improvement"] = 0
                     state["temperature"] = 0.0
                     state["forced_jab"] = None
+                    state["landscape_maps_used"] = 0
+                    state["consecutive_non_mutation"] = 0
                     attempt_num = 1
 
                 base_parent_code = state.get("champion_code") or active_thesis["base_code"]
@@ -4586,13 +4674,64 @@ Output JSON with neutral structural keys:
 
                 if council_refused:
                     # ANTI-STALL CIRCUIT BREAKER: the Council has refused to act
-                    # 3+ times in a row while the goal is unmet. Self-Healing is
-                    # the core engine, not an optional optimisation — the
-                    # orchestrator forces ONE deterministic frequency-restoration
-                    # mutation keyed to the ACTIVE repair level, guaranteeing a
-                    # physical MT5 test and real child-parent delta this iteration.
-                    # PREFERENCE: the Historian's genuinely-untested direction
-                    # (mined from the memory ledger) over the fixed ladder.
+                    # 3+ times in a row while the goal is unmet.
+                    #
+                    # FIRST RESPONSE (once per thesis): CONSTRUCTIVE LANDSCAPE
+                    # MAPPING — stop debating parameters, MEASURE them. A greedy
+                    # coordinate sweep over the module's numeric inputs via
+                    # physical MT5 runs finds the best measured region, which
+                    # becomes the new compounding baseline. This is the shift
+                    # from "evaluate LLM guesses" to "build from measured data".
+                    if state.get("landscape_maps_used", 0) < 1:
+                        state["landscape_maps_used"] = 1
+                        state["consecutive_non_mutation"] = 0
+                        mapping = run_landscape_mapping(active_thesis["name"], base_parent_code)
+                        if mapping and mapping.get("metrics"):
+                            mapped_code = apply_params_to_code(base_parent_code, mapping["params"])
+                            mapped_score = mapping.get("score", -1e18)
+                            prev_score = state.get("champion_score", -1e18)
+                            state["last_landscape_map"] = {
+                                "params": mapping["params"], "runs": mapping.get("runs"),
+                                "score": mapped_score, "trades": mapping["metrics"].get("total_trades")}
+                            log_mutation_audit({
+                                "iteration": state.get("iteration"),
+                                "module": active_thesis["name"],
+                                "phase": "LANDSCAPE_MAPPING",
+                                "params": mapping["params"],
+                                "result_trades": mapping["metrics"].get("total_trades"),
+                                "result_wr": mapping["metrics"].get("win_rate"),
+                                "result_pf": mapping["metrics"].get("profit_factor"),
+                                "score": mapped_score,
+                            })
+                            if mapped_score > prev_score:
+                                state["champion_code"] = mapped_code
+                                state["champion_metrics"] = dict(mapping["metrics"])
+                                state["champion_params"] = mapping["params"]
+                                state["champion_score"] = mapped_score
+                                state["iterations_since_improvement"] = 0
+                                state["lineage_note"] = (
+                                    f"LANDSCAPE MAPPING adopted a MEASURED baseline (not an LLM guess): "
+                                    f"{mapping['params']} -> N={mapping['metrics'].get('total_trades')} "
+                                    f"WR={mapping['metrics'].get('win_rate', 0)*100:.1f}% "
+                                    f"PF={mapping['metrics'].get('profit_factor', 0):.2f} "
+                                    f"(score {prev_score if prev_score > -1e17 else 'BASELINE'} -> {mapped_score:.1f}). "
+                                    f"Compound further gains on top of this measured region."
+                                )
+                                print(f"🏆 {Colors.LIME_BOLD}[MEASURED BASELINE ADOPTED]: landscape winner becomes the "
+                                      f"compounding parent (score {mapped_score:.1f}). Council now refines a REAL "
+                                      f"population instead of debating a dead one.{Colors.ENDC}\n", flush=True)
+                            else:
+                                print(f"🧭 {Colors.YELLOW}[LANDSCAPE MAP]: no region beat the current champion "
+                                      f"({mapped_score:.1f} <= {prev_score:.1f}); map retained as evidence.{Colors.ENDC}\n", flush=True)
+                            self.self_review.advance_iteration(sr_session)
+                            state["self_review_session"] = sr_session
+                            save_checkpoint(state)
+                            continue
+                        print(f"⚠️ {Colors.YELLOW}[LANDSCAPE MAP FAILED]: falling back to forced mutation.{Colors.ENDC}\n", flush=True)
+
+                    # SECOND RESPONSE: forced mutation — prefer the Historian's
+                    # genuinely-untested direction (mined from the memory ledger)
+                    # over the fixed ladder.
                     untested = historian_raw.get("untested_direction")
                     if isinstance(untested, str) and len(untested.strip()) >= 30 \
                             and "none" not in untested.strip().lower()[:8]:

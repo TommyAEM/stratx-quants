@@ -56,6 +56,7 @@ from orchestrator.stratx_live_console import (
     compute_population_enrichment,
     compute_real_yearly_metrics,
     count_mutation_diff,
+    apply_params_to_code,
     enforce_memory_commitment,
     evaluate_final_portfolio_gates,
     format_population_enrichment_block,
@@ -444,6 +445,43 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
         # Fabrication guard: N < 5 -> unavailable
         self.assertIsNone(compute_population_enrichment(_df(3)))
         self.assertIn("unavailable", format_population_enrichment_block(None))
+
+    def test_Q_landscape_mapping_builds_from_measured_region(self):
+        """TEST Q (builder mode): landscape mapping sweeps numeric inputs via
+        physical runs (mocked), adopts the frequency-first best region, and
+        patches input defaults into code deterministically."""
+        code = ('input double InpMinBreakATR = 0.15;   // comment preserved\n'
+                'input int    InpMaxBarsOutside = 8;\n'
+                'input long   InpMagic = 260101;\n')
+        patched = apply_params_to_code(code, {"InpMinBreakATR": 0.4, "InpMaxBarsOutside": 16})
+        self.assertIn("InpMinBreakATR = 0.4;", patched)
+        self.assertIn("// comment preserved", patched)
+        self.assertIn("InpMaxBarsOutside = 16;", patched)
+        self.assertNotIn("InpMagic = 260100", patched)
+
+        # Mock the physical runner: widening InpMinBreakATR to its range STOP
+        # yields the best frequency + fitness region.
+        calls = []
+        def fake_run(module, code_arg, params=None):
+            calls.append(dict(params or {}))
+            v = (params or {}).get("InpMinBreakATR", 0.15)
+            good = abs(v - 0.225) < 1e-9  # stop = 0.15 * 1.5
+            metrics = {"total_trades": 30 if good else 6,
+                       "win_rate": 0.6 if good else 0.3,
+                       "profit_factor": 1.8 if good else 0.9,
+                       "max_drawdown": 0.05}
+            return metrics, pd.DataFrame({"R": [1.0, -1.0] * 15}), Path("rep.htm")
+
+        orig = console_mod.run_real_vantage_backtest
+        console_mod.run_real_vantage_backtest = fake_run
+        try:
+            out = console_mod.run_landscape_mapping("MOD_X", code, max_runs=16)
+        finally:
+            console_mod.run_real_vantage_backtest = orig
+        self.assertIsNotNone(out)
+        self.assertEqual(out["params"]["InpMinBreakATR"], 0.225)
+        self.assertEqual(out["metrics"]["total_trades"], 30)
+        self.assertGreater(len(calls), 2)  # actually swept, not single-shot
 
 
 if __name__ == "__main__":
