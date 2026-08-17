@@ -1,0 +1,218 @@
+{
+ "VPPOC_S1_001": {
+  "set": "VPPOC_S1_001.set",
+  "trades": "68",
+  "wr": 52.94,
+  "pf": "0.88",
+  "net": "-35.43",
+  "dd_pct": "57.21 (0.57%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_002": {
+  "set": "VPPOC_S1_002.set",
+  "trades": "65",
+  "wr": 53.85,
+  "pf": "0.88",
+  "net": "-34.10",
+  "dd_pct": "73.01 (0.73%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_003": {
+  "set": "VPPOC_S1_003.set",
+  "trades": "60",
+  "wr": 55.0,
+  "pf": "0.86",
+  "net": "-29.98",
+  "dd_pct": "103.76 (1.04%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_004": {
+  "set": "VPPOC_S1_004.set",
+  "trades": "63",
+  "wr": 55.56,
+  "pf": "0.94",
+  "net": "-18.76",
+  "dd_pct": "89.51 (0.90%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_005": {
+  "set": "VPPOC_S1_005.set",
+  "trades": "70",
+  "wr": 54.29,
+  "pf": "0.92",
+  "net": "-27.91",
+  "dd_pct": "111.25 (1.11%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_006": {
+  "set": "VPPOC_S1_006.set",
+  "trades": "46",
+  "wr": 63.04,
+  "pf": "1.19",
+  "net": "31.67",
+  "dd_pct": "63.30 (0.63%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_007": {
+  "set": "VPPOC_S1_007.set",
+  "trades": "71",
+  "wr": 64.79,
+  "pf": "1.43",
+  "net": "130.60",
+  "dd_pct": "60.30 (0.60%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_008": {
+  "set": "VPPOC_S1_008.set",
+  "trades": "51",
+  "wr": 64.71,
+  "pf": "1.51",
+  "net": "113.56",
+  "dd_pct": "50.52 (0.50%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_009": {
+  "set": "VPPOC_S1_009.set",
+  "trades": "79",
+  "wr": 55.7,
+  "pf": "0.92",
+  "net": "-31.66",
+  "dd_pct": "90.69 (0.91%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_010": {
+  "set": "VPPOC_S1_010.set",
+  "trades": "78",
+  "wr": 53.85,
+  "pf": "0.82",
+  "net": "-83.71",
+  "dd_pct": "113.52 (1.13%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_011": {
+  "set": "VPPOC_S1_011.set",
+  "trades": "88",
+  "wr": 53.41,
+  "pf": "0.95",
+  "net": "-24.27",
+  "dd_pct": "96.22 (0.96%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_012": {
+  "set": "VPPOC_S1_012.set",
+  "trades": "88",
+  "wr": 53.41,
+  "pf": "0.91",
+  "net": "-32.46",
+  "dd_pct": "66.83 (0.67%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_013": {
+  "set": "VPPOC_S1_013.set",
+  "trades": "86",
+  "wr": 55.81,
+  "pf": "1.00",
+  "net": "-1.22",
+  "dd_pct": "88.46 (0.88%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_014": {
+  "set": "VPPOC_S1_014.set",
+  "trades": "56",
+  "wr": 66.07,
+  "pf": "1.41",
+  "net": "107.31",
+  "dd_pct": "65.57 (0.65%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_015": {
+  "set": "VPPOC_S1_015.set",
+  "trades": "45",
+  "wr": 57.78,
+  "pf": "0.99",
+  "net": "-3.29",
+  "dd_pct": "67.19 (0.67%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_016": {
+  "set": "VPPOC_S1_016.set",
+  "trades": "61",
+  "wr": 60.66,
+  "pf": "1.30",
+  "net": "79.50",
+  "dd_pct": "59.25 (0.59%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_017": {
+  "set": "VPPOC_S1_017.set",
+  "trades": "69",
+  "wr": 52.17,
+  "pf": "0.99",
+  "net": "-1.88",
+  "dd_pct": "103.15 (1.03%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_018": {
+  "set": "VPPOC_S1_018.set",
+  "trades": "60",
+  "wr": 55.0,
+  "pf": "1.08",
+  "net": "22.40",
+  "dd_pct": "101.26 (1.01%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_019": {
+  "set": "VPPOC_S1_019.set",
+  "trades": "65",
+  "wr": 52.31,
+  "pf": "0.95",
+  "net": "-20.19",
+  "dd_pct": "111.99 (1.11%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_020": {
+  "set": "VPPOC_S1_020.set",
+  "trades": "65",
+  "wr": 53.85,
+  "pf": "0.94",
+  "net": "-17.61",
+  "dd_pct": "81.50 (0.81%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_021": {
+  "set": "VPPOC_S1_021.set",
+  "trades": "52",
+  "wr": 69.23,
+  "pf": "1.43",
+  "net": "70.85",
+  "dd_pct": "41.65 (0.42%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_022": {
+  "set": "VPPOC_S1_022.set",
+  "trades": "60",
+  "wr": 61.67,
+  "pf": "1.15",
+  "net": "28.98",
+  "dd_pct": "71.02 (0.71%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_023": {
+  "set": "VPPOC_S1_023.set",
+  "trades": "76",
+  "wr": 55.26,
+  "pf": "0.93",
+  "net": "-33.69",
+  "dd_pct": "142.83 (1.43%)",
+  "exit_ok": true
+ },
+ "VPPOC_S1_024": {
+  "set": "VPPOC_S1_024.set",
+  "trades": "43",
+  "wr": 72.09,
+  "pf": "2.16",
+  "net": "180.40",
+  "dd_pct": "45.63 (0.45%)",
+  "exit_ok": true
+ }
+}

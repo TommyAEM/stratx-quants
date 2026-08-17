@@ -1,0 +1,11 @@
+{
+  "test_id": "EXHREJ_S1_EXHREJ_S1_013",
+  "run_id": "EXHREJ_S1_EXHREJ_S1_013_20260815_165104",
+  "set_file": "EXHREJ_S1_013.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_EXHREJ_S1_EXHREJ_S1_013_20260815_165104.ini",
+  "vantage_pids_before": "[18520]",
+  "process_start": "2026-08-15 16:51:04.844937"
+}

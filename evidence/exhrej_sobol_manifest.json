@@ -1,0 +1,222 @@
+{
+ "mode": "sobol",
+ "count": 24,
+ "manifest": {
+  "EXHREJ_S1_001": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.659066,
+   "InpWickRatio": 0.537712,
+   "InpVolSpikeMult": 2.476402,
+   "InpSLBufferATR": 0.221731
+  },
+  "EXHREJ_S1_002": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.828706,
+   "InpWickRatio": 0.591422,
+   "InpVolSpikeMult": 1.586998,
+   "InpSLBufferATR": 0.352231
+  },
+  "EXHREJ_S1_003": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.429997,
+   "InpWickRatio": 0.608411,
+   "InpVolSpikeMult": 1.604783,
+   "InpSLBufferATR": 0.227214
+  },
+  "EXHREJ_S1_004": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.739615,
+   "InpWickRatio": 0.706713,
+   "InpVolSpikeMult": 1.685703,
+   "InpSLBufferATR": 0.266972
+  },
+  "EXHREJ_S1_005": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.901947,
+   "InpWickRatio": 0.736927,
+   "InpVolSpikeMult": 2.365654,
+   "InpSLBufferATR": 0.319004
+  },
+  "EXHREJ_S1_006": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 1.181004,
+   "InpWickRatio": 0.511646,
+   "InpVolSpikeMult": 2.787703,
+   "InpSLBufferATR": 0.286883
+  },
+  "EXHREJ_S1_007": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.515404,
+   "InpWickRatio": 0.529448,
+   "InpVolSpikeMult": 1.962723,
+   "InpSLBufferATR": 0.444838
+  },
+  "EXHREJ_S1_008": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.544581,
+   "InpWickRatio": 0.6454,
+   "InpVolSpikeMult": 2.45837,
+   "InpSLBufferATR": 0.311719
+  },
+  "EXHREJ_S1_009": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.838196,
+   "InpWickRatio": 0.515697,
+   "InpVolSpikeMult": 1.589402,
+   "InpSLBufferATR": 0.261788
+  },
+  "EXHREJ_S1_010": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.94432,
+   "InpWickRatio": 0.606898,
+   "InpVolSpikeMult": 1.971221,
+   "InpSLBufferATR": 0.375669
+  },
+  "EXHREJ_S1_011": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.762548,
+   "InpWickRatio": 0.574942,
+   "InpVolSpikeMult": 2.691569,
+   "InpSLBufferATR": 0.409698
+  },
+  "EXHREJ_S1_012": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.595277,
+   "InpWickRatio": 0.643606,
+   "InpVolSpikeMult": 2.287795,
+   "InpSLBufferATR": 0.462541
+  },
+  "EXHREJ_S1_013": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.983556,
+   "InpWickRatio": 0.571984,
+   "InpVolSpikeMult": 2.970262,
+   "InpSLBufferATR": 0.23542
+  },
+  "EXHREJ_S1_014": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.734498,
+   "InpWickRatio": 0.689285,
+   "InpVolSpikeMult": 1.727977,
+   "InpSLBufferATR": 0.346689
+  },
+  "EXHREJ_S1_015": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.431366,
+   "InpWickRatio": 0.667054,
+   "InpVolSpikeMult": 2.646856,
+   "InpSLBufferATR": 0.371908
+  },
+  "EXHREJ_S1_016": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 1.100382,
+   "InpWickRatio": 0.578437,
+   "InpVolSpikeMult": 2.542943,
+   "InpSLBufferATR": 0.378311
+  },
+  "EXHREJ_S1_017": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.863916,
+   "InpWickRatio": 0.614051,
+   "InpVolSpikeMult": 2.759952,
+   "InpSLBufferATR": 0.483404
+  },
+  "EXHREJ_S1_018": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.779279,
+   "InpWickRatio": 0.666038,
+   "InpVolSpikeMult": 1.591004,
+   "InpSLBufferATR": 0.410448
+  },
+  "EXHREJ_S1_019": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.917703,
+   "InpWickRatio": 0.748274,
+   "InpVolSpikeMult": 2.732887,
+   "InpSLBufferATR": 0.285379
+  },
+  "EXHREJ_S1_020": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.708633,
+   "InpWickRatio": 0.667163,
+   "InpVolSpikeMult": 1.533844,
+   "InpSLBufferATR": 0.338509
+  },
+  "EXHREJ_S1_021": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.534439,
+   "InpWickRatio": 0.529274,
+   "InpVolSpikeMult": 1.588432,
+   "InpSLBufferATR": 0.43047
+  },
+  "EXHREJ_S1_022": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.503472,
+   "InpWickRatio": 0.561904,
+   "InpVolSpikeMult": 2.086425,
+   "InpSLBufferATR": 0.461427
+  },
+  "EXHREJ_S1_023": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 0.464465,
+   "InpWickRatio": 0.612297,
+   "InpVolSpikeMult": 2.32416,
+   "InpSLBufferATR": 0.465015
+  },
+  "EXHREJ_S1_024": {
+   "InpServerUTC": 3,
+   "InpAllowShort": false,
+   "InpAllowLong": true,
+   "InpExtendATR": 1.055424,
+   "InpWickRatio": 0.715996,
+   "InpVolSpikeMult": 1.917632,
+   "InpSLBufferATR": 0.324589
+  }
+ }
+}

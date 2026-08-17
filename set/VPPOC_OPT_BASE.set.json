@@ -1,0 +1,7 @@
+{"params": {
+  "InpTagATR": {"start": 0.05, "step": 0.015, "stop": 0.14},
+  "InpSLBufATR": {"start": 0.30, "step": 0.075, "stop": 0.60},
+  "InpVA_Pct": {"start": 70, "step": 3, "stop": 80},
+  "InpLookbackDays": {"start": 2, "step": 1, "stop": 5},
+  "InpBucketPts": {"start": 250, "step": 50, "stop": 450}
+}}

@@ -1,0 +1,11 @@
+{
+  "test_id": "GEN2DEV_GEN2_DISP",
+  "run_id": "GEN2DEV_GEN2_DISP_20260815_220519",
+  "set_file": "GEN2_DISP.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_GEN2DEV_GEN2_DISP_20260815_220519.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 22:05:19.708157"
+}

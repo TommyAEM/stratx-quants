@@ -1,0 +1,15 @@
+InpServerUTC=3
+InpVwapStartGMT=7
+InpVwapExtATR=1.5
+InpEntryStartGMT=7
+InpEntryEndGMT=17
+InpSLBufATR=0.30
+InpTP_RR=1.0
+InpAllowLong=true
+InpAllowShort=false
+InpGateDisp=true
+InpDispMin=0.80
+InpRunner=true
+InpRunnerCapR=3.0
+InpPartial=true
+InpMagic=4723

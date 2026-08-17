@@ -1,0 +1,11 @@
+{
+  "test_id": "BRKRT_LONG_NOGATE",
+  "run_id": "BRKRT_LONG_NOGATE_20260815_170410",
+  "set_file": "DE40_BRKRT_LONG_NOGATE.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_BRKRT_LONG_NOGATE_20260815_170410.ini",
+  "vantage_pids_before": "[8440]",
+  "process_start": "2026-08-15 17:04:10.126231"
+}

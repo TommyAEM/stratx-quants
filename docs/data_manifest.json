@@ -1,0 +1,211 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-08-15T14:27:39Z",
+  "generator": "DE40 NEXTGEN wave 1 step 2 (InfraManifest)",
+  "symbol": {
+    "pu_prime": "GER40.s",
+    "vantage": "GER40",
+    "digits": 2,
+    "point": 0.01,
+    "unit_rule": "DJ30 lesson #4: convert MT5 points x 0.01 to index points before any ratio (1 index point = 100 MT5 points)"
+  },
+  "tick_quality_by_year": {
+    "2021": "modeled",
+    "2022": "modeled",
+    "2023": "~67% real",
+    "2024": "~67% real",
+    "2025": "100% real",
+    "2026": "100% real",
+    "source": "prior-campaign-verified",
+    "reference": "docs/SPLITS.md (locked 2026-08-15 supervisor policy); docs/MISSION.md (PU Prime: real ticks 2025+, ~67% 2023-24, M15 2021-2026)"
+  },
+  "terminals": [
+    {
+      "id": "pu-prime",
+      "role": "primary tester data — every MT5 gate (DEV/VAL/HOLDOUT) runs on this dir",
+      "terminal_id": "D0E8209F77C8CF37AD8BF550E51FF075",
+      "base": "PUPrime-Demo",
+      "symbol_dir": "history/GER40.s",
+      "exe": "C:\\Program Files\\MetaTrader 5\\terminal64.exe",
+      "access_policy": "RW reads (compile-only policy); never auto-launch terminal64.exe",
+      "tick_storage": "none — yearly .hcc only; no .tick/.tkc files present on disk",
+      "coverage": "2021-2026 (6 years)",
+      "files": [
+        {
+          "file": "2021.hcc",
+          "size": 3361620,
+          "mtime_utc": "2026-08-01T18:42:16Z",
+          "sha256": "173445739a6ac2a09e77f2e929a750817ac70bc4a4feb8ca0b4eb3d266e23d9e",
+          "tick_quality": "modeled"
+        },
+        {
+          "file": "2022.hcc",
+          "size": 19285797,
+          "mtime_utc": "2026-08-01T18:42:16Z",
+          "sha256": "73e6aae05478a8eb9d755f626ea589d41a1a81a3f5164f172baca7084c25ce00",
+          "tick_quality": "modeled"
+        },
+        {
+          "file": "2023.hcc",
+          "size": 19163919,
+          "mtime_utc": "2026-08-01T18:42:16Z",
+          "sha256": "8fa193383ab0dd6a99fe1802b57844c7ab00828866cb143af86dead00471c214",
+          "tick_quality": "~67% real"
+        },
+        {
+          "file": "2024.hcc",
+          "size": 19065210,
+          "mtime_utc": "2026-08-01T18:42:16Z",
+          "sha256": "16cca7cabb80e0cfc6e85c82a2d8f969e9fd2154b54a0ac7d61a5663bc4b5a8e",
+          "tick_quality": "~67% real"
+        },
+        {
+          "file": "2025.hcc",
+          "size": 18962121,
+          "mtime_utc": "2026-08-01T18:42:16Z",
+          "sha256": "3aafbc1e11fd9f25335338a6cc07c959025e326cf171d56af36e3006bee103f7",
+          "tick_quality": "100% real"
+        },
+        {
+          "file": "2026.hcc",
+          "size": 12100380,
+          "mtime_utc": "2026-08-15T13:29:47Z",
+          "sha256": "84a6f466c2dd71cc58ae28e56420bb23f988cc6afd9035deb9136c37730c72e3",
+          "tick_quality": "100% real"
+        }
+      ],
+      "cache_files": [
+        { "file": "cache/Daily.hc", "size": 95702, "mtime_utc": "2026-08-15T13:29:47Z" },
+        { "file": "cache/H1.hc", "size": 1343006, "mtime_utc": "2026-08-01T18:42:16Z" },
+        { "file": "cache/M1.hc", "size": 6022316, "mtime_utc": "2026-08-05T23:45:20Z" },
+        { "file": "cache/M15.hc", "size": 6091196, "mtime_utc": "2026-08-05T23:45:20Z" },
+        { "file": "cache/M5.hc", "size": 143324, "mtime_utc": "2026-07-27T13:37:00Z" }
+      ],
+      "per_year_sizes_bytes": {
+        "2021": 3361620,
+        "2022": 19285797,
+        "2023": 19163919,
+        "2024": 19065210,
+        "2025": 18962121,
+        "2026": 12100380
+      }
+    },
+    {
+      "id": "vantage-a",
+      "role": "parity / canonical confirmation (VantageResearch instance per MISSION.md)",
+      "terminal_id": "E07A066BDB2C10AD677A715C4DEC32A2",
+      "base": "VantageMarkets-Demo",
+      "symbol_dir": "history/GER40",
+      "exe": "C:\\Users\\Tommy\\AppData\\Roaming\\VantageResearch\\terminal64.exe",
+      "access_policy": "READ ONLY — never launch this terminal",
+      "tick_storage": "none — yearly .hcc only; no .tick/.tkc files present on disk",
+      "coverage": "2021-2026 (6 years)",
+      "files": [
+        {
+          "file": "2021.hcc",
+          "size": 2406363,
+          "mtime_utc": "2026-08-12T10:34:28Z",
+          "sha256": "845875aec10709463a593a1e0c6eb42da88a47c33a535665904f0aae84aee22d",
+          "tick_quality": "modeled"
+        },
+        {
+          "file": "2022.hcc",
+          "size": 19308297,
+          "mtime_utc": "2026-08-12T09:20:20Z",
+          "sha256": "88b6c38ebdffd317553eeadf0461c42251b397b3d0036a94ab82928804fbaf2c",
+          "tick_quality": "modeled"
+        },
+        {
+          "file": "2023.hcc",
+          "size": 19180959,
+          "mtime_utc": "2026-07-24T11:11:30Z",
+          "sha256": "82dd96301b56bc624990a4f850e5fa625c497cb6af21399c426f8a13a852ba8a",
+          "tick_quality": "~67% real"
+        },
+        {
+          "file": "2024.hcc",
+          "size": 19130970,
+          "mtime_utc": "2026-07-24T11:11:30Z",
+          "sha256": "b0cfc8fcde7c27a2c6f538f0d278f36850150ae8830f1d41abef3c4253207cf9",
+          "tick_quality": "~67% real"
+        },
+        {
+          "file": "2025.hcc",
+          "size": 19059441,
+          "mtime_utc": "2026-07-24T11:11:30Z",
+          "sha256": "8aa85666d127b2195be3ca083bc072da1ba6470906b61884b3f34fe45c09cfd5",
+          "tick_quality": "100% real"
+        },
+        {
+          "file": "2026.hcc",
+          "size": 11705688,
+          "mtime_utc": "2026-08-12T10:34:36Z",
+          "sha256": "d7f5261cace67fdb84f82c12d102ce6f4dc82e21026a6cf9f7148f7f389e4f49",
+          "tick_quality": "100% real"
+        }
+      ],
+      "cache_files": [
+        { "file": "cache/Daily.hc", "size": 75578, "mtime_utc": "2026-08-07T08:18:01Z" },
+        { "file": "cache/M15.hc", "size": 1501592, "mtime_utc": "2026-08-12T10:34:28Z" }
+      ],
+      "per_year_sizes_bytes": {
+        "2021": 2406363,
+        "2022": 19308297,
+        "2023": 19180959,
+        "2024": 19130970,
+        "2025": 19059441,
+        "2026": 11705688
+      }
+    },
+    {
+      "id": "vantage-b",
+      "role": "secondary Vantage install — partial history only",
+      "terminal_id": "76759E5462A941510B91ADDD209B136B",
+      "base": "VantageMarkets-Demo",
+      "symbol_dir": "history/GER40",
+      "exe": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\76759E5462A941510B91ADDD209B136B\\terminal64.exe (presumed; terminal was not launched to verify)",
+      "access_policy": "READ ONLY — never launch this terminal",
+      "tick_storage": "none — yearly .hcc only; no .tick/.tkc files present on disk",
+      "coverage": "2026 only (partial-year download)",
+      "files": [
+        {
+          "file": "2026.hcc",
+          "size": 2240223,
+          "mtime_utc": "2026-08-15T13:51:59Z",
+          "sha256": "d4b0c90f65d676566e5f54f98d4a91943dacf57f5b21cd9e7c55cc02065c5511",
+          "tick_quality": "100% real"
+        }
+      ],
+      "cache_files": [
+        { "file": "cache/M15.hc", "size": 148982, "mtime_utc": "2026-08-15T13:51:49Z" }
+      ],
+      "per_year_sizes_bytes": {
+        "2026": 2240223
+      }
+    }
+  ],
+  "summary": {
+    "hcc_files": 13,
+    "sha256_count": 13,
+    "total_hcc_bytes": 184970988,
+    "cache_hc_files": 8,
+    "tick_files_found": 0,
+    "note": "sha256 verified via PowerShell Get-FileHash; independent certutil cross-check on PU-Prime 2026.hcc matched (84a6f466...). Cache .hc files listed for completeness, NOT hashed."
+  },
+  "live_check": {
+    "status": "skipped",
+    "reason": "MetaTrader5 python package not installed - import test failed on the only available interpreter (Python 3.13.14, Microsoft Store install; no venv present). Condition 1 of the live-check gate unmet.",
+    "conditions_checked": {
+      "python_import_MetaTrader5": "FAILED — ModuleNotFoundError: No module named 'MetaTrader5'",
+      "pu_prime_terminal_running": false,
+      "running_terminal_processes": [
+        { "pid": 8440, "path": "C:\\Users\\Tommy\\AppData\\Roaming\\Vantage Markets MT5 Terminal\\terminal64.exe", "note": "Tommy's live Vantage — untouched" },
+        { "pid": 11556, "path": "C:\\Users\\Tommy\\AppData\\Roaming\\VantageResearch\\terminal64.exe", "note": "Research terminal — untouched" }
+      ],
+      "terminal_launched": false
+    },
+    "result": null,
+    "measured_spread_index_points": null,
+    "measured_m15_atr": null
+  }
+}

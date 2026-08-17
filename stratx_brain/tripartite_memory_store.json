@@ -1,0 +1,25 @@
+{
+  "memories": [
+    {
+      "id": "MEM_0001_de40-x1x",
+      "document": "Applied 1.50 ATR expansion floor and pruned illiquid Asian session overlap (07:00-09:30 UTC).",
+      "tags": [
+        "ATR_FILTER",
+        "ASIAN_SESSION_PRUNE",
+        "OLS_SLOPE_DIRECTION"
+      ],
+      "metadata": {
+        "tags": "ATR_FILTER, ASIAN_SESSION_PRUNE, OLS_SLOPE_DIRECTION",
+        "confidence": 0.6,
+        "status": "TESTING",
+        "win_rate": 0.72,
+        "profit_factor": 2.25,
+        "max_drawdown": 0.03,
+        "max_consec_losses": 3,
+        "total_trades": 24,
+        "mission_id": "de40-x1x",
+        "timestamp": "2026-08-16 15:47:36"
+      }
+    }
+  ]
+}

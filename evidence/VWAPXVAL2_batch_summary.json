@@ -1,0 +1,11 @@
+{
+ "VWAPXVAL2_B": {
+  "set": "VWAPXVAL2_B.set",
+  "trades": "181",
+  "wr": 48.62,
+  "pf": "0.85",
+  "net": "-96.98",
+  "dd_pct": "182.82 (1.81%)",
+  "exit_ok": true
+ }
+}

@@ -1,0 +1,11 @@
+{
+  "test_id": "GEN2DEV_GEN2_VAW",
+  "run_id": "GEN2DEV_GEN2_VAW_20260815_220711",
+  "set_file": "GEN2_VAW.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_GEN2DEV_GEN2_VAW_20260815_220711.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 22:07:11.497603"
+}

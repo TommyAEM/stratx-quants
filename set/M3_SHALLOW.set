@@ -1,0 +1,11 @@
+InpServerUTC=3
+InpEntryStartGMT=7
+InpEntryEndGMT=17
+InpSLBufATR=0.30
+InpRunner=true
+InpRunnerCapR=3.0
+InpGateShallowPull=true
+InpPullDepMax=0.80
+InpGateLowDisp=false
+InpDispMax=0.40
+InpMagic=4910

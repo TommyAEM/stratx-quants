@@ -1,0 +1,11 @@
+{
+  "test_id": "BRKATR26_BRKATR26_B",
+  "run_id": "BRKATR26_BRKATR26_B_20260816_004626",
+  "set_file": "BRKATR26_B.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_BRKATR26_BRKATR26_B_20260816_004626.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-16 00:46:26.070199"
+}

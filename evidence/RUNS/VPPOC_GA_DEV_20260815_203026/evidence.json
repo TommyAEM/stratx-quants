@@ -1,0 +1,73 @@
+{
+  "test_id": "VPPOC_GA_DEV",
+  "run_id": "VPPOC_GA_DEV_20260815_203026",
+  "set_file": "VPPOC_OPT_BASE.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "passes": null,
+  "expert": "DE40_VPPOC_HARNESS",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_VPPOC_GA_DEV_20260815_203026.ini",
+  "vantage_pids_before": [],
+  "process_start": "2026-08-15 20:30:26.708368",
+  "swept": [
+    {
+      "name": "InpTagATR",
+      "value": "0.08",
+      "start": "0.05",
+      "step": "0.015",
+      "stop": "0.14"
+    },
+    {
+      "name": "InpSLBufATR",
+      "value": "0.46986",
+      "start": "0.3",
+      "step": "0.075",
+      "stop": "0.6"
+    },
+    {
+      "name": "InpVA_Pct",
+      "value": "77",
+      "start": "70",
+      "step": "3",
+      "stop": "80"
+    },
+    {
+      "name": "InpLookbackDays",
+      "value": "4",
+      "start": "2",
+      "step": "1",
+      "stop": "5"
+    },
+    {
+      "name": "InpBucketPts",
+      "value": "349",
+      "start": "250",
+      "step": "50",
+      "stop": "450"
+    }
+  ],
+  "naive_grid": 2800,
+  "spec_used": true,
+  "pid": 12372,
+  "process_end": "2026-08-15 20:45:50.281617",
+  "exit_code": 4294967295,
+  "artefacts": [],
+  "opt_summary": {
+    "test_id": "VPPOC_GA_DEV",
+    "run_id": "VPPOC_GA_DEV_20260815_203026",
+    "expert": "DE40_VPPOC_HARNESS",
+    "symbol": "GER40.s",
+    "from": "2023.09.01",
+    "to": "2024.12.31",
+    "swept_params": [
+      "InpTagATR",
+      "InpSLBufATR",
+      "InpVA_Pct",
+      "InpLookbackDays",
+      "InpBucketPts"
+    ],
+    "total_passes": 0,
+    "top_by_net_profit": [],
+    "parse_limitation": "No optimization XML produced; pass table unavailable."
+  }
+}

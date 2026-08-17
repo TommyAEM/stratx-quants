@@ -1,0 +1,20 @@
+{
+ "FORBVAL_BASE": {
+  "set": "FORBVAL_BASE.set",
+  "trades": "117",
+  "wr": 48.72,
+  "pf": "1.23",
+  "net": "105.63",
+  "dd_pct": "104.80 (1.04%)",
+  "exit_ok": true
+ },
+ "FORBVAL_DISP": {
+  "set": "FORBVAL_DISP.set",
+  "trades": "50",
+  "wr": 48.0,
+  "pf": "0.95",
+  "net": "-10.02",
+  "dd_pct": "93.08 (0.93%)",
+  "exit_ok": true
+ }
+}

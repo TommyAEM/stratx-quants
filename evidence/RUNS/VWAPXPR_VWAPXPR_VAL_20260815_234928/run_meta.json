@@ -1,0 +1,11 @@
+{
+  "test_id": "VWAPXPR_VWAPXPR_VAL",
+  "run_id": "VWAPXPR_VWAPXPR_VAL_20260815_234928",
+  "set_file": "VWAPXPR_VAL.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_VWAPXPR_VWAPXPR_VAL_20260815_234928.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 23:49:28.314049"
+}

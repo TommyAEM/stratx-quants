@@ -1,0 +1,21 @@
+{
+  "journal_file": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\tester\\logs\\20260815.log",
+  "journal_excerpt": [
+    "DH\t0\t23:50:03.096\tCore 01\t1695 Mb available, 20 blocks set for ticks generating",
+    "QR\t0\t23:50:03.096\tCore 01\tGER40.s,M15: history begins from 2024.01.02 02:15",
+    "KK\t0\t23:50:03.096\tCore 01\tGER40.s,M15 (PUPrime-Demo): generating based on real ticks",
+    "NN\t0\t23:50:03.096\tCore 01\tGER40.s,M15: testing of Experts\\DE40_X1X_M2_VWAPX.ex5 from 2025.01.01 00:00 to 2025.12.31 00:00 started with inputs:",
+    "EF\t0\t23:50:03.096\tCore 01\tGER40.s,H1: history begins from 2024.01.02 02:00",
+    "MH\t0\t23:50:03.096\tCore 01\tGER40.s,Daily: history begins from 2024.01.02 00:00",
+    "HP\t0\t23:50:03.096\tCore 01\tGER40.s : real ticks begin from 2023.08.25 00:00:00",
+    "HJ\t3\t23:50:03.096\tCore 01\tEURUSD : 2025.05.12 23:59 - real ticks absent for 21 minutes out of 1426 total minute bars within a day",
+    "CG\t3\t23:50:03.096\tCore 01\tEURUSD : 2025.05.12 23:59 - real ticks discarded for 901 minutes out of 1426 total minute bars within a day",
+    "HJ\t3\t23:50:03.096\tCore 01\tEURUSD : 2025.07.01 23:59 - real ticks discarded for 1292 minutes out of 1438 total minute bars within a day",
+    "GI\t0\t23:50:03.096\tCore 01\tEURUSD : real ticks begin from 2023.01.02 00:00:00",
+    "JN\t3\t23:50:03.096\tCore 01\tEURUSD : 2025.01.01 00:00 - 2025.12.31 00:00  real ticks absent for 21 minutes of 363373 total minute bars, every tick generation used",
+    "PL\t3\t23:50:03.096\tCore 01\tEURUSD : 2025.01.01 00:00 - 2025.12.31 00:00  real ticks discarded for 2193 minutes of 363373 total minute bars, every tick generation used",
+    "QM\t0\t23:50:03.096\tCore 01\tfinal balance 10055.80 USD",
+    "QN\t0\t23:50:14.307\tTester\tGER40.s,M15 (PUPrime-Demo): testing of Experts\\DE40_X1X_M2_VWAPX.ex5 from 2025.01.01 00:00 to 2025.12.31 00:00"
+  ],
+  "final_balance_line": "QM\t0\t23:50:03.096\tCore 01\tfinal balance 10055.80 USD"
+}

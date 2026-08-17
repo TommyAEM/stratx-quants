@@ -1,0 +1,20 @@
+{
+ "VWAPXPR_DEV": {
+  "set": "VWAPXPR_DEV.set",
+  "trades": "61",
+  "wr": 75.41,
+  "pf": "1.64",
+  "net": "55.80",
+  "dd_pct": "37.88 (0.38%)",
+  "exit_ok": true
+ },
+ "VWAPXPR_VAL": {
+  "set": "VWAPXPR_VAL.set",
+  "trades": null,
+  "wr": null,
+  "pf": null,
+  "net": null,
+  "dd_pct": null,
+  "exit_ok": false
+ }
+}

@@ -1,0 +1,17 @@
+{
+  "goal_id": "GOAL_VWAPX_QUALITY",
+  "goal_type": "MODULE_PRODUCTION_GATES",
+  "research_phase": "PHASE_3_CANONICAL_X1X",
+  "goal_definition": "Verify VWAPX mean reversion edge",
+  "target_criteria": {
+    "profit_factor": 2.0
+  },
+  "constraints": {},
+  "goal_status": "ACTIVE",
+  "iteration": 0,
+  "repair_level_idx": 0,
+  "consecutive_fails_at_level": 0,
+  "consecutive_failures": 0,
+  "history": [],
+  "created_at": "2026-08-16T09:40:02.988246+00:00"
+}

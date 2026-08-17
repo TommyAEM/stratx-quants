@@ -1,0 +1,187 @@
+{
+  "graph_version": "1.0.0",
+  "generated_at": "2026-08-16T00:18:45Z",
+  "system": "StratX Quantitative Self-Healing Desk",
+  "roles": [
+    {
+      "role_id": "SUPERVISOR",
+      "model": "alibaba/deepseek-v4-pro-0813",
+      "primary_skills": [
+        "stratx-quant-supervisor",
+        "stratx-brain-brief",
+        "research_exhaustion_engine"
+      ],
+      "responsibilities": "8 escalation gates, mission planning, exhaustion certification"
+    },
+    {
+      "role_id": "HEAD_QUANT_SELF_HEALER",
+      "model": "alibaba/deepseek-v4-pro-0813",
+      "primary_skills": [
+        "stratx-quant-self-heal",
+        "causal_decomposer",
+        "hypothesis_evidence_engine",
+        "failure_mode_classifier",
+        "research_policy_learner",
+        "self_review_engine"
+      ],
+      "responsibilities": "Causal inference, hypothesis generation H1..Hn, structural repair planning, meta-learning"
+    },
+    {
+      "role_id": "FORENSIC_ANALYST",
+      "model": "ollama/deepseek-v4-flash:0731",
+      "primary_skills": [
+        "trade_population_analyzer",
+        "cluster_detector",
+        "regime_tagger",
+        "trade-forensics"
+      ],
+      "responsibilities": "Canonical trade parsing, streak/cluster discovery, zero-lookahead regime tagging"
+    },
+    {
+      "role_id": "MQL5_ARCHITECT_CODER",
+      "model": "ollama/deepseek-v4-flash:0731",
+      "primary_skills": [
+        "mql5-ea-engineering",
+        "structural_mutation_engine",
+        "coder"
+      ],
+      "responsibilities": "Translating Experiment Specs into MQL5/.SET, generating Implementation Receipts"
+    },
+    {
+      "role_id": "EXPERIMENT_PLANNER",
+      "model": "alibaba/deepseek-v4-pro-0813",
+      "primary_skills": [
+        "research_map_eiv",
+        "parameter_landscape_explorer",
+        "portfolio_gap_analyzer"
+      ],
+      "responsibilities": "EIV ranking, territory mapping, plateau breadth verification, portfolio fit"
+    },
+    {
+      "role_id": "REPORT_ANALYST",
+      "model": "ollama/deepseek-v4-flash:0731",
+      "primary_skills": [
+        "child_parent_delta",
+        "trade_population_analyzer",
+        "stratx-report-writeback"
+      ],
+      "responsibilities": "Position matching, Same/Removed/New/Loser->Winner deltas, ledger writeback"
+    },
+    {
+      "role_id": "INDEPENDENT_REVIEWER",
+      "model": "alibaba/deepseek-v4-pro-0813",
+      "primary_skills": [
+        "independent-quant-review",
+        "overfitting_guard",
+        "evidence_dependency_graph"
+      ],
+      "responsibilities": "Adversarial review, DEV/VAL partition discipline, Monte Carlo permutation, cascade invalidation"
+    }
+  ],
+  "pipeline_flow": [
+    {
+      "step": 1,
+      "role": "HEAD_QUANT",
+      "action": "Define Alpha Thesis & Scope",
+      "skill": "ResearchMapEIVEngine"
+    },
+    {
+      "step": 2,
+      "role": "FORENSIC_ANALYST",
+      "action": "Ingest Population & Cluster Analysis",
+      "skill": "TradePopulationAnalyzer / ClusterDetector"
+    },
+    {
+      "step": 3,
+      "role": "SELF_HEALER",
+      "action": "Classify Failure & Causal Decomposition",
+      "skill": "FailureModeClassifier / CausalDecomposer"
+    },
+    {
+      "step": 4,
+      "role": "HEAD_QUANT / SELF_HEALER",
+      "action": "Formulate Competing Hypotheses & Beliefs",
+      "skill": "HypothesisEvidenceEngine"
+    },
+    {
+      "step": 5,
+      "role": "EXPERIMENT_PLANNER",
+      "action": "Generate Experiment Spec (L1-L5)",
+      "skill": "StructuralMutationEngine"
+    },
+    {
+      "step": 6,
+      "role": "MQL5_ARCHITECT_CODER",
+      "action": "Implement Code Mutation & Validate Receipt",
+      "skill": "StructuralMutationEngine"
+    },
+    {
+      "step": 7,
+      "role": "MT5_RUNNER",
+      "action": "Execute Physical Broker Backtest",
+      "skill": "MT5 Native Terminal"
+    },
+    {
+      "step": 8,
+      "role": "REPORT_ANALYST",
+      "action": "Calculate Child vs Parent Delta",
+      "skill": "ChildParentDelta"
+    },
+    {
+      "step": 9,
+      "role": "SELF_HEALER",
+      "action": "Mandatory Self-Review Loop (14 points)",
+      "skill": "SelfReviewEngine"
+    },
+    {
+      "step": 10,
+      "role": "FORENSIC_ANALYST",
+      "action": "Mandatory Child Re-Forensics",
+      "skill": "ClusterDetector / RegimeTagger"
+    },
+    {
+      "step": 11,
+      "role": "INDEPENDENT_REVIEWER",
+      "action": "Adversarial Surface & Overfit Audit",
+      "skill": "ParameterLandscapeExplorer / OverfittingGuard"
+    },
+    {
+      "step": 12,
+      "role": "SUPERVISOR",
+      "action": "Strategic Governance (Promote / Loop Back / Escalate)",
+      "skill": "PortfolioGapAnalyzer / ResearchPolicyLearner"
+    }
+  ],
+  "backward_loopbacks": {
+    "CAUSAL_HYPOTHESIS_REFUTED": {
+      "target_role": "HEAD_QUANT_SELF_HEALER",
+      "stage": "HYPOTHESES_PIVOT"
+    },
+    "EXPERIMENT_DESIGN_INVALID": {
+      "target_role": "EXPERIMENT_PLANNER",
+      "stage": "ABLATION_REPLAN"
+    },
+    "IMPLEMENTATION_MISMATCH": {
+      "target_role": "MQL5_ARCHITECT_CODER",
+      "stage": "CODE_CORRECTION"
+    },
+    "NEW_FAILURE_FAMILY": {
+      "target_role": "FORENSIC_ANALYST",
+      "stage": "CHILD_FORENSICS"
+    },
+    "TELEMETRY_QUESTIONABLE": {
+      "target_role": "INFRASTRUCTURE_WORKER",
+      "stage": "INDEXING_REPAIR"
+    },
+    "PARAMETER_STAGNATION": {
+      "target_role": "HEAD_QUANT_SELF_HEALER",
+      "stage": "ARCHITECTURE_REVIEW"
+    }
+  },
+  "mandatory_workflow_gates": {
+    "gate_1": "if meaningful_child_created and no SELF_REVIEW_RECORD -> NEXT_GENERATION_FORBIDDEN",
+    "gate_2": "if meaningful_child_created and no CHILD_REFORENSICS -> NEXT_GENERATION_FORBIDDEN",
+    "gate_3": "if self_review says IMPLEMENTATION_MISMATCH -> route MQL5_ARCHITECT_CODER",
+    "gate_4": "if self_review says EXPERIMENT_DESIGN_INVALID -> route EXPERIMENT_PLANNER"
+  }
+}

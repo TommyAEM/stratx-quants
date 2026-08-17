@@ -1,0 +1,11 @@
+{
+  "test_id": "VWAPXDEV_VWAPX_BASE",
+  "run_id": "VWAPXDEV_VWAPX_BASE_20260815_232006",
+  "set_file": "VWAPX_BASE.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_VWAPXDEV_VWAPX_BASE_20260815_232006.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 23:20:06.380964"
+}

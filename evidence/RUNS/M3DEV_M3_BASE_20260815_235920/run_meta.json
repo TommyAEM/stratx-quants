@@ -1,0 +1,11 @@
+{
+  "test_id": "M3DEV_M3_BASE",
+  "run_id": "M3DEV_M3_BASE_20260815_235920",
+  "set_file": "M3_BASE.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_M3DEV_M3_BASE_20260815_235920.ini",
+  "vantage_pids_before": "[15816]",
+  "process_start": "2026-08-15 23:59:20.848218"
+}

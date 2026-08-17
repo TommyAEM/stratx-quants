@@ -1,0 +1,865 @@
+{
+  "ea": "ea\\harness\\DE40_VPPOC_GEN2.mq5",
+  "set_dir": "set",
+  "baseline": "GEN2_BASE",
+  "sets": [
+    {
+      "set": "DE40_BRKRT_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_EXHREJ_DEV"
+    },
+    {
+      "set": "DE40_BRKRT_LONG_LDN",
+      "supported_inputs_count": 2,
+      "unsupported": [
+        "InpSessionMask"
+      ],
+      "fingerprint": "55707547700fc82be5b01cad4d37ca6c8110ab5e3c4047fa5e415f69c1b3c29f"
+    },
+    {
+      "set": "DE40_BRKRT_LONG_NOGATE",
+      "supported_inputs_count": 2,
+      "unsupported": [
+        "InpUseTrendGate"
+      ],
+      "fingerprint": "12fa21394bd3b22e6b98a36f8b05d3806528a3ff833a7ac3ea6f03ce53d249d1"
+    },
+    {
+      "set": "DE40_BRKRT_LONG_USOVLP",
+      "supported_inputs_count": 2,
+      "unsupported": [
+        "InpSessionMask"
+      ],
+      "fingerprint": "db0869f340fb49fc6ec55aeaf64d81c42e6f767aed896cdfa97fbca031b8bc05"
+    },
+    {
+      "set": "DE40_BRKRT_LONGONLY",
+      "supported_inputs_count": 2,
+      "unsupported": [],
+      "fingerprint": "689043847f0b1c201558af6c216ebf026b282c605d334c4c4b7d552ba491c00a",
+      "duplicate_of": "DE40_EXHREJ_LONGONLY"
+    },
+    {
+      "set": "DE40_EXHREJ_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_BRKRT_DEV"
+    },
+    {
+      "set": "DE40_EXHREJ_LONGONLY",
+      "supported_inputs_count": 2,
+      "unsupported": [],
+      "fingerprint": "689043847f0b1c201558af6c216ebf026b282c605d334c4c4b7d552ba491c00a",
+      "duplicate_of": "DE40_BRKRT_LONGONLY"
+    },
+    {
+      "set": "DE40_FORB_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_BRKRT_DEV"
+    },
+    {
+      "set": "DE40_LRF_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_BRKRT_DEV"
+    },
+    {
+      "set": "DE40_ModA_NCT_RR10",
+      "supported_inputs_count": 4,
+      "unsupported": [
+        "InpEnablePartialClose",
+        "InpMaxATR",
+        "InpMinATR",
+        "InpModuleMask",
+        "InpNcVolSpike",
+        "InpNcVwapSide",
+        "InpNewsCurrencies",
+        "InpTPMode",
+        "InpUseNativeConf"
+      ],
+      "fingerprint": "4c9aa337d25cf03e0c31bf4ff0cad64dfe3304972d419f26f10308e29fc5f8b9"
+    },
+    {
+      "set": "DE40_OBREC_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_BRKRT_DEV"
+    },
+    {
+      "set": "DE40_OBREC_LONGONLY",
+      "supported_inputs_count": 2,
+      "unsupported": [],
+      "fingerprint": "689043847f0b1c201558af6c216ebf026b282c605d334c4c4b7d552ba491c00a",
+      "duplicate_of": "DE40_BRKRT_LONGONLY"
+    },
+    {
+      "set": "DE40_SHEX_DEV",
+      "supported_inputs_count": 3,
+      "unsupported": [],
+      "fingerprint": "a8af5c71bdfb7c74b728b131d575381684e557fa3f7b714485f5b87c7541616c"
+    },
+    {
+      "set": "DE40_SOT_DEV",
+      "supported_inputs_count": 2,
+      "unsupported": [
+        "InpModuleMask",
+        "InpShowDashboard"
+      ],
+      "fingerprint": "373ea0c863ef0b132867dc40dd4a0efe27a0944bf7dd43a679ce88827dc15b9c"
+    },
+    {
+      "set": "DE40_SOT_LONGONLY",
+      "supported_inputs_count": 2,
+      "unsupported": [
+        "InpModuleMask",
+        "InpShowDashboard",
+        "InpSotAllowShort"
+      ],
+      "fingerprint": "ce7a928c29651bd47116736b3c38f947feea43a222ae3d0c482ead202a335f62"
+    },
+    {
+      "set": "DE40_SOT_SHORTS_DIAG",
+      "supported_inputs_count": 2,
+      "unsupported": [
+        "InpModuleMask",
+        "InpShowDashboard",
+        "InpSotUseB"
+      ],
+      "fingerprint": "a631fa0288cb3c6cfa4e4946dd3f967967bb8607858d4604038ec4c48988df62"
+    },
+    {
+      "set": "DE40_SWEEP_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_BRKRT_DEV"
+    },
+    {
+      "set": "DE40_VPPOC_CHAMPION",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "72789ef34d8f54ac783ff252a5602af200fcae8536278ea96cf740d6c48195a4",
+      "duplicate_of": "DE40_VPPOCF_CHAMP"
+    },
+    {
+      "set": "DE40_VPPOC_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_BRKRT_DEV"
+    },
+    {
+      "set": "DE40_VPPOC_LONG_MIDDAY",
+      "supported_inputs_count": 4,
+      "unsupported": [],
+      "fingerprint": "c2151771c498dae7bbbd6f33b7266134b42bfc1386f99ba40ded3cfd17508537"
+    },
+    {
+      "set": "DE40_VPPOC_LONGONLY",
+      "supported_inputs_count": 2,
+      "unsupported": [],
+      "fingerprint": "689043847f0b1c201558af6c216ebf026b282c605d334c4c4b7d552ba491c00a",
+      "duplicate_of": "DE40_BRKRT_LONGONLY"
+    },
+    {
+      "set": "DE40_VPPOC_RECLAIM",
+      "supported_inputs_count": 3,
+      "unsupported": [],
+      "fingerprint": "0e55b6c30437875c13845989ca820d68673dd63df3e8bdd1be9f173e1522f1eb"
+    },
+    {
+      "set": "DE40_VPPOCF_CHAMP",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "72789ef34d8f54ac783ff252a5602af200fcae8536278ea96cf740d6c48195a4",
+      "duplicate_of": "DE40_VPPOC_CHAMPION"
+    },
+    {
+      "set": "DE40_VWAPX_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_BRKRT_DEV"
+    },
+    {
+      "set": "DE40_XETRA_DEV",
+      "supported_inputs_count": 1,
+      "unsupported": [],
+      "fingerprint": "999591571275ad31e4d25573ab93619c7f7939fccce3ab6c60b44d76ad3f3da2",
+      "duplicate_of": "DE40_BRKRT_DEV"
+    },
+    {
+      "set": "DE40_XETRA_LONG",
+      "supported_inputs_count": 2,
+      "unsupported": [],
+      "fingerprint": "689043847f0b1c201558af6c216ebf026b282c605d334c4c4b7d552ba491c00a",
+      "duplicate_of": "DE40_BRKRT_LONGONLY"
+    },
+    {
+      "set": "EXHREJ_S1_001",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "17d2839ee0e091f443f4c901fc1d4841a1f419d39df186bac8f756ca14fb7956"
+    },
+    {
+      "set": "EXHREJ_S1_002",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "ffeb13e0d519550eb778e404a7fbd8ed8f89ea52ef33e54ef1b0dd7ec4167f49"
+    },
+    {
+      "set": "EXHREJ_S1_003",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "34e03ba9a29a09a87cf6a21c19526836d5f4eff80d238b49ceaeba31d04b90a7"
+    },
+    {
+      "set": "EXHREJ_S1_004",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "1be2bbd5d00d70b5d5d8f3263c1c2f8358d5463e2e76d35fb50610d57e18c190"
+    },
+    {
+      "set": "EXHREJ_S1_005",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "4669d2b326340512e8ef7416af6df7c019e12e3e59522d7c2ebec7298deabce5"
+    },
+    {
+      "set": "EXHREJ_S1_006",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "c36a9fc20cacccaaeb22f1a536f8ab474afa731ed715432099e4674dcdfec4a7"
+    },
+    {
+      "set": "EXHREJ_S1_007",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "5e8fd9bb0db31900e8be37513e54b0b511e3c51e752f6250e8e6224fecec907e"
+    },
+    {
+      "set": "EXHREJ_S1_008",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "6031c3338e28b5197075507dfc3f0ea71f80305a486a92947fc79273b0143a7f"
+    },
+    {
+      "set": "EXHREJ_S1_009",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "c1fc3c5b5fc759ae1b0efaeadbfda9d38c13d7aa500717cd1b76a3050d23d5ff"
+    },
+    {
+      "set": "EXHREJ_S1_010",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "59bf91c3190001d7d45938c5b70aad6b63bad3782c9bed2f57bb796cc483fa27"
+    },
+    {
+      "set": "EXHREJ_S1_011",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "26c75b062723d89e58c7c7a92569be2e357f46f77df10c0446f336ba1b5a0af8"
+    },
+    {
+      "set": "EXHREJ_S1_012",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "ef1be5897ecbc25fcf798d905fc8ae35413e3046ef75ed6a6fa149f529d0cc24"
+    },
+    {
+      "set": "EXHREJ_S1_013",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "d7af3d313832d8c3d2c10c4d6c0f58d5fb553c254f64fa5b3751ece9742c0a8e"
+    },
+    {
+      "set": "EXHREJ_S1_014",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "7f3658c0cb179703053b15cfbf4a5947899fc9d8ed200d28cc080e758e1d16b1"
+    },
+    {
+      "set": "EXHREJ_S1_015",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "8fe39e4759e1ce44eaf89bb08e10f11421a49b2eff03853fbd00a22e5cca6258"
+    },
+    {
+      "set": "EXHREJ_S1_016",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "14d4265b8de37cf516ef9ac0fbe9af76a615f35403db8450b5bc5a0c47d12d88"
+    },
+    {
+      "set": "EXHREJ_S1_017",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "51a4c536dc960f2b612cc89cce6143f0f17ae999f1db443ca35a57a8702e52d6"
+    },
+    {
+      "set": "EXHREJ_S1_018",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "a3d517ad1cef69a2063fff23f0f731b0e2b5a13306fe8141ac51b513d2d9f8c7"
+    },
+    {
+      "set": "EXHREJ_S1_019",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "52ed81866dbbe42ef7708a466ae74fa6631f07568b49153e84e19d5ef969f3ae"
+    },
+    {
+      "set": "EXHREJ_S1_020",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "ca29b25a086aa0cb6983e8a3e81445b3d4aaaf039f4d0bdb07736e2c7b741abc"
+    },
+    {
+      "set": "EXHREJ_S1_021",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "60c5ea4cd42bf0f304b32b246457e799e4eaf5a5444535dafd08223f567ad1e2"
+    },
+    {
+      "set": "EXHREJ_S1_022",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "e187d6f78c2e7263d4fcab3a14ddc1a46beacf987abeea1b550a593fc9d0a22b"
+    },
+    {
+      "set": "EXHREJ_S1_023",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "6cac3ce00f4709ed007e03d7b05743315ee9e01fea3c89d7562da923fd6f014e"
+    },
+    {
+      "set": "EXHREJ_S1_024",
+      "supported_inputs_count": 3,
+      "unsupported": [
+        "InpExtendATR",
+        "InpSLBufferATR",
+        "InpVolSpikeMult",
+        "InpWickRatio"
+      ],
+      "fingerprint": "91e15501fc2c98714a75b42aa2bd5c61483e7a2060f3db54d390b8260df7d607"
+    },
+    {
+      "set": "GEN2_ALLGATES",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "815938014eddfb22e36701fdd2a4300fffcffafe560b57064ce3ddedf60b3dae"
+    },
+    {
+      "set": "GEN2_BASE",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "495d5808054ad3fd5b28c2f73493092cfc3a77fda865e611c875c4e4e140ccc5"
+    },
+    {
+      "set": "GEN2_BE",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "9f25781f23acd810d13ea0082f28fb5c8fb01ad782b6d13cca33211c3220d75b"
+    },
+    {
+      "set": "GEN2_DISP",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "48209df763ef8ade5f77596e8c3647687863931e9a679f607a4ff0acae05234c"
+    },
+    {
+      "set": "GEN2_PARTIAL",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "64d25609e44d7d9a1b475783bc5ed6aae6bde907e12bb1426368110d6eb1c016"
+    },
+    {
+      "set": "GEN2_POC",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "43c62078ed5ecd6a2fde785879e01a03db1cc60a6c8a70bb5e600f318e94e689"
+    },
+    {
+      "set": "GEN2_POCDISP",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "bebf347e74dbceacaff6f962c34acc726378d4741b81edb6376272f354ea52a0"
+    },
+    {
+      "set": "GEN2_SESCLOSE",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "60e81ca565b99db9495e03cc0263fe53b210bd7ea08bece64f0081ee2fefc368"
+    },
+    {
+      "set": "GEN2_TRAIL",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "5b7d9860428607f7ecbc2a5bbd26ce0b2c56b571536c4d9393e8cceacf7cd9be"
+    },
+    {
+      "set": "GEN2_VAW",
+      "supported_inputs_count": 19,
+      "unsupported": [],
+      "fingerprint": "bb856a7ba6f4f171eeda4a378a7604d767766bc8f211df8ff94684721ae761e8"
+    },
+    {
+      "set": "VPPOC_CENTER_VAL",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "8334e88d788bfae01177803610d99218fc1b02c70de33ee27f9b859b1cd9af4a",
+      "duplicate_of": "VPPOC_PLAT_C"
+    },
+    {
+      "set": "VPPOC_CHAMP_SHORTS",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "05889e5e66b5099fb5fdaba87be7d5de7d05c344b7eefebc26295fa7efbd15f3"
+    },
+    {
+      "set": "VPPOC_G2A_ALLGATES",
+      "supported_inputs_count": 12,
+      "unsupported": [],
+      "fingerprint": "f58ff6051303ab9b3bf8457547215b7233fd5729ae9959c5b3a75e8fd53a9a67"
+    },
+    {
+      "set": "VPPOC_G2B_VAW",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "a812f397ecfcb291570ace99824f737dabedcd286bfcee4ca54427fd0c869284"
+    },
+    {
+      "set": "VPPOC_G2C_POC",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "2f64ce6e073eac624446e574f0f6ffc34057fe6a61c704d4d2b4e2ae2c42aa13"
+    },
+    {
+      "set": "VPPOC_G2D_DISP",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "a161a084cc64e5621633c1eaf3be1055fa916187d58c4670a80ee0c421cac0b9"
+    },
+    {
+      "set": "VPPOC_G2E_PARTIAL",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "74b241a308cf6b564a4c9abc2ee857b08d7280df4c0c326732653a336611d84c"
+    },
+    {
+      "set": "VPPOC_G2F_BE",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "878e57f1826855bbbb0f0e83a5391d53fa7330dd14206377817b1ef4f9e6d164"
+    },
+    {
+      "set": "VPPOC_G2G_TRAIL",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "4b7977bfc769dd97a329a9d52a783bb1c5d6d0ec582b5098af080e98ea776590"
+    },
+    {
+      "set": "VPPOC_G2H_SESCLOSE",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "6b105872ee14b28013e88e53dfed07d4c9a605c4f9a8cae21fa4230716e74b53"
+    },
+    {
+      "set": "VPPOC_OPT_BASE",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "72789ef34d8f54ac783ff252a5602af200fcae8536278ea96cf740d6c48195a4",
+      "duplicate_of": "DE40_VPPOC_CHAMPION"
+    },
+    {
+      "set": "VPPOC_PLAT_101",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "72789ef34d8f54ac783ff252a5602af200fcae8536278ea96cf740d6c48195a4",
+      "duplicate_of": "DE40_VPPOC_CHAMPION"
+    },
+    {
+      "set": "VPPOC_PLAT_102",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "4d3ed195d7ed4890f68038f50845564d0c2acda44452008eb08f3dbfb90f0fed"
+    },
+    {
+      "set": "VPPOC_PLAT_103",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "192a3425e5c1dfa3e412d6b354f4625d043dac5d63b21b4f9f2f019cadd3591d"
+    },
+    {
+      "set": "VPPOC_PLAT_104",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "5a4a9943db8c1046013f35ad40af5d24e20ace861fe5eef41698195b18f250dd"
+    },
+    {
+      "set": "VPPOC_PLAT_105",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "0bec7c23ce15133c7080e2c9187158097cedd6a953b615f71c3eed08610af6ab"
+    },
+    {
+      "set": "VPPOC_PLAT_106",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "5d0d848b50c109de7be13c2f3216a2b125131c946bef5d7d5e76b1cc36530675"
+    },
+    {
+      "set": "VPPOC_PLAT_107",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "4badf03ee4e924a1a70c327e0215b87f16743d674b07abc91347ff54cf9f7687"
+    },
+    {
+      "set": "VPPOC_PLAT_108",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "b8ded5907fffe169d4c27f72fcf74544814e95c636367fa909bbc55bd059ff53"
+    },
+    {
+      "set": "VPPOC_PLAT_109",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "845487dceb8af96d5ea9369c7893e429cfeb5685602cda89cdb145d87b7c35a2"
+    },
+    {
+      "set": "VPPOC_PLAT_110",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "f21fa8d3074fcf941222b7a967a82866ea976a4cbb50715b72cffcb7d08bfe47"
+    },
+    {
+      "set": "VPPOC_PLAT_C",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "8334e88d788bfae01177803610d99218fc1b02c70de33ee27f9b859b1cd9af4a",
+      "duplicate_of": "VPPOC_CENTER_VAL"
+    },
+    {
+      "set": "VPPOC_S1_001",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "f0f2ea92c4c29c1ab9c2172301eea80fca6a9a733e4cbb8d85a708659ab9504e"
+    },
+    {
+      "set": "VPPOC_S1_002",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "56ae9a701ba237704d572b018033c665d65694940dc9c7669acee09d8d70fe9a"
+    },
+    {
+      "set": "VPPOC_S1_003",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "dbd80d0c46458ef692ea03947eeb004f29fc97ed692192f3fdb10e762df2e468"
+    },
+    {
+      "set": "VPPOC_S1_004",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "d464327b9925cef0956b8dcad0e523b1896944122b7b1d9c456890aa175aae03"
+    },
+    {
+      "set": "VPPOC_S1_005",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "5dec4dd426fb5a2967b8d8cdef8622f041530efb2405034ecc91c2662259c908"
+    },
+    {
+      "set": "VPPOC_S1_006",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "f944c3c08052dc65420af83c0a3c2916cf8645615decf112ba23cae2d2738df5"
+    },
+    {
+      "set": "VPPOC_S1_007",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "48a1dff96f422991439616c4dc5cdbf063abeb1b3fb569b608af8aa6d1917acd"
+    },
+    {
+      "set": "VPPOC_S1_008",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "cd188560fef283b51d6f50fe36107f82ad3f4da22017897fd342cf0cda9c1201"
+    },
+    {
+      "set": "VPPOC_S1_009",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "9e0c0a89a234662682bfd93efe6db10ac4b41332c56a31611570393b0a1454d4"
+    },
+    {
+      "set": "VPPOC_S1_010",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "49163683ae2235ba49e190209b7e8354b8dc038efa64af7c626afc495e8803f5"
+    },
+    {
+      "set": "VPPOC_S1_011",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "4eecfaee7b405b794c071978fc7294b7cd31cc07cb29677095ed61e0d1956e48"
+    },
+    {
+      "set": "VPPOC_S1_012",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "6794f7d8ab92d3f67cb03fe847cfc1192d58401f81e416fdab8b20d862b3461b"
+    },
+    {
+      "set": "VPPOC_S1_013",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "b38189ab51cc3ed2784a5a737c1b155fc2222efaaa5337a8b7b3b48eb0815b1a"
+    },
+    {
+      "set": "VPPOC_S1_014",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "3c236968a4d8b682f9cb37ce9050d8a0b6b4d15b3872d2d0967ecc7c38168bcb"
+    },
+    {
+      "set": "VPPOC_S1_015",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "ae944c227f6c7e812378fcae9cc9c0e51d0d653ee5fe871aa279a8b4635e4a88"
+    },
+    {
+      "set": "VPPOC_S1_016",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "93b560ad77857ddcdb2b14dbceb98656278253398c0be02e1b4f6444ca3e3735"
+    },
+    {
+      "set": "VPPOC_S1_017",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "f76cf62c461a3143ed2817160922e13ce2dea93908c94c251c25eca709f886d4"
+    },
+    {
+      "set": "VPPOC_S1_018",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "8bcdc93900b2bad16ed7e773f0688da02361460409ace8f23eee24a820763840"
+    },
+    {
+      "set": "VPPOC_S1_019",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "9edce95618b88a5bbd703883559a7337021043395da6c329aa6ebf3763a66045"
+    },
+    {
+      "set": "VPPOC_S1_020",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "f5e0149080ac65b4d01301244af5f323b712d469a934d295c986ea13631ebfcc"
+    },
+    {
+      "set": "VPPOC_S1_021",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "789cb5e7c88b3e4b9ac5f0f240f4dd36ba4d1199e5435afdfd0c3bd91f2361fa"
+    },
+    {
+      "set": "VPPOC_S1_022",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "94232c5cd28d837564e91dd8aa657fa566cbe271e3d531d3658f14243eaba532"
+    },
+    {
+      "set": "VPPOC_S1_023",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "725d3daa9c0345b9fb9afcee007c605d11eb47a6d89128d572e0eb9e0a354b9e"
+    },
+    {
+      "set": "VPPOC_S1_024",
+      "supported_inputs_count": 8,
+      "unsupported": [],
+      "fingerprint": "8334e88d788bfae01177803610d99218fc1b02c70de33ee27f9b859b1cd9af4a",
+      "duplicate_of": "VPPOC_CENTER_VAL"
+    },
+    {
+      "set": "VPPOC_TAG_005",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "7c64713ba4b6ab091d7ad6cbf22217e1edbaa91c7a7528aa49f2b250dd2c9e9f"
+    },
+    {
+      "set": "VPPOC_TAG_0065",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "049bb8f224ff9ca350550c165b75640043182aed3392363aa41bbf7c68647cc5"
+    },
+    {
+      "set": "VPPOC_TAG_010",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "3b063e63e69fbfd5e1377908a7bae0c6d40c1be71747ad8bdd8925b0c500646b"
+    },
+    {
+      "set": "VPPOC_TAG_014",
+      "supported_inputs_count": 9,
+      "unsupported": [],
+      "fingerprint": "b36a78f224fdd1620e8865e48d765bbc8d8cd9e77ad75f18c480c363d74b5e29"
+    },
+    {
+      "set": "VPPOC_V1_POCDIST",
+      "supported_inputs_count": 11,
+      "unsupported": [],
+      "fingerprint": "2f7435991dbd2850b633c4389240c5c6508c4b8fff4ab581cb6e8d88bfa475a1"
+    },
+    {
+      "set": "VPPOC_V2_FIXEDRR",
+      "supported_inputs_count": 11,
+      "unsupported": [],
+      "fingerprint": "3f91a26e2e12e6892893d824b79524761a9762c4cdb3b8b9af4b2844b7059801"
+    },
+    {
+      "set": "VPPOC_V3_TSTOP",
+      "supported_inputs_count": 11,
+      "unsupported": [],
+      "fingerprint": "10f1e6602c89ac3a83d68c9d0970ec1877d05e7967d386407244eb7785e8b091"
+    },
+    {
+      "set": "VPPOC_V4_FRIDAY",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "cf3a8744e76a5629f381a4afac7ee94a51b19f4025d17efe596bf0c1ec3ead5b"
+    },
+    {
+      "set": "VPPOC_V5_POCDIST",
+      "supported_inputs_count": 10,
+      "unsupported": [],
+      "fingerprint": "c6299c69c9e7a076ff237b609a041a3d240602f6437d59fe6dbf7baff00fb248"
+    }
+  ]
+}

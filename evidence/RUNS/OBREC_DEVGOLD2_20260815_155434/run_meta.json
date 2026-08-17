@@ -1,0 +1,11 @@
+{
+  "test_id": "OBREC_DEVGOLD2",
+  "run_id": "OBREC_DEVGOLD2_20260815_155434",
+  "set_file": "DE40_OBREC_DEV.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_OBREC_DEVGOLD2_20260815_155434.ini",
+  "vantage_pids_before": "[8440]",
+  "process_start": "2026-08-15 15:54:34.667110"
+}

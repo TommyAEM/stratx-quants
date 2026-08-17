@@ -1,0 +1,11 @@
+{
+  "test_id": "SOT_DEVGOLD2",
+  "run_id": "SOT_DEVGOLD2_20260815_161650",
+  "set_file": "DE40_SOT_DEV.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_SOT_DEVGOLD2_20260815_161650.ini",
+  "vantage_pids_before": "[8440]",
+  "process_start": "2026-08-15 16:16:50.470775"
+}

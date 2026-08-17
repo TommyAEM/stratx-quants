@@ -1,0 +1,1187 @@
+{
+  "pending_writeback_version": 1,
+  "status": "BRAIN_WRITEBACK_PENDING",
+  "symbol": "GER40.s",
+  "generated_utc": "2026-08-15T20:52:04.879Z",
+  "note": "Flush to self_healing_brain.db via scripts/flush_pending_writeback.py when Brain MCP available. Dedup on record_id.",
+  "records": [
+    {
+      "record_id": "DE40-VPPOC-FAM-POC-MID",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "failure_family",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "Entries near POC (f_poc_dist in [-0.076,0.05)) are weak",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "wr_pct": 57.1,
+        "net_r": 0.98,
+        "n": 7,
+        "losers": 3,
+        "winners": 4
+      },
+      "val_evidence": {
+        "wr_pct": 50,
+        "net_r": 0,
+        "n": 6,
+        "losers": 3,
+        "winners": 3
+      },
+      "matched_winner_comparison": {
+        "within_band": {
+          "n": 13,
+          "losers": 6,
+          "winners": 7,
+          "wr_pct": 53.8,
+          "net_r": 0.98,
+          "loser_mean_mfe": 0.42,
+          "winner_mean_mfe": 0.997,
+          "loser_mean_mae": -0.993,
+          "winner_mean_mae": -0.437
+        }
+      },
+      "hypotheses": [
+        "H1: near-POC entry has no mean-reversion room (POC target too close / stop exposed to noise) — structural",
+        "H2: near-POC is proxy for a trend-acceptance regime, not value rejection — regime confound",
+        "H3: target overshoot — winners still reach 1R, so WR not target-size problem (supports H1 entry-quality)"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-POCONLY",
+        "DESP-DEV-DISPONLY",
+        "DESP-DEV-POCPLUSDISP"
+      ],
+      "source_paths": {
+        "band": "poc_mid",
+        "ledgers": [
+          "evidence/VPPOCF_DEV_trades.csv",
+          "evidence/VPPOCF_VAL_trades.csv"
+        ]
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-VPPOC-FAM-DISP-HIGH",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "failure_family",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "High displacement entries (f_disp>0.704) are weak",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "wr_pct": 63.6,
+        "net_r": 2.34,
+        "n": 11,
+        "losers": 4,
+        "winners": 7
+      },
+      "val_evidence": {
+        "wr_pct": 66.7,
+        "net_r": 1.16,
+        "n": 12,
+        "losers": 4,
+        "winners": 8
+      },
+      "matched_winner_comparison": {
+        "within_band": {
+          "n": 23,
+          "losers": 8,
+          "winners": 15,
+          "wr_pct": 65.2,
+          "net_r": 3.5,
+          "loser_mean_mfe": 0.336,
+          "winner_mean_mfe": 0.763,
+          "loser_mean_mae": -0.996,
+          "winner_mean_mae": -0.362
+        }
+      },
+      "hypotheses": [
+        "H1: displacement=exhaustion, fading into momentum — entry timing causal",
+        "H2: displacement proxy for ATR regime (prior doc: disp spans all ATR terciles -> weak confound)",
+        "H3: displacement proxy for rel_vol spike (new) -> distinguish vs rel_vol gate"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-DISPONLY",
+        "DESP-DEV-RELVOLONLY"
+      ],
+      "source_paths": {
+        "band": "disp_high",
+        "ledgers": [
+          "evidence/VPPOCF_DEV_trades.csv",
+          "evidence/VPPOCF_VAL_trades.csv"
+        ]
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-VPPOC-FAM-VAW-LOW",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "failure_family",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "Low/mid VA width entries weak; high VAW (>=1.03) is the engine (VAL 100%/+10.5)",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "wr_pct": 75,
+        "net_r": 4.32,
+        "n": 12,
+        "losers": 3,
+        "winners": 9
+      },
+      "val_evidence": {
+        "wr_pct": 58.3,
+        "net_r": -0.42,
+        "n": 12,
+        "losers": 5,
+        "winners": 7
+      },
+      "matched_winner_comparison": {
+        "within_band": {
+          "n": 42,
+          "losers": 14,
+          "winners": 28,
+          "wr_pct": 66.7,
+          "net_r": 6.63,
+          "loser_mean_mfe": 0.38,
+          "winner_mean_mfe": 0.716,
+          "loser_mean_mae": -0.994,
+          "winner_mean_mae": -0.404
+        }
+      },
+      "hypotheses": [
+        "H1: mid-width=developing/trend day, VA edges not rejection zones",
+        "H2: confound with H1 trend regime (needs n)"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-VAWONLY"
+      ],
+      "source_paths": {
+        "band": "vaw_lowmid",
+        "ledgers": [
+          "evidence/VPPOCF_DEV_trades.csv",
+          "evidence/VPPOCF_VAL_trades.csv"
+        ]
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-VPPOC-HYP-GATE-POCDISP",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "hypothesis",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "GATE (poc-not-mid AND disp-not-high): DEV 19@89.5/+13.3, VAL 14@85.7/+9.5 — REMOVED pool weak both splits. MUST validate before lesson.",
+      "confidence": "MED",
+      "dev_evidence": {
+        "wr_pct": 89.5,
+        "net_r": 13.35,
+        "n": 19,
+        "losers": 2,
+        "winners": 17
+      },
+      "val_evidence": {
+        "wr_pct": 85.7,
+        "net_r": 9.52,
+        "n": 14,
+        "losers": 2,
+        "winners": 12
+      },
+      "matched_winner_comparison": {
+        "DEV_kept": {
+          "n": 19,
+          "losers": 2,
+          "winners": 17,
+          "wr_pct": 89.5,
+          "net_r": 13.35,
+          "loser_mean_mfe": 0.401,
+          "winner_mean_mfe": 0.913,
+          "loser_mean_mae": -0.968,
+          "winner_mean_mae": -0.466
+        },
+        "DEV_removed": {
+          "n": 15,
+          "losers": 6,
+          "winners": 9,
+          "wr_pct": 60,
+          "net_r": 2.33,
+          "loser_mean_mfe": 0.29,
+          "winner_mean_mfe": 0.925,
+          "loser_mean_mae": -0.996,
+          "winner_mean_mae": -0.442
+        },
+        "VAL_kept": {
+          "n": 14,
+          "losers": 2,
+          "winners": 12,
+          "wr_pct": 85.7,
+          "net_r": 9.52,
+          "loser_mean_mfe": 0.459,
+          "winner_mean_mfe": 0.89,
+          "loser_mean_mae": -0.998,
+          "winner_mean_mae": -0.389
+        },
+        "VAL_removed": {
+          "n": 16,
+          "losers": 6,
+          "winners": 10,
+          "wr_pct": 62.5,
+          "net_r": 1.15,
+          "loser_mean_mfe": 0.532,
+          "winner_mean_mfe": 0.71,
+          "loser_mean_mae": -0.993,
+          "winner_mean_mae": -0.341
+        },
+        "year_stability": [
+          {
+            "year": 2023,
+            "mw": {
+              "n": 5,
+              "losers": 0,
+              "winners": 5,
+              "wr_pct": 100,
+              "net_r": 3.59,
+              "loser_mean_mfe": null,
+              "winner_mean_mfe": 0.767,
+              "loser_mean_mae": null,
+              "winner_mean_mae": -0.429
+            }
+          },
+          {
+            "year": 2024,
+            "mw": {
+              "n": 14,
+              "losers": 2,
+              "winners": 12,
+              "wr_pct": 85.7,
+              "net_r": 9.75,
+              "loser_mean_mfe": 0.401,
+              "winner_mean_mfe": 0.973,
+              "loser_mean_mae": -0.968,
+              "winner_mean_mae": -0.482
+            }
+          },
+          {
+            "year": 2025,
+            "mw": {
+              "n": 14,
+              "losers": 2,
+              "winners": 12,
+              "wr_pct": 85.7,
+              "net_r": 9.52,
+              "loser_mean_mfe": 0.459,
+              "winner_mean_mfe": 0.89,
+              "loser_mean_mae": -0.998,
+              "winner_mean_mae": -0.389
+            }
+          }
+        ]
+      },
+      "hypotheses": [
+        "Isolate A=POC-only, B=DISP-only, C=POCxDISP interaction before storing causal lesson",
+        "Check enrichment (removed losers vs winners ratio), direction, year/session/regime dependence"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-POCONLY",
+        "DESP-DEV-DISPONLY",
+        "DESP-DEV-POCPLUSDISP"
+      ],
+      "source_paths": {
+        "ledgers": [
+          "evidence/VPPOCF_DEV_trades.csv",
+          "evidence/VPPOCF_VAL_trades.csv"
+        ]
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-VPPOC-FAM-H1-COUNTER",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "failure_family",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "H1 counter-bias (+1, EMA20<EMA50 while long) weaker than aligned (-1)",
+      "confidence": "MED",
+      "dev_evidence": {
+        "wr_pct": 71.4,
+        "net_r": 2.38,
+        "n": 7,
+        "losers": 2,
+        "winners": 5
+      },
+      "val_evidence": {
+        "wr_pct": 63.6,
+        "net_r": 2.54,
+        "n": 11,
+        "losers": 4,
+        "winners": 7
+      },
+      "matched_winner_comparison": {
+        "within_band": {
+          "n": 18,
+          "losers": 6,
+          "winners": 12,
+          "wr_pct": 66.7,
+          "net_r": 4.91,
+          "loser_mean_mfe": 0.343,
+          "winner_mean_mfe": 0.871,
+          "loser_mean_mae": -0.994,
+          "winner_mean_mae": -0.457
+        }
+      },
+      "hypotheses": [
+        "H1: H1 trend regime causal",
+        "H2: proxy for disp/rel_vol (strong up days) -> distinguish"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-H1GATE"
+      ],
+      "source_paths": {
+        "band": "h1_counter",
+        "ledgers": [
+          "evidence/VPPOCF_DEV_trades.csv",
+          "evidence/VPPOCF_VAL_trades.csv"
+        ]
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-VPPOC-FAM-RELVOL-HIGH",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "failure_family",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "High relative volume (f_rel_vol>=1.5) entries weak on both splits",
+      "confidence": "LOW",
+      "dev_evidence": {
+        "wr_pct": 60,
+        "net_r": 0.35,
+        "n": 5,
+        "losers": 2,
+        "winners": 3
+      },
+      "val_evidence": {
+        "wr_pct": 50,
+        "net_r": -1.43,
+        "n": 4,
+        "losers": 2,
+        "winners": 2
+      },
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "H1: vol spike = acceptance climactic (counter to fade)",
+        "H2: proxy for disp"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-RELVOLONLY"
+      ],
+      "source_paths": {
+        "band": "relvol_high",
+        "ledgers": [
+          "evidence/VPPOCF_DEV_trades.csv",
+          "evidence/VPPOCF_VAL_trades.csv"
+        ]
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-VPPOC-LOSER-ANATOMY",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "failure_family",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "Loser anatomy splits two populations: stopped (MFE<0.5) vs turned (MFE>=0.5 then -1R)",
+      "confidence": "MED",
+      "dev_evidence": {
+        "stopped_dev": {
+          "n": 5,
+          "winners": 0,
+          "losers": 5
+        },
+        "turned_dev": {
+          "n": 3,
+          "winners": 0,
+          "losers": 3
+        }
+      },
+      "val_evidence": {
+        "stopped_val": {
+          "n": 3,
+          "winners": 0,
+          "losers": 3
+        },
+        "turned_val": {
+          "n": 5,
+          "winners": 0,
+          "losers": 5
+        }
+      },
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Stopped->entry/stop/confirmation repair (L2-L3)",
+        "Turned->partial/BE/trail/target/session-exit repair (L3)",
+        "Do NOT solve both with one universal filter"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-PARTIAL",
+        "DESP-DEV-BE",
+        "DESP-DEV-TRAIL",
+        "DESP-DEV-SESCLOSE"
+      ],
+      "source_paths": {
+        "ledgers": [
+          "evidence/VPPOCF_DEV_trades.csv",
+          "evidence/VPPOCF_VAL_trades.csv"
+        ]
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-INFRA-GA-CRASH",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "INFRA",
+      "title": "MT5 native GA on 16-core machine spawned ~15 real-tick agents (~715MB each) -> OOM crash. GA retired on this machine; use Python prescreen + sequential single-pass.",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "exit_code": "0xFFFFFFFF",
+        "agent_mem_mb": 715,
+        "tick_mem_mb": 640,
+        "logical_cores": 16,
+        "total_ram_gb": 15.6,
+        "ini": "Optimization=2,Model=4"
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "MT5 local-agent count is UI-only (agents.dat binary, not ini-configurable)"
+      ],
+      "experiment_ids": [
+        "INFRA-SERIAL-ONLY"
+      ],
+      "source_paths": {
+        "log": "evidence/RUNS/VPPOC_GA_DEV_20260815_203026/"
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-INFRA-GEN2-ORPHANED",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "INFRA",
+      "title": "DE40_VPPOC_GEN2.mq5 exists but was never compiled and lacks all Gen2 inputs (InpGateVAW/Poc/Disp, InpPartial/BE/Trail/SessionClose). Staged G2 set would silently run as base config. Fix: implement+wire+compile; add SET/EA contract preflight.",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "gen2_ex5_exists": false,
+        "magic_in_sets": "4406 (collides)"
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Unique InpMagic per config is mandatory (trade CSV appends per magic)"
+      ],
+      "experiment_ids": [
+        "INFRA-SETCONTRACT"
+      ],
+      "source_paths": {
+        "path": "ea/harness/DE40_VPPOC_GEN2.mq5"
+      },
+      "source_hashes": {
+        "dev_ledger": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73",
+        "val_ledger": "46bfe24f53964ca7e4bfa1c9e86c325bcdd284635f18e36e5c800112adfe2c56",
+        "canonical_ledger": "631c41e65e3bebea6faf48c92b2172fa5564808e012b20ab315bef3703956cfb",
+        "gen2_mq5_preedit": "1d43ecf2963b4e058333efd6693b5bbcdaba7e2d5b388f5f8e12690d4daf6f43",
+        "parent_mq5": "131bb70d7362f154ad56a3dfd687cb8b20ce2ee7a4934d8b9c33f1e5cb92c80d"
+      },
+      "generated_utc": "2026-08-15T20:52:04.879Z"
+    },
+    {
+      "record_id": "DE40-GEN2-DEV-POC-GATE",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "hypothesis",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "POC gate (|f_poc_dist|>=0.076) IMPROVES DEV-gold: netR 15.67->16.70, WR 76.5->82.8%, losers 8->5, PF 2.91->3.93. Removed 7 near-POC trades (net +0.98R, 4W/3L) but sequence-freed 2 replacement winners (+2.01R).",
+      "confidence": "MED",
+      "dev_evidence": {
+        "n": 29,
+        "wr": 82.8,
+        "netR": 16.7,
+        "losers": 5,
+        "y2023": {
+          "n": 8,
+          "wr": 87.5,
+          "netR": 4.59
+        },
+        "y2024": {
+          "n": 21,
+          "wr": 81,
+          "netR": 12.11
+        }
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "POC near-band causal (no mean-reversion room near POC)",
+        "Requires VAL 2025 confirmation before promotion; threshold semi-informed by VAL terciles (multiple-testing caveat)"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-POCONLY"
+      ],
+      "source_paths": {},
+      "source_hashes": {
+        "gen2_ex5": "ab1e3668532eaf9c6fc37f276c2393ec950982f606decb7c922c23383bdce7b5",
+        "gen2_mq5": "c76c3d05c1f9b42b7f68c3b6dc7d5a71a9db8cb9ab060c1aea506bdeb255d6d1",
+        "poc_trades": "663cf1e04e378fb220d1d88e4f613b61cdfbb8663511371871a0ecd515644076",
+        "base_trades": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73"
+      },
+      "generated_utc": "2026-08-15T21:11:45.518Z"
+    },
+    {
+      "record_id": "DE40-GEN2-DEV-DISP-REFUTED",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "DISP gate (f_disp<=0.704) NET-DAMAGING in real MT5: netR 11.65 vs base 15.67 (-4.02R); POCDISP 12.67 vs POC 16.70 (-4.03R). Forensics PROJECTION (poc+disp DEV 19@89.5%) REFUTED by actual trade sequence.",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "disp_netR": 11.65,
+        "pocdisp_netR": 12.67,
+        "base_netR": 15.67,
+        "poc_netR": 16.7,
+        "note": "high-disp winners exist (POC replacement +1.0R at disp=0.81)"
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "DISP is a confound/proxy, not a causal loser signal",
+        "DO NOT gate displacement on VPPOC"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-DISPONLY",
+        "DESP-DEV-POCPLUSDISP"
+      ],
+      "source_paths": {},
+      "source_hashes": {
+        "gen2_ex5": "ab1e3668532eaf9c6fc37f276c2393ec950982f606decb7c922c23383bdce7b5",
+        "gen2_mq5": "c76c3d05c1f9b42b7f68c3b6dc7d5a71a9db8cb9ab060c1aea506bdeb255d6d1",
+        "poc_trades": "663cf1e04e378fb220d1d88e4f613b61cdfbb8663511371871a0ecd515644076",
+        "base_trades": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73"
+      },
+      "generated_utc": "2026-08-15T21:11:45.518Z"
+    },
+    {
+      "record_id": "DE40-GEN2-DEV-VAW-FREQ",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "VAW gate (f_va_width>=1.03) collapses frequency 34->11 and netR 15.67->9.18 (-6.49R) despite WR 81.8%. Classic filter-damage (removes winners).",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "vaw_netR": 9.18,
+        "base_netR": 15.67,
+        "trades": 11,
+        "wr": 81.8
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "VAW high-band is quality not quantity; as a hard gate it destroys frequency",
+        "Only viable as a portfolio overlay, not a standalone filter"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-VAWONLY"
+      ],
+      "source_paths": {},
+      "source_hashes": {
+        "gen2_ex5": "ab1e3668532eaf9c6fc37f276c2393ec950982f606decb7c922c23383bdce7b5",
+        "gen2_mq5": "c76c3d05c1f9b42b7f68c3b6dc7d5a71a9db8cb9ab060c1aea506bdeb255d6d1",
+        "poc_trades": "663cf1e04e378fb220d1d88e4f613b61cdfbb8663511371871a0ecd515644076",
+        "base_trades": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73"
+      },
+      "generated_utc": "2026-08-15T21:11:45.518Z"
+    },
+    {
+      "record_id": "DE40-GEN2-DEV-EXIT-SHAPING",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "All exit shaping NET-NEGATIVE on DEV-gold (MT5 report net USD): PARTIAL 167.77, BE 170.99, TRAIL 150.48, SESCLOSE 85.76 vs BASE 202.81. Turned-loser population (MFE>=0.6) too small to pay for exit rework.",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "base_net_usd": 202.81,
+        "partial": 167.77,
+        "be": 170.99,
+        "trail": 150.48,
+        "sesclose": 85.76
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Do not rework exits for the 2-3 turned losers; exit rework costs net",
+        "Prioritise entry-quality + VAL confirmation instead"
+      ],
+      "experiment_ids": [
+        "DESP-DEV-PARTIAL",
+        "DESP-DEV-BE",
+        "DESP-DEV-TRAIL",
+        "DESP-DEV-SESCLOSE"
+      ],
+      "source_paths": {},
+      "source_hashes": {
+        "gen2_ex5": "ab1e3668532eaf9c6fc37f276c2393ec950982f606decb7c922c23383bdce7b5",
+        "gen2_mq5": "c76c3d05c1f9b42b7f68c3b6dc7d5a71a9db8cb9ab060c1aea506bdeb255d6d1",
+        "poc_trades": "663cf1e04e378fb220d1d88e4f613b61cdfbb8663511371871a0ecd515644076",
+        "base_trades": "792810cf87353db900bcda391f8fe6b898888d1b5ab24409730de12de8dc3b73"
+      },
+      "generated_utc": "2026-08-15T21:11:45.518Z"
+    },
+    {
+      "record_id": "DE40-M1-VPPOC-VAL-PASS",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "hypothesis",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "POC child VAL 2025 CONFIRMED: 24tr/83.3%WR/PF3.96/netR12.02/losers4 vs champion VAL 30tr/73.3%/PF2.32/netR10.67/losers8. All four 2025 quarters positive. Gate 0 violations. Freeze as DE40 X1X Module 1.",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "n": 29,
+        "wr": 82.8,
+        "netR": 16.7,
+        "pf": 3.93,
+        "losers": 5
+      },
+      "val_evidence": {
+        "n": 24,
+        "wr": 83.3,
+        "netR": 12.02,
+        "pf": 3.96,
+        "losers": 4,
+        "quarters": [
+          {
+            "Q1": 4.61
+          },
+          {
+            "Q2": 3.6
+          },
+          {
+            "Q3": 1.87
+          },
+          {
+            "Q4": 1.94
+          }
+        ]
+      },
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Near-POC band is the causal weakness; gate fixes it",
+        "Multiple-testing caveat: threshold semi-informed by VAL terciles",
+        "Remaining cert: 2026 holdout #3 + InpPocMin plateau + WFO"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {
+        "m1_ex5": "ab1e3668532eaf9c6fc37f276c2393ec950982f606decb7c922c23383bdce7b5",
+        "m1_mq5": "c76c3d05c1f9b42b7f68c3b6dc7d5a71a9db8cb9ab060c1aea506bdeb255d6d1"
+      },
+      "generated_utc": "2026-08-15T21:55:33.138Z"
+    },
+    {
+      "record_id": "DE40-M1-FROZEN",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "VPPOC shallow-reject LONG frozen as MODULE_1_FROZEN_RESEARCH_CANDIDATE (DE40_X1X_M1_VPPOC_SHALLOW_REJECT, magic 5001). Family = STRONG MODULE FOUND / DEPRIORITISED. Do not re-squeeze; move to a distinct Module 2 alpha.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Portfolio objective: multiple independent edges under one governed EA",
+        "Module 2 must be genuinely distinct (different regime/session/direction)",
+        "Reopen M1 only on portfolio evidence of a specific weakness"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {
+        "m1_ex5": "ab1e3668532eaf9c6fc37f276c2393ec950982f606decb7c922c23383bdce7b5",
+        "m1_mq5": "c76c3d05c1f9b42b7f68c3b6dc7d5a71a9db8cb9ab060c1aea506bdeb255d6d1"
+      },
+      "generated_utc": "2026-08-15T21:55:33.138Z"
+    },
+    {
+      "record_id": "DE40-M2-FORB-GEN2",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "hypothesis",
+      "symbol": "GER40.s",
+      "family": "FORB",
+      "title": "FORB GEN-2: baseline 151tr/47.7%/PF0.92/netR-6.71 healed to H1DISP_MIDDAY 31tr/71%/PF3.67/netR13.57/losers9. DISP causal (58.5% alone), H1-bear compounds, relvol net-damaging.",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "baseline": {
+          "n": 151,
+          "wr": 47.7,
+          "pf": 0.92,
+          "netR": -6.71
+        },
+        "winner": {
+          "n": 31,
+          "wr": 71,
+          "pf": 3.67,
+          "netR": 13.57,
+          "losers": 9,
+          "y2023": {
+            "n": 7,
+            "wr": 85.7,
+            "netR": 5.08
+          },
+          "y2024": {
+            "n": 24,
+            "wr": 66.7,
+            "netR": 8.5
+          }
+        }
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Failed-break-reclaim long = counter-H1-downtrend exhaustion fade",
+        "Low displacement = genuine failed break (quiet reclaim)",
+        "Inline relvol gate removes winners -> reject"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {
+        "forb_gen2_ex5": "243fe66e5df3197142de6435e63454f97a5307e9d8843ef7ea62ea7942938a9a"
+      },
+      "generated_utc": "2026-08-15T22:09:18.350Z"
+    },
+    {
+      "record_id": "DE40-M2-FORB-CAUSAL",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "FORB",
+      "title": "DISP is a confound in VPPOC (fade-to-POC) but CAUSAL in FORB (failed-break reclaim). Feature causal role is family-specific.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Never transfer a gate between families without testing",
+        "Isolate each gate alone vs combined to prove causality"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {
+        "forb_gen2_ex5": "243fe66e5df3197142de6435e63454f97a5307e9d8843ef7ea62ea7942938a9a"
+      },
+      "generated_utc": "2026-08-15T22:09:18.350Z"
+    },
+    {
+      "record_id": "DE40-M2-FORB-VAL-REFUTED",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "FORB",
+      "title": "FORB GEN-2 gates OVERFIT DEV-gold 2023-24. VAL 2025: BASE (no gates) PF1.23/+$105.63 (OOS-positive); DISP-only PF0.95/-$10 (damages); H1DISP_MIDDAY 17tr/47%/breakeven (collapses). DEV-forensics gates were curve-fit to the choppy 2023-24 regime.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Gates must be validated on VAL, never DEV alone",
+        "DEV-gold forensics can produce regime-overfit gates",
+        "Trade-count + WR on DEV do not imply OOS transfer"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {},
+      "generated_utc": "2026-08-15T22:13:01.747Z"
+    },
+    {
+      "record_id": "DE40-M2-FORB-MARGINAL",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "FORB",
+      "title": "FORB raw failed-break-reversal edge is MARGINAL + regime-flipping: DEV PF0.92 (loss) vs VAL PF1.23 (profit). Not a strong module. Deprioritize; reopen Module 2 to VWAPX/LRF.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "FORB retained only as weak-diversifier candidate",
+        "Module 2 should be a distinct anchor with stronger raw edge"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {},
+      "generated_utc": "2026-08-15T22:13:01.747Z"
+    },
+    {
+      "record_id": "DE40-M2-VWAPX-VAL-PASS",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "hypothesis",
+      "symbol": "GER40.s",
+      "family": "VWAPX",
+      "title": "VWAPX high-disp (disp>=0.80) VAL HOLDS: 38tr/60.5%/PF1.51/netR+7.92/losers15 vs DEV 31tr/61.3%/+7.22. Consistent ~61% WR across DEV+VAL. Single causal gate tested alone on VAL (FORB lesson applied, no stacked DEV gates).",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "n": 31,
+        "wr": 61.3,
+        "netR": 7.22
+      },
+      "val_evidence": {
+        "n": 38,
+        "wr": 60.5,
+        "pf": 1.51,
+        "netR": 7.92,
+        "losers": 15,
+        "dd": 0.33,
+        "quarters": {
+          "Q1": 4.03,
+          "Q2": 5.14,
+          "Q3": -2.16,
+          "Q4": 0.91
+        }
+      },
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "High displacement = impulsive VWAP extension that reverts (causal)",
+        "London + deep-below-EMA200 + high-ATR are the losing regimes (rejected)"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {
+        "vwapx_ex5": "f7c656258ee181a97425d852370cd2c9ede2c1bee9d51af1b521fc286b0a0e7c"
+      },
+      "generated_utc": "2026-08-15T22:32:10.285Z"
+    },
+    {
+      "record_id": "DE40-M2-FROZEN",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VWAPX",
+      "title": "VWAPX high-disp frozen as MODULE_2_FROZEN_RESEARCH_CANDIDATE (DE40_X1X_M2_VWAPX_HIDISP, magic 5002). Distinct from M1 (VWAP intraday anchor vs POC multi-day anchor). Moderate edge PF1.5.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Portfolio: M1 VPPOC + M2 VWAPX = two distinct fade anchors",
+        "Next: diversification test M1 vs M2, then Module 3 search"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {
+        "vwapx_ex5": "f7c656258ee181a97425d852370cd2c9ede2c1bee9d51af1b521fc286b0a0e7c"
+      },
+      "generated_utc": "2026-08-15T22:32:10.285Z"
+    },
+    {
+      "record_id": "DE40-PORTFOLIO-M1M2-DIVERS",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "PORTFOLIO",
+      "title": "Diversification M1 (VPPOC) vs M2 (VWAPX) on VAL 2025: same-day overlap only 3/24 vs 3/38 days (distinct events/days); daily net-R corr -0.925 (n=3, ignorable); both long-only fades in 07-17 GMT. Genuinely diversifying anchors, but SHARED long-fade caveat: neither covers bearish/trend regimes.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": {
+        "m1_days": 24,
+        "m2_days": 38,
+        "overlap_days": 3,
+        "corr_shared_days": -0.925,
+        "shared_n": 3
+      },
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Portfolio gap = bearish/trend regime (uncovered; DE40 evidence: shorts+breakouts weak on real ticks)",
+        "Module 3 should fill a NON-fade/trend gap if evidence exists, else 2 fades is the honest ceiling"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {},
+      "generated_utc": "2026-08-15T22:34:45.344Z"
+    },
+    {
+      "record_id": "DE40-M2-VWAPX-RUNNER-REJECT",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VWAPX",
+      "title": "VWAPX runner (trail from 1R) regime-flips: DEV 33/57.6%/PF0.87/-9.86 vs VAL 38/57.9%/PF1.74/+64.78. Rejected.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Payoff enhancement is trend-dependent for this fade"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {},
+      "generated_utc": "2026-08-15T22:51:26.954Z"
+    },
+    {
+      "record_id": "DE40-M2-VWAPX-PARTIAL-REJECT",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VWAPX",
+      "title": "VWAPX partial50%@1R+runner: WR~74% both windows but net regime-split (DEV PF0.94/-4.15 vs VAL PF1.64/+55.80). High WR <-> lower payoff; net not robust. Rejected.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Partial+runner trades payoff for WR; still regime-fragile"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {},
+      "generated_utc": "2026-08-15T22:51:26.954Z"
+    },
+    {
+      "record_id": "DE40-RR-SYNTHESIS",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "PORTFOLIO",
+      "title": "DE40 fade families (VPPOC, VWAPX) are inherently RR~1.0 (mean-reversion to anchor caps upside). 'More RR' only materialises in the trend regime (runner/partial lift VAL 2025, flip DEV negative). => more-RR requires a TREND/MOMENTUM module with runner exit, which is also the missing portfolio gap. M1 RR 0.79 (POC-target caps winners) needs InpFixedRROnly canonical check to reach the 1.0 floor.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Module 3 target: trend/momentum + runner (inherent RR>1.0)",
+        "M1: verify fixed-1R variant to hit RR>=1.0"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {},
+      "generated_utc": "2026-08-15T22:51:26.954Z"
+    },
+    {
+      "record_id": "DE40-M1-FIXEDRR-PROMOTE",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VPPOC",
+      "title": "M1 fixed-1R child PROMOTED. VAL 2025: RR 0.79->1.05 (>=1.0 floor), PF 3.96->5.26, netR 12.02->17.26, same 24 entries/WR 83.3%/freq 24, DD 0.36->0.50%. Root cause: POC-target (InpFixedRROnly=false) caps some winners below 1R; fixed-1R lets them reach full 1R. M1 RR gate now PASS.",
+      "confidence": "HIGH",
+      "dev_evidence": null,
+      "val_evidence": {
+        "parent": {
+          "rr": 0.79,
+          "pf": 3.96,
+          "netR": 12.02
+        },
+        "child": {
+          "rr": 1.05,
+          "pf": 5.26,
+          "netR": 17.26,
+          "wr": 83.3,
+          "n": 24
+        }
+      },
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Fixed-1R is the payoff-correct variant for M1",
+        "POC-target-under-1R was silently trimming winners"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {},
+      "generated_utc": "2026-08-15T22:55:03.252Z"
+    },
+    {
+      "record_id": "DE40-M3-TREND-BASELINE",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "TREND",
+      "title": "M3 trend-pullback+runner baseline (44tr DEV): WR 40.9% BUT RR 1.41 (avg win 1.43R / avg loss 1.01R, winners MFE 2.1). Runner delivers RR>1.0 architecturally (fades could not). Edge pockets: shallow pullback (depth<=0.8 -> 62.5%WR), low disp (<0.4 -> 50%/+8.19R), near/below EMA200 (60%), exclude Midday. Losers: deep pullback, mid-disp, Midday, Tue/Fri.",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "n": 44,
+        "wr": 40.9,
+        "pf": 0.98,
+        "rr": 1.41,
+        "netR": -0.57
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "Shallow pullback + low displacement = healthy trend continuation",
+        "Deep pullback = trend breakdown (gate out)",
+        "Runner gives RR>1.0; entry selectivity needs WR lift"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {
+        "m3_ex5": "3f503ed5f2d70e36d59395921619d8845d48e944566202c3ad1159a50b07fab9"
+      },
+      "generated_utc": "2026-08-15T22:58:26.936Z"
+    },
+    {
+      "record_id": "DE40-M3-TREND-WEAK",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "TREND",
+      "title": "M3 trend-pullback gates: SHALLOW (depth<=0.8) = 5tr/60%WR/PF1.05 (~4-6/yr, BELOW 20/yr module floor). LOWDISP gate produced 0 trades (inline disp recompute bug; forensics showed 20 low-disp). Conclusion: runner DELIVERS RR 1.41 architecturally, but DE40 trend-pullback ENTRY is weak+rare (consistent 'DE40 trends weak' prior). M3 = weak module candidate (RR good, WR+freq poor).",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "shallow": {
+          "n": 5,
+          "wr": 60,
+          "pf": 1.05
+        }
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "DE40 trend/breakout families remain weak despite RR-capable runner",
+        "The 'more RR' lever needs a genuinely strong trend trigger, not a weak one",
+        "Fades remain the working DE40 family"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {},
+      "generated_utc": "2026-08-15T23:01:27.098Z"
+    },
+    {
+      "record_id": "DE40-M2-VWAPX-EDGE-INVALIDATED",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "lesson",
+      "symbol": "GER40.s",
+      "family": "VWAPX",
+      "title": "TELEMETRY BUG CAUGHT A FALSE EDGE. f_disp/f_rel_vol were computed on wrong bars (missing ArraySetAsSeries on MqlRates). Corrected f_disp mean ~1.5 (vs ~0.5 buggy). The VWAPX 'high-disp 61% WR' edge DISAPPEARS: disp>=1.0 -> DEV 49.4%/-1.92, VAL 51.9%/+4.57 (marginal). M2 VWAPX downgraded to artifact-frozen / edge spurious. M1 UNAFFECTED (f_poc_dist/f_va_width are profile-based). Lesson: telemetry correctness is a gate; validate feature labels before trusting any gate.",
+      "confidence": "HIGH",
+      "dev_evidence": {
+        "corrected_disp_mean_dev": 1.48,
+        "corrected_disp_mean_val": 1.55
+      },
+      "val_evidence": {
+        "disp_ge_1_dev": {
+          "wr": 49.4,
+          "pf": 0.98
+        },
+        "disp_ge_1_val": {
+          "wr": 51.9,
+          "pf": 1.07
+        }
+      },
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "f_disp/f_rel_vol must be recomputed on trigger bars, not old bars",
+        "Any gate keyed on the buggy f_disp must be re-derived",
+        "M1 profile gates (POC/VAW) are correct and unaffected"
+      ],
+      "experiment_ids": [],
+      "source_paths": {},
+      "source_hashes": {
+        "vwapx_corrected_ex5": "281876592400cf898295c4050d8abb33678d97d87ba8ef065b239391c24aee2e"
+      },
+      "generated_utc": "2026-08-15T23:29:44.814Z"
+    },
+    {
+      "record_id": "DE40-M3-BRKRT-ATRPCT-GATE",
+      "status": "BRAIN_WRITEBACK_PENDING",
+      "type": "experiment",
+      "symbol": "GER40.s",
+      "family": "BRKRT",
+      "title": "Added f_atr_pct telemetry + volatility-regime gate to BRKRT harness (experiment #4 enabler). Compiled 0 err/0 warn. Telemetry VERIFIED working (12-trade partial DEV run logged valid atr_pct 48.6..100). MT5 tester then went down (no metatester proc; log stalled 00:44:02 'Cloud servers switched off'; concurrent NAS100 hermes missions running).",
+      "confidence": "LOW",
+      "dev_evidence": {
+        "partial_n": 12,
+        "wr": 50,
+        "winners_atr_pct_mean": 84.9,
+        "losers_atr_pct_mean": 61.7,
+        "sample_too_small": true
+      },
+      "val_evidence": null,
+      "matched_winner_comparison": null,
+      "hypotheses": [
+        "H1: atr_pct regime band lifts BRKRT USOVLP continuation from VAL-flat",
+        "(tentative, n=12): winners higher atr_pct than losers — needs full DEV sample before band derivation"
+      ],
+      "experiment_ids": [
+        "magic_4124",
+        "magic_4125",
+        "magic_4126"
+      ],
+      "source_paths": {
+        "mq5": "ea/harness/DE40_BRKRT_HARNESS.mq5"
+      },
+      "source_hashes": {
+        "brkrt_ex5": "recompiled 2026-08-16 (atr_pct gate added)"
+      },
+      "infra_note": "MT5 tester DOWN at 2026-08-16 ~00:44. Recovery required before BRKRT baseline can complete. BRKRT ST_SCAN CopyHigh/CopyLow-per-bar loop is slow — consider CopyRates into a single MqlRates[] buffer.",
+      "generated_utc": "2026-08-15T23:47:31.516Z"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+InpServerUTC=3
+InpORStartGMT=7
+InpOREndGMT=8
+InpEntryStartGMT=8
+InpEntryEndGMT=17
+InpSLBufATR=0.30
+InpTP_RR=1.0
+InpAllowLong=true
+InpAllowShort=false
+InpGateH1Bear=true
+InpGateDisp=true
+InpDispMax=0.40
+InpGateRelVol=false
+InpRelVolMax=0.70
+InpExclMidday=true
+InpMagic=4816

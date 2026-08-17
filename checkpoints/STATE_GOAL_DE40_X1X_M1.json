@@ -1,0 +1,23 @@
+{
+  "goal_id": "GOAL_DE40_X1X_M1",
+  "goal_type": "MODULE_PRODUCTION_GATES",
+  "research_phase": "PHASE_3_CANONICAL_X1X",
+  "goal_definition": "Strict Module Acceptance & Final Validation",
+  "target_criteria": {
+    "description": "Strict Module Acceptance & Final Validation",
+    "min_trades": 20,
+    "min_win_rate": 0.7,
+    "min_profit_factor": 2.0,
+    "min_risk_reward": 1.0,
+    "max_drawdown": 0.2,
+    "min_val_retention": 0.75
+  },
+  "constraints": {},
+  "goal_status": "PASSED",
+  "iteration": 5,
+  "repair_level_idx": 0,
+  "consecutive_fails_at_level": 1,
+  "consecutive_failures": 0,
+  "history": [],
+  "created_at": "2026-08-16T10:00:28.800026+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "test_id": "VPPOC_PLAT_VPPOC_PLAT_110",
+  "run_id": "VPPOC_PLAT_VPPOC_PLAT_110_20260815_163800",
+  "set_file": "VPPOC_PLAT_110.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_VPPOC_PLAT_VPPOC_PLAT_110_20260815_163800.ini",
+  "vantage_pids_before": "[8440]",
+  "process_start": "2026-08-15 16:38:00.498271"
+}

@@ -1,0 +1,11 @@
+{
+  "test_id": "FORB2VAL_FORB2VAL_WIN",
+  "run_id": "FORB2VAL_FORB2VAL_WIN_20260815_230938",
+  "set_file": "FORB2VAL_WIN.set",
+  "from": "2025.01.01",
+  "to": "2025.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_FORB2VAL_FORB2VAL_WIN_20260815_230938.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 23:09:38.413958"
+}

@@ -1,0 +1,8 @@
+InpServerUTC=3
+InpAllowShort=false
+InpAllowLong=true
+InpTagATR=0.178824
+InpSLBufATR=0.201228
+InpVA_Pct=71
+InpLookbackDays=2
+InpBucketPts=292

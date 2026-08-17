@@ -1,0 +1,11 @@
+{
+ "VWAPX_BASE": {
+  "set": "VWAPX_BASE.set",
+  "trades": "219",
+  "wr": 46.58,
+  "pf": "0.79",
+  "net": "-108.03",
+  "dd_pct": "158.12 (1.57%)",
+  "exit_ok": true
+ }
+}

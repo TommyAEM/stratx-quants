@@ -1,0 +1,7 @@
+InpServerUTC=3
+InpEntryStartGMT=7
+InpEntryEndGMT=17
+InpSLBufATR=0.30
+InpRunner=true
+InpRunnerCapR=3.0
+InpMagic=4900

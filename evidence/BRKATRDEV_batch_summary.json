@@ -1,0 +1,11 @@
+{
+ "BRKATRDEV_B": {
+  "set": "BRKATRDEV_B.set",
+  "trades": null,
+  "wr": null,
+  "pf": null,
+  "net": null,
+  "dd_pct": null,
+  "exit_ok": false
+ }
+}

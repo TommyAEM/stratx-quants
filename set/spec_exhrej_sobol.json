@@ -1,0 +1,11 @@
+{
+  "mode": "sobol",
+  "sobol_n": 24,
+  "fixed": {"InpServerUTC": 3, "InpAllowShort": false, "InpAllowLong": true},
+  "params": {
+    "InpExtendATR": {"type": "double", "values": [0.4, 1.2]},
+    "InpWickRatio": {"type": "double", "values": [0.5, 0.75]},
+    "InpVolSpikeMult": {"type": "double", "values": [1.5, 3.0]},
+    "InpSLBufferATR": {"type": "double", "values": [0.2, 0.5]}
+  }
+}

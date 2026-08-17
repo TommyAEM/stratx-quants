@@ -1,0 +1,11 @@
+{
+ "VAL1_POC": {
+  "set": "VAL1_POC.set",
+  "trades": "24",
+  "wr": 83.33,
+  "pf": "4.51",
+  "net": "332.74",
+  "dd_pct": "60.92 (0.59%)",
+  "exit_ok": true
+ }
+}

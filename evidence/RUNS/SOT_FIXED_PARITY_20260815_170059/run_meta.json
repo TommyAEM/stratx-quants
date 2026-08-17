@@ -1,0 +1,11 @@
+{
+  "test_id": "SOT_FIXED_PARITY",
+  "run_id": "SOT_FIXED_PARITY_20260815_170059",
+  "set_file": "DE40_SOT_DEV.set",
+  "from": "2025.08.01",
+  "to": "2026.07.02",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_SOT_FIXED_PARITY_20260815_170059.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 17:00:59.166436"
+}

@@ -1,0 +1,92 @@
+{
+ "GEN2_ALLGATES": {
+  "set": "GEN2_ALLGATES.set",
+  "trades": "8",
+  "wr": 75.0,
+  "pf": "4.11",
+  "net": "78.77",
+  "dd_pct": "36.83 (0.37%)",
+  "exit_ok": true
+ },
+ "GEN2_BASE": {
+  "set": "GEN2_BASE.set",
+  "trades": "34",
+  "wr": 76.47,
+  "pf": "2.91",
+  "net": "202.81",
+  "dd_pct": "36.83 (0.36%)",
+  "exit_ok": true
+ },
+ "GEN2_BE": {
+  "set": "GEN2_BE.set",
+  "trades": "35",
+  "wr": 68.57,
+  "pf": "2.97",
+  "net": "170.99",
+  "dd_pct": "35.64 (0.36%)",
+  "exit_ok": true
+ },
+ "GEN2_DISP": {
+  "set": "GEN2_DISP.set",
+  "trades": "26",
+  "wr": 76.92,
+  "pf": "2.45",
+  "net": "126.55",
+  "dd_pct": "46.78 (0.47%)",
+  "exit_ok": true
+ },
+ "GEN2_PARTIAL": {
+  "set": "GEN2_PARTIAL.set",
+  "trades": "55",
+  "wr": 85.45,
+  "pf": "2.91",
+  "net": "167.77",
+  "dd_pct": "35.04 (0.35%)",
+  "exit_ok": true
+ },
+ "GEN2_POC": {
+  "set": "GEN2_POC.set",
+  "trades": "29",
+  "wr": 82.76,
+  "pf": "3.93",
+  "net": "207.17",
+  "dd_pct": "36.83 (0.36%)",
+  "exit_ok": true
+ },
+ "GEN2_POCDISP": {
+  "set": "GEN2_POCDISP.set",
+  "trades": "23",
+  "wr": 82.61,
+  "pf": "3.32",
+  "net": "145.79",
+  "dd_pct": "45.31 (0.45%)",
+  "exit_ok": true
+ },
+ "GEN2_SESCLOSE": {
+  "set": "GEN2_SESCLOSE.set",
+  "trades": "43",
+  "wr": 60.47,
+  "pf": "2.13",
+  "net": "85.76",
+  "dd_pct": "34.22 (0.34%)",
+  "exit_ok": true
+ },
+ "GEN2_TRAIL": {
+  "set": "GEN2_TRAIL.set",
+  "trades": "34",
+  "wr": 76.47,
+  "pf": "2.42",
+  "net": "150.48",
+  "dd_pct": "36.65 (0.37%)",
+  "exit_ok": true
+ },
+ "GEN2_VAW": {
+  "set": "GEN2_VAW.set",
+  "trades": "11",
+  "wr": 81.82,
+  "pf": "6.13",
+  "net": "125.07",
+  "dd_pct": "36.83 (0.36%)",
+  "exit_ok": true
+ }
+}

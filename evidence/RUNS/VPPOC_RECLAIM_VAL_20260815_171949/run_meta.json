@@ -1,0 +1,11 @@
+{
+  "test_id": "VPPOC_RECLAIM_VAL",
+  "run_id": "VPPOC_RECLAIM_VAL_20260815_171949",
+  "set_file": "DE40_VPPOC_RECLAIM.set",
+  "from": "2025.01.01",
+  "to": "2025.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_VPPOC_RECLAIM_VAL_20260815_171949.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 17:19:49.965653"
+}

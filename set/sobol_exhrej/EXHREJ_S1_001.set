@@ -1,0 +1,7 @@
+InpServerUTC=3
+InpAllowShort=false
+InpAllowLong=true
+InpExtendATR=0.659066
+InpWickRatio=0.537712
+InpVolSpikeMult=2.476402
+InpSLBufferATR=0.221731

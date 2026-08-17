@@ -1,0 +1,11 @@
+{
+  "test_id": "FORB2DEV_FORB2_H1",
+  "run_id": "FORB2DEV_FORB2_H1_20260815_230650",
+  "set_file": "FORB2_H1.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_FORB2DEV_FORB2_H1_20260815_230650.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 23:06:50.490388"
+}

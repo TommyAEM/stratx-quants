@@ -1,0 +1,38 @@
+{
+ "VPPOC_TAG_005": {
+  "set": "VPPOC_TAG_005.set",
+  "trades": "25",
+  "wr": 76.0,
+  "pf": "2.59",
+  "net": "136.54",
+  "dd_pct": "36.82 (0.36%)",
+  "exit_ok": true
+ },
+ "VPPOC_TAG_0065": {
+  "set": "VPPOC_TAG_0065.set",
+  "trades": "29",
+  "wr": 75.86,
+  "pf": "2.73",
+  "net": "167.63",
+  "dd_pct": "36.83 (0.36%)",
+  "exit_ok": true
+ },
+ "VPPOC_TAG_010": {
+  "set": "VPPOC_TAG_010.set",
+  "trades": "37",
+  "wr": 78.38,
+  "pf": "3.07",
+  "net": "219.11",
+  "dd_pct": "36.83 (0.36%)",
+  "exit_ok": true
+ },
+ "VPPOC_TAG_014": {
+  "set": "VPPOC_TAG_014.set",
+  "trades": "48",
+  "wr": 66.67,
+  "pf": "1.63",
+  "net": "132.73",
+  "dd_pct": "57.88 (0.57%)",
+  "exit_ok": true
+ }
+}

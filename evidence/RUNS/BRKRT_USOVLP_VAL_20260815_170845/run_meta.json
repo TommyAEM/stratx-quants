@@ -1,0 +1,11 @@
+{
+  "test_id": "BRKRT_USOVLP_VAL",
+  "run_id": "BRKRT_USOVLP_VAL_20260815_170845",
+  "set_file": "DE40_BRKRT_LONG_USOVLP.set",
+  "from": "2025.01.01",
+  "to": "2025.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_BRKRT_USOVLP_VAL_20260815_170845.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 17:08:45.465181"
+}

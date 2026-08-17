@@ -1,0 +1,11 @@
+{
+  "test_id": "REGRESSION_MODA_NCT_RR10",
+  "run_id": "REGRESSION_MODA_NCT_RR10_20260815_153239",
+  "set_file": "DE40_ModA_NCT_RR10.set",
+  "from": "2023.01.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_REGRESSION_MODA_NCT_RR10_20260815_153239.ini",
+  "vantage_pids_before": "[8440]",
+  "process_start": "2026-08-15 15:32:39.151905"
+}

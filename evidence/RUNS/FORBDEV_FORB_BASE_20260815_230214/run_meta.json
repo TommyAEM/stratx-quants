@@ -1,0 +1,11 @@
+{
+  "test_id": "FORBDEV_FORB_BASE",
+  "run_id": "FORBDEV_FORB_BASE_20260815_230214",
+  "set_file": "FORB_BASE.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_FORBDEV_FORB_BASE_20260815_230214.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 23:02:14.326807"
+}

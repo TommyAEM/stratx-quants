@@ -1,0 +1,11 @@
+{
+ "VWAPXRD_DEV": {
+  "set": "VWAPXRD_DEV.set",
+  "trades": "33",
+  "wr": 57.58,
+  "pf": "0.87",
+  "net": "-9.86",
+  "dd_pct": "44.92 (0.45%)",
+  "exit_ok": true
+ }
+}

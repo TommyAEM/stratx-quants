@@ -1,0 +1,56 @@
+{
+ "FORB2_ALL": {
+  "set": "FORB2_ALL.set",
+  "trades": "25",
+  "wr": 72.0,
+  "pf": "3.07",
+  "net": "60.65",
+  "dd_pct": "23.79 (0.24%)",
+  "exit_ok": true
+ },
+ "FORB2_DISP": {
+  "set": "FORB2_DISP.set",
+  "trades": "65",
+  "wr": 58.46,
+  "pf": "1.89",
+  "net": "100.37",
+  "dd_pct": "49.05 (0.49%)",
+  "exit_ok": true
+ },
+ "FORB2_H1": {
+  "set": "FORB2_H1.set",
+  "trades": "72",
+  "wr": 54.17,
+  "pf": "1.33",
+  "net": "67.68",
+  "dd_pct": "67.85 (0.67%)",
+  "exit_ok": true
+ },
+ "FORB2_H1DISP": {
+  "set": "FORB2_H1DISP.set",
+  "trades": "32",
+  "wr": 68.75,
+  "pf": "3.20",
+  "net": "108.63",
+  "dd_pct": "27.22 (0.27%)",
+  "exit_ok": true
+ },
+ "FORB2_H1DISP_MIDDAY": {
+  "set": "FORB2_H1DISP_MIDDAY.set",
+  "trades": "31",
+  "wr": 70.97,
+  "pf": "3.67",
+  "net": "114.88",
+  "dd_pct": "27.22 (0.27%)",
+  "exit_ok": true
+ },
+ "FORB2_H1DISP_RELVOL": {
+  "set": "FORB2_H1DISP_RELVOL.set",
+  "trades": "26",
+  "wr": 69.23,
+  "pf": "2.53",
+  "net": "54.40",
+  "dd_pct": "23.79 (0.24%)",
+  "exit_ok": true
+ }
+}

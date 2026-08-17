@@ -1,0 +1,11 @@
+{
+  "campaign": "DE40-X1X",
+  "campaign_owner_id": "de40-x1x-coordinator-omp",
+  "daemon_pid": "omp-session",
+  "lease_timestamp": "2026-08-16T00:00:00Z",
+  "heartbeat": "2026-08-16T00:00:00Z",
+  "state_version": 2,
+  "atomic_writes": true,
+  "version_check": "optimistic-concurrency",
+  "protocol": "single-writer coordinator. Workers produce experiment artifacts independently and submit results to the coordinator. They MUST NOT overwrite CAMPAIGN_STATE.md, the module registry, the Research Map, or promotion decisions. Before writing authoritative state, read state_version; if changed since last read, reconcile, do not blind-overwrite."
+}

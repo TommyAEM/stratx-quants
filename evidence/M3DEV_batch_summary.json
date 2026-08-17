@@ -1,0 +1,38 @@
+{
+ "M3_BASE": {
+  "set": "M3_BASE.set",
+  "trades": null,
+  "wr": null,
+  "pf": null,
+  "net": null,
+  "dd_pct": null,
+  "exit_ok": false
+ },
+ "M3_LOWDISP": {
+  "set": "M3_LOWDISP.set",
+  "trades": "0",
+  "wr": 0.0,
+  "pf": "0.00",
+  "net": "0.00",
+  "dd_pct": "0.00 (0.00%)",
+  "exit_ok": true
+ },
+ "M3_SHALLOW": {
+  "set": "M3_SHALLOW.set",
+  "trades": "5",
+  "wr": 60.0,
+  "pf": "1.05",
+  "net": "0.26",
+  "dd_pct": "8.46 (0.08%)",
+  "exit_ok": true
+ },
+ "M3_SHALLOW_DISP": {
+  "set": "M3_SHALLOW_DISP.set",
+  "trades": "0",
+  "wr": 0.0,
+  "pf": "0.00",
+  "net": "0.00",
+  "dd_pct": "0.00 (0.00%)",
+  "exit_ok": true
+ }
+}

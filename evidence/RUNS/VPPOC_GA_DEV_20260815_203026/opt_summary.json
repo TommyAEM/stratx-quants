@@ -1,0 +1,18 @@
+{
+  "test_id": "VPPOC_GA_DEV",
+  "run_id": "VPPOC_GA_DEV_20260815_203026",
+  "expert": "DE40_VPPOC_HARNESS",
+  "symbol": "GER40.s",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "swept_params": [
+    "InpTagATR",
+    "InpSLBufATR",
+    "InpVA_Pct",
+    "InpLookbackDays",
+    "InpBucketPts"
+  ],
+  "total_passes": 0,
+  "top_by_net_profit": [],
+  "parse_limitation": "No optimization XML produced; pass table unavailable."
+}

@@ -1,0 +1,11 @@
+{
+  "test_id": "SWEEP_DEVGOLD",
+  "run_id": "SWEEP_DEVGOLD_20260815_171727",
+  "set_file": "DE40_SWEEP_DEV.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_SWEEP_DEVGOLD_20260815_171727.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 17:17:27.817655"
+}

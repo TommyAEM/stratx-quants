@@ -1,0 +1,11 @@
+{
+ "VWAPXVAL_WIN": {
+  "set": "VWAPXVAL_WIN.set",
+  "trades": "38",
+  "wr": 60.53,
+  "pf": "1.49",
+  "net": "43.21",
+  "dd_pct": "33.44 (0.33%)",
+  "exit_ok": true
+ }
+}

@@ -1,0 +1,81 @@
+{
+  "prescreen": "sot_v4.0_ger40_python",
+  "timestamp": "2026-08-15T14:30:15.256927+00:00",
+  "symbol": "GER40",
+  "config_source": "C:\\Trading\\Terminal-X-V2-Recovered\\verified_configs\\GER40.json",
+  "feed": {
+    "path": "C:\\Trading\\Terminal-X-V2-Recovered\\engine_x_lite\\sample_data\\portfolio\\GER40_OANDA.csv",
+    "provenance": "OANDA:GER40",
+    "total_rows": 18671,
+    "date_range": {
+      "start": "2025-08-01T00:15:00+00:00",
+      "end": "2026-07-02T00:30:00+00:00"
+    },
+    "bars_in_window": 18671
+  },
+  "window_ms": {
+    "start": 1754007300000,
+    "end": 1782953100000
+  },
+  "engine_metrics": {
+    "trades": 50,
+    "closed_trades": 50,
+    "open_trades": 0,
+    "wr_pct": 74.0,
+    "pf": 3.468,
+    "max_dd_r": 3.0,
+    "max_dd_pct": 2.5645,
+    "expectancy_r": 0.5443,
+    "gross_profit_r": 38.2429,
+    "gross_loss_r": 11.0259,
+    "net_profit_r": 27.217,
+    "rr_config": 1.0
+  },
+  "tv_reference": {
+    "trades": 51,
+    "wr_pct": 74.51,
+    "pf": 3.491,
+    "dd_pct": 3.12,
+    "source": {
+      "trades": 51,
+      "wr": 74.51,
+      "pf": 3.491,
+      "dd_pct": 3.12,
+      "rr": 1,
+      "feed": "OANDA:GER40",
+      "verified_at": "2026-07-16T01:58Z",
+      "window_ms": [
+        1754007300000,
+        1782953100000
+      ],
+      "script": "SOT v4.0 (calc_on_order_fills=false, use_bar_magnifier=false)",
+      "runs": 2,
+      "reproduced": true
+    }
+  },
+  "deltas": {
+    "trades": -1,
+    "wr_pp": -0.51,
+    "pf": -0.0225
+  },
+  "long_short": {
+    "long": {
+      "count": 29,
+      "wr": 72.41379310344827,
+      "avg_r": 0.5519510414131176,
+      "net_r": 16.00658020098041
+    },
+    "short": {
+      "count": 21,
+      "wr": 76.19047619047619,
+      "avg_r": 0.5338294741804125,
+      "net_r": 11.210418957788663
+    }
+  },
+  "yearly": {
+    "2025": 20,
+    "2026": 30
+  },
+  "unmapped_keys_count": 0,
+  "unmapped_keys": []
+}

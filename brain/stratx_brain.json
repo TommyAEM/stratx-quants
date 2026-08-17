@@ -1,0 +1,2596 @@
+[
+  {
+    "id": "MEM_0001",
+    "timestamp": "2026-08-16 12:58:46",
+    "iteration": 1,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "Asian & London Session Liquidity Sweeps",
+      "MA Slope"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear. ADX all <21, average 17.5, indicating no directional strength. Step 2: Indicator context. RSI for sells 68.5 (not >70), for buy"
+  },
+  {
+    "id": "MEM_0002",
+    "timestamp": "2026-08-16 12:59:57",
+    "iteration": 2,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear. ADX all <21, average 17.5, indicating no directional strength. Session clusters at 08:00, 09:00, and 14:00 UTC correspond to Lo"
+  },
+  {
+    "id": "MEM_0003",
+    "timestamp": "2026-08-16 13:01:04",
+    "iteration": 3,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0004",
+    "timestamp": "2026-08-16 13:02:02",
+    "iteration": 4,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Overfitting guard: Deflated Sharpe p=1.0 (trial"
+  },
+  {
+    "id": "MEM_0005",
+    "timestamp": "2026-08-16 13:02:51",
+    "iteration": 5,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R \u2248 1.0, stops hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX across all losses is "
+  },
+  {
+    "id": "MEM_0006",
+    "timestamp": "2026-08-16 13:03:38",
+    "iteration": 6,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "Asian & London Session Liquidity Sweeps",
+      "Bollinger Bands Width",
+      "Active Pattern Direction",
+      "Session High/Low"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0007",
+    "timestamp": "2026-08-16 13:04:31",
+    "iteration": 7,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "ATR",
+      "Time Session Filters"
+    ],
+    "tags": [
+      "QUANT_REPAIR",
+      "GMM_REGIME_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "{\\n   if(adx < 20.0) return false;\\n   if(chop > 61.8) return false;\\n   bool is_sweep_window = (hour == 8 && minute < 30) || (hour == 9 && minute < 30) || (hour == 14 && minute < 30);\\n   if(is_sweep_window && !SweepRejectionConfirmed()) return fals"
+  },
+  {
+    "id": "MEM_0008",
+    "timestamp": "2026-08-16 13:05:17",
+    "iteration": 8,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "Asian & London Session Liquidity Sweeps",
+      "Active Pattern Direction",
+      "Bollinger Bands Width",
+      "RSI",
+      "ATR",
+      "Session High/Low"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD",
+      "JUDAS_SWING",
+      "ASIAN_RANGE_SWEEP"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0009",
+    "timestamp": "2026-08-16 13:06:22",
+    "iteration": 9,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "ATR",
+      "Asian & London Session Liquidity Sweeps",
+      "Active Pattern Direction",
+      "Bollinger Bands Width"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_HARD_FILTER",
+      "RSI_EXTREME_GATE",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "ATR_STOP_SIZING",
+      "OVERFITTING_KILL_SWITCH"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 losing trades are exactly -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6)"
+  },
+  {
+    "id": "MEM_0010",
+    "timestamp": "2026-08-16 13:07:12",
+    "iteration": 10,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "ATR",
+      "Asian & London Session Liquidity Sweeps",
+      "H4 EMA50 Slope",
+      "Active Pattern Direction",
+      "Bollinger Bands Width"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD",
+      "HTF_BIAS_FILTER",
+      "REGIME_KILL_SWITCH"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0011",
+    "timestamp": "2026-08-16 13:08:16",
+    "iteration": 11,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "Asian & London Session Liquidity Sweeps",
+      "Active Pattern Direction",
+      "Bollinger Bands Width",
+      "ATR"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0012",
+    "timestamp": "2026-08-16 13:09:08",
+    "iteration": 12,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD",
+      "LOW_ADX_BLOCK"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC correspond to London and US opens. Overfitting g"
+  },
+  {
+    "id": "MEM_0013",
+    "timestamp": "2026-08-16 13:10:05",
+    "iteration": 13,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction",
+      "Asian & London Session Liquidity Sweeps"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD",
+      "REGIME_GATE",
+      "ADX_MINIMUM",
+      "VWAP_STDDEV_THRESHOLD",
+      "RSI_EXTREME_THRESHOLD",
+      "SESSION_SWEEP_BLOCK"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Step 2: Indicator context. ADX all <21, average"
+  },
+  {
+    "id": "MEM_0014",
+    "timestamp": "2026-08-16 13:11:22",
+    "iteration": 14,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "ADX",
+      "RSI",
+      "Bollinger Bands Width",
+      "Session High/Low",
+      "Active Pattern Direction",
+      "Deflated Sharpe Ratio"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD",
+      "ADX_HARD_FILTER",
+      "VWAP_EXTENSION_THRESHOLD",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DEFLATED_SHARPE_KILL_SWITCH"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R \u2248 1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX < 20. Session clusters at 08:00, 09:00, 14:00 UTC. Step 2: Indicator context. ADX average 17.5, "
+  },
+  {
+    "id": "MEM_0015",
+    "timestamp": "2026-08-16 13:12:09",
+    "iteration": 15,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction",
+      "H4 EMA50 Slope"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Overfitting guard: Deflated Sharpe p=1.0 (trial"
+  },
+  {
+    "id": "MEM_0016",
+    "timestamp": "2026-08-16 13:13:21",
+    "iteration": 16,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction",
+      "H4 50-EMA Slope",
+      "Deflated Sharpe Ratio"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Overfitting guard: Deflated Sharpe p=1.0 (trial"
+  },
+  {
+    "id": "MEM_0017",
+    "timestamp": "2026-08-16 13:14:09",
+    "iteration": 17,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "ATR",
+      "Time Session Filters"
+    ],
+    "tags": [
+      "QUANT_REPAIR",
+      "GMM_REGIME_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "{\\n   double sessionHigh = GetSessionHigh();\\n   double sessionLow = GetSessionLow();\\n   if (tradeDirection == SELL && High[1] > sessionHigh && Close[0] < sessionHigh) IsSweepFailed = true;\\n   if (tradeDirection == BUY && Low[1] < sessionLow && Clo"
+  },
+  {
+    "id": "MEM_0018",
+    "timestamp": "2026-08-16 13:15:02",
+    "iteration": 18,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0019",
+    "timestamp": "2026-08-16 13:15:54",
+    "iteration": 19,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "ADX",
+      "RSI",
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "Active Pattern Direction",
+      "Bollinger Bands Width",
+      "Session High/Low"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0020",
+    "timestamp": "2026-08-16 13:16:51",
+    "iteration": 20,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, indicating stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average AD"
+  },
+  {
+    "id": "MEM_0021",
+    "timestamp": "2026-08-16 13:17:39",
+    "iteration": 21,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Overfitting guard: Deflated Sharpe p=1.0 (trial"
+  },
+  {
+    "id": "MEM_0022",
+    "timestamp": "2026-08-16 13:18:37",
+    "iteration": 22,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "Asian & London Session Liquidity Sweeps",
+      "Bollinger Bands Width",
+      "Active Pattern Direction",
+      "ATR",
+      "Session High/Low"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0023",
+    "timestamp": "2026-08-16 13:19:29",
+    "iteration": 23,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Overfitting guard: Deflated Sharpe p=1.0 (trial"
+  },
+  {
+    "id": "MEM_0024",
+    "timestamp": "2026-08-16 13:20:28",
+    "iteration": 24,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "Asian & London Session Liquidity Sweeps",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0025",
+    "timestamp": "2026-08-16 13:21:32",
+    "iteration": 25,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "Bollinger Bands Width",
+      "VWAP",
+      "RSI",
+      "Asian & London Session Liquidity Sweeps",
+      "Active Pattern Direction",
+      "H4 EMA50 Slope"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "RSI_EXTREME",
+      "HTF_TREND_FILTER",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0026",
+    "timestamp": "2026-08-16 13:22:26",
+    "iteration": 26,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "Bollinger Bands Width",
+      "Active Pattern Direction",
+      "Session High/Low"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R \u2248 1.0, stops hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but with ADX < 20. Session clusters at 08:00, 09:00, and 14:00 UTC correspond to Londo"
+  },
+  {
+    "id": "MEM_0027",
+    "timestamp": "2026-08-16 13:23:08",
+    "iteration": 27,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "ATR",
+      "Time Session Filters"
+    ],
+    "tags": [
+      "QUANT_REPAIR",
+      "GMM_REGIME_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "{\\n   double asian_high = GetSessionHigh(22, 7);\\n   double asian_low = GetSessionLow(22, 7);\\n   if(side == SELL && !(High[1] > asian_high && Close[0] < asian_high)) return;\\n   if(side == BUY && !(Low[1] < asian_low && Close[0] > asian_low)) return"
+  },
+  {
+    "id": "MEM_0028",
+    "timestamp": "2026-08-16 13:23:55",
+    "iteration": 28,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "VWAP",
+      "Choppiness Index (CHOP)",
+      "Asian & London Session Liquidity Sweeps",
+      "ADX",
+      "RSI",
+      "ATR",
+      "Session High/Low",
+      "Bollinger Bands Width",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0029",
+    "timestamp": "2026-08-16 13:25:15",
+    "iteration": 29,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "ATR",
+      "Bollinger Bands Width",
+      "Asian & London Session Liquidity Sweeps",
+      "Active Pattern Direction",
+      "Session High/Low"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD",
+      "COUNTER_PATTERN_ENTRY"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Overfitting guard: Deflated Sharpe p=1.0 (trial"
+  },
+  {
+    "id": "MEM_0030",
+    "timestamp": "2026-08-16 13:26:10",
+    "iteration": 30,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "ADX",
+      "Choppiness Index (CHOP)",
+      "VWAP",
+      "RSI",
+      "Asian & London Session Liquidity Sweeps",
+      "Active Pattern Direction",
+      "Bollinger Bands Width"
+    ],
+    "tags": [
+      "GMM_REGIME_0_CHOP",
+      "VWAP_DEVIATION",
+      "SESSION_SWEEP",
+      "ADX_FILTER",
+      "RSI_EXTREME",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "CHOP_FILTER",
+      "BB_WIDTH_SQUEEZE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Overfitting guard: Deflated Sharpe p=1.0, so an"
+  },
+  {
+    "id": "MEM_0031",
+    "timestamp": "2026-08-16 13:42:03",
+    "iteration": 1,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX",
+      "GMM Market Regime",
+      "VWAP Deviation",
+      "DXY Macro Beta",
+      "Session Liquidity Sweeps"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "GMM_REGIME_0_CHOP",
+      "ADX_FILTER",
+      "VWAP_DEVIATION",
+      "COUNTER_TREND_BLOCK",
+      "SESSION_SWEEP"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Step 2: OLS slope direction vs side. For all SE"
+  },
+  {
+    "id": "MEM_0032",
+    "timestamp": "2026-08-16 13:42:46",
+    "iteration": 2,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope",
+      "ADX",
+      "VWAP",
+      "Active Pattern Direction",
+      "DXY (Dollar Index) Inverse Confluence",
+      "GMM Market Regime"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_FILTER",
+      "GMM_REGIME_0_CHOP",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "VWAP_DEVIATION",
+      "DXY_MACRO_INVERSION",
+      "SESSION_SWEEP"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0033",
+    "timestamp": "2026-08-16 13:43:31",
+    "iteration": 3,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (Average Directional Index)",
+      "VWAP Deviation",
+      "Active Pattern Direction",
+      "DXY Beta (Macro Inversion)",
+      "Session Liquidity Sweeps"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "VWAP_TREND_FADE",
+      "ADX_FILTER",
+      "GMM_REGIME_0_CHOP",
+      "DXY_MACRO_INVERSION",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0034",
+    "timestamp": "2026-08-16 15:34:55",
+    "iteration": 1,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX",
+      "VWAP Deviation",
+      "Active Pattern Direction",
+      "Session Time",
+      "DXY Slope",
+      "Choppiness Index",
+      "Bollinger Bands Width"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_TIME_GATE",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "ADX_FILTER",
+      "VWAP_DEVIATION",
+      "LIQUIDITY_SWEEP_CONFIRMATION",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0035",
+    "timestamp": "2026-08-16 15:35:47",
+    "iteration": 2,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX",
+      "VWAP Deviation",
+      "Active Pattern Direction",
+      "Session Time Gate",
+      "DXY Beta"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_FILTER",
+      "VWAP_DEVIATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP",
+      "GMM_REGIME_0_CHOP",
+      "DXY_MACRO_INVERSION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. 8 trades, all -1R, MAE_R ~1.0, stops hit immediately. 6/8 in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX <20. Session clusters at 08:00, 09:00, 14:00 UTC. Step 2: OLS slope vs trade direction. SELL trad"
+  },
+  {
+    "id": "MEM_0036",
+    "timestamp": "2026-08-16 15:36:45",
+    "iteration": 3,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "ATR",
+      "Time Session Filters"
+    ],
+    "tags": [
+      "QUANT_REPAIR",
+      "GMM_REGIME_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "{\\n   if(direction == OP_SELL && lr_slope > slope_threshold && lr_r2 > r2_threshold) return true;\\n   if(direction == OP_BUY && lr_slope < -slope_threshold && lr_r2 > r2_threshold) return true;\\n   return false;\\n}\\n\\n// Pattern Direction Alignment\\n"
+  },
+  {
+    "id": "MEM_0037",
+    "timestamp": "2026-08-16 15:37:44",
+    "iteration": 4,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "VWAP Deviation",
+      "ADX",
+      "DXY Beta",
+      "Session High/Low",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "TREND_ALIGNMENT_GATE",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "DXY_MACRO_INVERSION",
+      "SESSION_SWEEP",
+      "VWAP_DEVIATION",
+      "ADX_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 losing trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear. ADX is below 21 for all trades (average 17.5), suggesting "
+  },
+  {
+    "id": "MEM_0038",
+    "timestamp": "2026-08-16 15:38:29",
+    "iteration": 5,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "VWAP Deviation",
+      "Session High/Low Liquidity Sweeps",
+      "DXY Slope",
+      "Active Pattern Direction",
+      "ADX (secondary)",
+      "Choppiness Index (context)"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "TREND_ALIGNMENT",
+      "VWAP_DEVIATION_MEAN_REVERSION_BIAS",
+      "SESSION_SWEEP_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "DXY_MACRO_INVERSION",
+      "OVERFITTING_GUARD",
+      "GMM_REGIME_0_CHOP",
+      "ADX_FILTER",
+      "LIQUIDITY_SWEEP_CONFIRMATION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 losing trades exhibit a consistent counter-trend signature relative to the OLS linear regression slope. For SELL trades, lr_slope is positive (2.8 or 4.1) with lr_r_squared \u2265 0.78, indicating a clean short-term up"
+  },
+  {
+    "id": "MEM_0039",
+    "timestamp": "2026-08-16 15:39:32",
+    "iteration": 6,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "ATR",
+      "Time Session Filters"
+    ],
+    "tags": [
+      "QUANT_REPAIR",
+      "GMM_REGIME_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "{\\n   if (side == -1 && lr_slope > 0) return; // block counter-trend SELL\\n   if (side == 1 && lr_slope < 0) return;  // block counter-trend BUY\\n}\\n\\n// ADX filter\\nif (adx < 20 && lr_r2 > 0.30) return; // no directional strength\\n\\n// Session gate\\"
+  },
+  {
+    "id": "MEM_0040",
+    "timestamp": "2026-08-16 15:40:20",
+    "iteration": 7,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "Choppiness Index (14)",
+      "VWAP Deviation",
+      "Session High/Low Sweeps",
+      "Active Pattern Direction"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "SESSION_SWEEP_CONFIRMATION",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately after entry. 6/8 occur in Regime_0_Low_Vol_Chop, and the remaining 2 in Regime_2_High_Vol_Bear still show ADX < 20 (16.0 and 19.6). Average ADX a"
+  },
+  {
+    "id": "MEM_0041",
+    "timestamp": "2026-08-16 15:41:21",
+    "iteration": 8,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "DXY Beta",
+      "Active Pattern Direction",
+      "Choppiness Index",
+      "GMM Regime Classification",
+      "Session High/Low Sweeps"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "SESSION_SWEEP_CONFIRMATION",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, stops hit immediately. 6/8 occur in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear with ADX < 20. Average ADX 17.5. Session clusters at 08:00, 09:00, 14:00 UTC indicate liqui"
+  },
+  {
+    "id": "MEM_0042",
+    "timestamp": "2026-08-16 15:42:08",
+    "iteration": 9,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Session High/Low Sweeps",
+      "Active Pattern Direction",
+      "DXY Beta",
+      "GMM Regime Classification"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "SESSION_SWEEP_CONFIRMATION",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, stops hit immediately. 6/8 occur in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX < 20. Average ADX 17.5. Session clusters at 08:00, 09:00, 14:00 UTC indicate liquid"
+  },
+  {
+    "id": "MEM_0043",
+    "timestamp": "2026-08-16 15:43:07",
+    "iteration": 10,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Session High/Low Sweeps",
+      "Active Pattern Direction",
+      "DXY Beta",
+      "GMM Regime Classification"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "SESSION_SWEEP_CONFIRMATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. All 8 trades are -1R with MAE_R \u2248 1.0, stops hit immediately. 6/8 occur in Regime_0_Low_Vol_Chop, 2/8 in Regime_2_High_Vol_Bear but ADX < 20. Average ADX 17.5. Session clusters at 08:00, 09:00, 14:00 UTC indicate liquid"
+  },
+  {
+    "id": "MEM_0044",
+    "timestamp": "2026-08-16 15:47:26",
+    "iteration": 1,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "Choppiness Index (14)",
+      "GMM Regime Classification",
+      "VWAP Deviation",
+      "DXY (Dollar Index) EMA20 Trend",
+      "Session High/Low Sweeps",
+      "Active Pattern Direction",
+      "TAQ Spread & Liquidity Void"
+    ],
+    "tags": [
+      "OLS_SLOPE_DIRECTION_GUARD",
+      "ADX_CHOP_GATE",
+      "GMM_REGIME_0_CHOP",
+      "SESSION_SWEEP_CONFIRMATION",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "DXY_MACRO_INVERSION",
+      "FAILED_SWEEP_RECLAIM",
+      "OVERFITTING_GUARD",
+      "CONTINUOUS_ALPHA_OPTIMIZATION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss shape. All 8 losers are -1R with MAE_R \u2248 1.0; stops were hit immediately, so this is an entry-selection failure, not stop-management or spread/slippage. TAQ for 2023.09.05 11:15:00 shows pre-trade average spread 0.75 pts, entry spread 0."
+  },
+  {
+    "id": "MEM_0045",
+    "timestamp": "2026-08-16 15:50:02",
+    "iteration": 2,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX(14)",
+      "VWAP Deviation",
+      "Session High/Low Sweeps",
+      "Active Pattern Direction",
+      "DXY Beta",
+      "GMM Regime Classification"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "SESSION_SWEEP_CONFIRMATION",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "COUNTER_TREND_ABORT",
+      "OPENING_RANGE_SWEEP_FADE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: All 8 losing trades are -1R with MAE_R \u2248 1.0, meaning stops were hit immediately. That is a systematically bad entry, not normal trade noise. Step 2: Enrichment alignment shows a dominating causal signature: 8/8 trades are opposite to the OLS"
+  },
+  {
+    "id": "MEM_0046",
+    "timestamp": "2026-08-16 15:52:59",
+    "iteration": 3,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "Choppiness Index (14)",
+      "VWAP Deviation",
+      "DXY 20-bar Linear Regression Slope",
+      "Session High/Low Sweeps",
+      "Active Candlestick Pattern Direction",
+      "GMM Regime Classification"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "SESSION_SWEEP_CONFIRMATION",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "LIQUIDITY_SWEEP_STOP_HUNT",
+      "TIME_SESSION_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster analysis. The 8 losing trades are all -1.00R to -1.01R with MAE_R approximately 1.0, meaning fixed stops were hit almost immediately after entry. They cluster in Regime_0_Low_Vol_Chop (6/8) and Regime_2_High_Vol_Bear (2/8), but t"
+  },
+  {
+    "id": "MEM_0047",
+    "timestamp": "2026-08-16 15:55:30",
+    "iteration": 4,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2 (20-bar)",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Session High/Low Sweep Confirmation",
+      "Active Pattern Direction",
+      "DXY 15m EMA50 Slope",
+      "Choppiness Index"
+    ],
+    "tags": [
+      "OLS_SLOPE_TREND_LOCK",
+      "HIGH_R2_COUNTER_TREND_BLOCK",
+      "ADX_DRIFT_DISAMBIGUATION",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CLOSEBACK",
+      "VWAP_FADE_REGIME_GATE",
+      "DXY_MACRO_CONFLUENCE",
+      "OVERFITTING_GUARD"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "All 8 losing trades are -1R with MAE_R \u2248 1.0 and normal pre-trade spread (0.75 \u2192 0.80 pts), so this is not a liquidity-void/slippage problem. The invariant across all 8 trades is that the entry side is opposite to a clean short-horizon OLS linear reg"
+  },
+  {
+    "id": "MEM_0048",
+    "timestamp": "2026-08-16 15:58:20",
+    "iteration": 5,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Regime Classification",
+      "VWAP Deviation",
+      "Session High/Low Sweeps",
+      "Active Candlestick Pattern Direction",
+      "Choppiness Index (14)",
+      "DXY Beta"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "SESSION_SWEEP_CONFIRMATION",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "I interpret the eight -1R losses as one causal cluster, not eight independent accidents. All have MAE_R \u2248 1.0, meaning the stop was hit almost immediately after entry. The losses are mechanically identical: an entry at a VWAP-extended reversal patter"
+  },
+  {
+    "id": "MEM_0049",
+    "timestamp": "2026-08-16 16:00:25",
+    "iteration": 6,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (Opening Range / US Open)",
+      "DXY USDX Macro Trend/Impulse Inverse Beta",
+      "GMM Market Regime Classification",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: The eight losing trades are not independent accidents. They are mechanically identical: all closed at approximately -1R, with MAE_R \u2248 1.0, meaning stops were hit almost immediately after entry. Step 2: OLS analysis shows a dominant causal pat"
+  },
+  {
+    "id": "MEM_0050",
+    "timestamp": "2026-08-16 16:03:15",
+    "iteration": 7,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Market Regime Classification",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (Opening Range / US Open)",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "Choppiness Index (14)",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "TREND_ALIGNMENT_GATE",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "ADX_CHOP_GATE",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "VWAP_EXTENSION_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: The eight losers are not independent. They share the same mechanical signature: all closed at roughly -1R with stops hit almost immediately after entry. That points to a systematic entry-filter failure, not random noise or spread slippage. TA"
+  },
+  {
+    "id": "MEM_0051",
+    "timestamp": "2026-08-16 16:06:15",
+    "iteration": 8,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "DXY (USDX) Inverse Confluence",
+      "Session High/Low Sweeps (Asian/London/US Open)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "GMM Market Regime Classification",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: These 8 losers are one causal cluster, not independent noise. All closed at approximately -1R with MAE_R \u2248 1.0, meaning the stop was hit almost immediately after entry. TAQ confirms spread was normal (0.75 -> 0.80 pts), no liquidity void and "
+  },
+  {
+    "id": "MEM_0052",
+    "timestamp": "2026-08-16 16:09:23",
+    "iteration": 9,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Regime Classification",
+      "VWAP Z-Score",
+      "Active Candlestick Pattern Direction",
+      "Asian/London/US Session Liquidity Sweep",
+      "DXY/USDX Inverse Confluence",
+      "Deflated Sharpe / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1 \u2014 Cluster signature: all 8 losers are mechanically identical: R \u2248 -1.00 and MAE_R \u2248 1.00, meaning the stop was hit almost immediately after entry. TAQ for 2023.09.05 11:15 shows spread 0.75 \u2192 0.80 pts, no liquidity void, normal volatility. Thi"
+  },
+  {
+    "id": "MEM_0053",
+    "timestamp": "2026-08-16 16:11:47",
+    "iteration": 10,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Market Regime Classification",
+      "Choppiness Index (14)",
+      "VWAP Z-Score/Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (Asian/London/US Open)",
+      "DXY/USDX Inverse Confluence"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "LR_R2_TREND_STRENGTH_GATE",
+      "TREND_ALIGNMENT_GATE",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "The eight losing trades are one causal cluster: every one closed at approximately -1R with MAE_R \u2248 1.0, meaning the stop was hit almost immediately after entry. TAQ microstructure is clean (spread 0.75\u21920.80 pts, no liquidity void), so this is not sli"
+  },
+  {
+    "id": "MEM_0054",
+    "timestamp": "2026-08-16 16:14:03",
+    "iteration": 11,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation / Z-Score",
+      "Active Candlestick Pattern Direction",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "GMM Market Regime Classification",
+      "Session High/Low Liquidity Sweeps (Asian/London/US)",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "TREND_ALIGNMENT_GATE",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "VWAP_EXTENSION_FILTER",
+      "ADX_CHOP_GATE",
+      "GMM_REGIME_0_CHOP",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "COUNTER_TREND_BLOCK"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: These eight losers are one mechanical cluster, not independent noise. Every loss closed at approximately -1R with MAE_R \u2248 1.0, meaning stops were hit almost immediately after entry. TAQ for 2023.09.05 11:15:00 shows spread was normal at 0.75 "
+  },
+  {
+    "id": "MEM_0055",
+    "timestamp": "2026-08-16 16:17:12",
+    "iteration": 12,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (Asian/London/US Open)",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "GMM Market Regime Classification",
+      "Choppiness Index (14)",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE",
+      "BH_FDR_SESSION_CLUSTERS"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 0: The eight losing trades are not independent accidents. All closed at approximately -1R with MAE_R \u2248 1.0, meaning stops were hit almost immediately after entry. TAQ for 2023.09.05 11:15 confirms spread was normal (0.75 \u2192 0.80 pts), no liquidit"
+  },
+  {
+    "id": "MEM_0056",
+    "timestamp": "2026-08-16 16:19:46",
+    "iteration": 13,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2 (20-bar)",
+      "ADX (14)",
+      "DXY (USDX) Inverse Slope/Confluence",
+      "VWAP Deviation %",
+      "Active Candlestick Pattern Direction",
+      "GMM Market Regime Classification",
+      "Session High/Low Sweeps (Opening Range/US Open)"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Mechanical signature. All 8 losers closed at approximately -1.00R with MAE_R\u22481.00, meaning the stop was hit almost immediately after entry. TAQ confirms normal spread, no liquidity void, so this is not slippage or execution failure. Step 2: R"
+  },
+  {
+    "id": "MEM_0057",
+    "timestamp": "2026-08-16 16:22:00",
+    "iteration": 14,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "GMM Market Regime Classification",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "Asian/London/US Session Liquidity Sweeps",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: 8/8 losers are mechanically identical: R \u2248 -1.00, MAE_R \u2248 1.00, meaning stops were hit almost immediately after entry. TAQ pre-trade spread 0.75 -> 0.80 pts, no liquidity void, normal volatility: execution/slippage is exonerated. Step 2: OLS "
+  },
+  {
+    "id": "MEM_0058",
+    "timestamp": "2026-08-16 16:25:25",
+    "iteration": 15,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (Opening Range / US Open)",
+      "DXY USDX Macro Trend/Impulse Inverse Beta",
+      "GMM Market Regime Classification",
+      "Choppiness Index (14)",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "TREND_ALIGNMENT_GATE",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1 \u2014 The eight losers are not independent; they form one causal signature: R \u2248 -1.00 and MAE_R \u2248 1.00, so stops were hit almost immediately after entry. TAQ spread was normal (0.75 \u2192 0.80 pts) and no liquidity void was detected, so this is a dire"
+  },
+  {
+    "id": "MEM_0059",
+    "timestamp": "2026-08-16 16:27:54",
+    "iteration": 16,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "GMM Market Regime Classification",
+      "Session High/Low Sweeps (London Open / US Open)",
+      "Choppiness Index (14)"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "TREND_ALIGNMENT_GATE",
+      "HIGH_R2_TREND_DIRECTION_LOCK",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1 \u2014 Loss signature: All 8 losing trades are mechanically identical: R \u2248 -1.00 and MAE_R \u2248 1.00. That means stops were hit almost immediately after entry. TAQ analysis for 2023.09.05 11:15 shows spread 0.75 \u2192 0.80 pts, no liquidity void, and norm"
+  },
+  {
+    "id": "MEM_0060",
+    "timestamp": "2026-08-16 16:30:44",
+    "iteration": 17,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Market Regime Classification",
+      "VWAP Z-Score/Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (European/US Open)",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: The eight losing trades are not independent accidents. They are mechanically identical: every R is approximately -1.00, and prior memory confirms MAE_R \u2248 1.00, meaning the stop was hit almost immediately after entry. TAQ data for 2023.09.05 1"
+  },
+  {
+    "id": "MEM_0061",
+    "timestamp": "2026-08-16 16:33:19",
+    "iteration": 18,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L1_PARAMETER",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation %",
+      "Session High/Low Sweeps (European Opening Range / US Open)",
+      "Candlestick Pattern Direction",
+      "DXY/USDX Inverse Beta",
+      "GMM Market Regime",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "TREND_ALIGNMENT_GATE",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Cluster signature. The 8 losers are statistically non-random: BH-FDR found loss clusters at 08:00/09:00/14:00 UTC (European Opening Range Sweep and US Open Macro Repricing). All losers closed near -1R with MAE_R about 1.0, meaning stops were "
+  },
+  {
+    "id": "MEM_0062",
+    "timestamp": "2026-08-16 16:36:12",
+    "iteration": 19,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation %",
+      "DXY/USDX H4 Trend Slope",
+      "GMM Market Regime Classification",
+      "Active Candlestick Pattern Direction",
+      "Asian/London/US Session High/Low Sweep",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "LINEAR_REGRESSION_R2_REGIME",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE",
+      "TAQ_MICROSTRUCTURE_NORMAL"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1 \u2014 Causal cluster signature: The eight losers are not independent noise. They all closed at approximately -1R and the prior memory trial notes MAE_R \u2248 1.0, meaning stops were hit almost immediately after entry. TAQ for 2023.09.05 11:15 shows sp"
+  },
+  {
+    "id": "MEM_0063",
+    "timestamp": "2026-08-16 16:39:52",
+    "iteration": 20,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (European/US Opening Range)",
+      "DXY/USDX Inverse Beta",
+      "GMM Market Regime Classification",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE",
+      "OLS_R2_TREND_OVERRIDE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: The eight losers are not independent accidents. All closed at approximately -1R with MAE_R around 1.0, meaning stops were hit almost immediately after entry. TAQ data for 2023.09.05 11:15 confirms pre-trade spread 0.75 \u2192 0.80 pts, no liquidit"
+  },
+  {
+    "id": "MEM_0064",
+    "timestamp": "2026-08-16 16:42:45",
+    "iteration": 21,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L2_SESSION_TIME",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "Choppiness Index (14)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Asian/London/US Session Liquidity Sweeps",
+      "DXY/USDX Macro Inversion Beta",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE",
+      "REGIME_AWARE_CONFLUENCE_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: The eight losers are one causal cluster, not independent noise. All closed at approximately -1R with MAE_R around 1.0, meaning stops were hit almost immediately after entry. TAQ data for the first loser confirms normal spread 0.75 -> 0.80 pts"
+  },
+  {
+    "id": "MEM_0065",
+    "timestamp": "2026-08-16 16:45:07",
+    "iteration": 22,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Market Regime Classification",
+      "VWAP Deviation / Z-Score",
+      "DXY/USDX Slope & Macro Beta",
+      "Asian/London/US Session Liquidity Sweeps",
+      "Active Candlestick Pattern Direction",
+      "Choppiness Index (14)",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE",
+      "MAE_IMMEDIATE_STOP_CLUSTER",
+      "DSR_PVALUE_1.0"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1 \u2014 Cluster verification: all 8 losers closed at roughly -1R with MAE_R\u22481.0; stops were hit almost immediately after entry. The 2023.09.05 11:15 TAQ sample shows pre-trade spread 0.75\u21920.80 pts, no liquidity void, normal volatility, so slippage/s"
+  },
+  {
+    "id": "MEM_0066",
+    "timestamp": "2026-08-16 16:48:36",
+    "iteration": 23,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "ATR",
+      "Time Session Filters"
+    ],
+    "tags": [
+      "QUANT_REPAIR",
+      "GMM_REGIME_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "{\\n   // 1) OLS trend-alignment gate\\n   double slope = LinRegSlope(close, 20);\\n   double r2 = LinRegR2(close, 20);\\n   if(r2 > 0.70)\\n   {\\n      if(signal == ORDER_TYPE_SELL && slope > 0) return true;\\n      if(signal == ORDER_TYPE_BUY  && slope <"
+  },
+  {
+    "id": "MEM_0067",
+    "timestamp": "2026-08-16 16:51:22",
+    "iteration": 24,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L3_INDICATOR_LOGIC",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Market Regime Classification",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (European/US)",
+      "DXY/USDX Inverse Confluence",
+      "Choppiness Index",
+      "Deflated Sharpe Ratio / Walk-Forward Guard",
+      "TAQ Spread/Liquidity Microstructure"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "TREND_ALIGNMENT_GATE",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: The eight losing trades are not independent. All closed at approximately -1R with MAE_R \u2248 1.0, meaning stops were hit almost immediately after entry. TAQ data for 2023-09-05 11:15 shows spread 0.75 \u2192 0.80 pts, no liquidity void, and normal vo"
+  },
+  {
+    "id": "MEM_0068",
+    "timestamp": "2026-08-16 16:53:49",
+    "iteration": 25,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Market Regime Classification",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (Opening Range / US Open)",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: Loss cluster signature. The eight losing trades are not independent. All close at approximately -1.00R with stops hit almost immediately after entry. TAQ for 2023.09.05 11:15 shows spread 0.75 -> 0.80 pts, no liquidity void, and normal volati"
+  },
+  {
+    "id": "MEM_0069",
+    "timestamp": "2026-08-16 16:56:39",
+    "iteration": 26,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "ATR",
+      "Time Session Filters"
+    ],
+    "tags": [
+      "QUANT_REPAIR",
+      "GMM_REGIME_FILTER"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "{ DIR_NONE=0, DIR_LONG=1, DIR_SHORT=-1 };\\n\\ndouble GetLR_Slope() { ... } // 20-bar OLS slope\\ndouble GetLR_R2() { ... }    // 20-bar OLS R\u00b2\\ndouble GetVWAPDistPct() { ... }\\n\\nbool IsTrending() {\\n  double adx = iADX(_Symbol,_Period,14,PRICE_CLOSE,M"
+  },
+  {
+    "id": "MEM_0070",
+    "timestamp": "2026-08-16 16:59:03",
+    "iteration": 27,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L4_ARCHITECTURE",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Z-Score",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps",
+      "DXY/USDX Macro Impulse",
+      "GMM/ML Regime Conflict",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "The eight losing trades are one mechanical cluster: every trade closed at approximately -1R with MAE_R near 1.0, meaning stops were hit almost immediately after entry. TAQ microstructure for 2023.09.05 11:15 shows normal spreads and no liquidity void"
+  },
+  {
+    "id": "MEM_0071",
+    "timestamp": "2026-08-16 17:01:18",
+    "iteration": 28,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation / VWAP Z-Score",
+      "GMM Market Regime Classification",
+      "Active Candlestick Pattern Direction",
+      "DXY/USDX Inverse Beta",
+      "Session Liquidity Sweeps / Session Time Gate"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: The 8 losers are one mechanical cluster: all closed near -1R with MAE_R \u2248 1.0, meaning stops were hit almost immediately. TAQ data shows normal spread and no liquidity void, so this is not execution cost or slippage. Step 2: The strongest cau"
+  },
+  {
+    "id": "MEM_0072",
+    "timestamp": "2026-08-16 17:04:59",
+    "iteration": 29,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "GMM Market Regime Classification",
+      "VWAP Deviation",
+      "Session High/Low Sweeps (Opening Range / US Open)",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "Active Candlestick Pattern Direction",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE",
+      "TAQ_LIQUIDITY_NORMAL"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1 \u2014 Cluster signature. The eight losers are not independent accidents: all closed at approximately -1R with MAE_R \u2248 1.0, meaning stops were hit almost immediately after entry. TAQ for 2023-09-05 11:15 shows pre-trade spread 0.75 \u2192 0.80 pts, no l"
+  },
+  {
+    "id": "MEM_0073",
+    "timestamp": "2026-08-16 17:07:41",
+    "iteration": 30,
+    "phase": "PHASE_1_DISCOVERY",
+    "repair_level": "L5_PIVOT_NEW_ALPHA",
+    "indicators_used": [
+      "OLS Linear Regression Slope & R\u00b2",
+      "ADX (14)",
+      "VWAP Deviation",
+      "Active Candlestick Pattern Direction",
+      "Session High/Low Sweeps (Asian/London/US Open)",
+      "DXY/USDX Macro Trend/Impulse Inverse Beta",
+      "GMM Market Regime Classification",
+      "Choppiness Index (14)",
+      "Deflated Sharpe Ratio / Walk-Forward Guard"
+    ],
+    "tags": [
+      "OLS_SLOPE_FILTER",
+      "ADX_CHOP_GATE",
+      "VWAP_EXTENSION_FILTER",
+      "PATTERN_DIRECTION_ALIGNMENT",
+      "SESSION_SWEEP_CONFIRMATION",
+      "DXY_MACRO_INVERSION",
+      "GMM_REGIME_0_CHOP",
+      "OVERFITTING_GUARD",
+      "WALK_FORWARD_VALIDATION",
+      "TREND_ALIGNMENT_GATE"
+    ],
+    "outcome": "FAILED",
+    "metrics": {
+      "trades": 24,
+      "win_rate": 0.72,
+      "profit_factor": 2.25,
+      "max_consec_losses": 3
+    },
+    "lesson": "Step 1: The eight losses are mechanically identical: all closed at approximately -1R, with stops hit almost immediately after entry. TAQ for 2023.09.05 11:15 shows normal spread 0.75 -> 0.80 pts, no liquidity void and no volatility blowout. This is n"
+  }
+]

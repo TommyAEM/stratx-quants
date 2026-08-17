@@ -1,0 +1,11 @@
+{
+  "test_id": "GEN2DEV_GEN2_SESCLOSE",
+  "run_id": "GEN2DEV_GEN2_SESCLOSE_20260815_220630",
+  "set_file": "GEN2_SESCLOSE.set",
+  "from": "2023.09.01",
+  "to": "2024.12.31",
+  "model": "4",
+  "ini": "C:\\Users\\Tommy\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\DE40_GEN2DEV_GEN2_SESCLOSE_20260815_220630.ini",
+  "vantage_pids_before": "[]",
+  "process_start": "2026-08-15 22:06:30.664333"
+}

@@ -1,0 +1,564 @@
+{
+  "task": "sot_sobol_prescreen",
+  "method": "sobol (scipy.stats.qmc.Sobol, scramble=True, seed=42)",
+  "n_points": 256,
+  "n_folds": 3,
+  "fold_mode": "3 consecutive folds over DEV window, entry-time partitioned single run per config (no per-fold training; pre-screen)",
+  "window_ms": {
+    "start": 1754007300000,
+    "end": 1782953100000
+  },
+  "feed_path": "C:\\Trading\\Terminal-X-V2-Recovered\\engine_x_lite\\sample_data\\portfolio\\GER40_OANDA.csv",
+  "feed_rows": 18671,
+  "param_specs": [
+    {
+      "label": "SL ATR Mult / Liquidity Buffer",
+      "field": "atr_mult",
+      "low": 1.4,
+      "high": 2.2,
+      "dtype": "float"
+    },
+    {
+      "label": "Goldilocks Lower",
+      "field": "gl_lower",
+      "low": 0.02,
+      "high": 0.04,
+      "dtype": "float"
+    },
+    {
+      "label": "Goldilocks Upper",
+      "field": "gl_upper",
+      "low": 0.5,
+      "high": 0.8,
+      "dtype": "float"
+    },
+    {
+      "label": "Goldilocks Duration (bars)",
+      "field": "gl_duration",
+      "low": 18,
+      "high": 28,
+      "dtype": "int"
+    },
+    {
+      "label": "Intensity Smoothing Length",
+      "field": "intensity_smooth_len",
+      "low": 5,
+      "high": 9,
+      "dtype": "int"
+    },
+    {
+      "label": "Impulse Size x Avg Body",
+      "field": "disp_mult",
+      "low": 1.2,
+      "high": 1.6,
+      "dtype": "float"
+    }
+  ],
+  "base_config_unmapped_keys": [],
+  "filter": "positive fold expectancy on >=2 of 3 folds",
+  "top20_count": 20,
+  "passed_count": 256,
+  "timestamp": "2026-08-15T14:49:37.948666+00:00",
+  "top20": [
+    {
+      "config_id": "sot_sobol_0121",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.638494,
+        "Goldilocks Lower": 0.037449,
+        "Goldilocks Upper": 0.526816,
+        "Goldilocks Duration (bars)": 25,
+        "Intensity Smoothing Length": 5,
+        "Impulse Size x Avg Body": 1.566348
+      },
+      "fold_expectancies": [
+        0.660020448619716,
+        0.5714285714285714,
+        0.7305443714078824
+      ],
+      "mean_oos_expectancy": 0.6539977971520566,
+      "trades_per_fold": [
+        6,
+        7,
+        11
+      ],
+      "total_trades": 24,
+      "closed_trades": 24,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0213",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.563878,
+        "Goldilocks Lower": 0.038972,
+        "Goldilocks Upper": 0.710781,
+        "Goldilocks Duration (bars)": 23,
+        "Intensity Smoothing Length": 5,
+        "Impulse Size x Avg Body": 1.530479
+      },
+      "fold_expectancies": [
+        0.6666666666666666,
+        0.5714285714285714,
+        0.6913277001263445
+      ],
+      "mean_oos_expectancy": 0.6431409794071942,
+      "trades_per_fold": [
+        6,
+        7,
+        15
+      ],
+      "total_trades": 28,
+      "closed_trades": 28,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0229",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.539099,
+        "Goldilocks Lower": 0.035637,
+        "Goldilocks Upper": 0.591049,
+        "Goldilocks Duration (bars)": 25,
+        "Intensity Smoothing Length": 6,
+        "Impulse Size x Avg Body": 1.52353
+      },
+      "fold_expectancies": [
+        0.3333333333333333,
+        0.6666666666666666,
+        0.729138522963214
+      ],
+      "mean_oos_expectancy": 0.5763795076544046,
+      "trades_per_fold": [
+        9,
+        9,
+        17
+      ],
+      "total_trades": 35,
+      "closed_trades": 35,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0205",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.492872,
+        "Goldilocks Lower": 0.036546,
+        "Goldilocks Upper": 0.563363,
+        "Goldilocks Duration (bars)": 20,
+        "Intensity Smoothing Length": 8,
+        "Impulse Size x Avg Body": 1.38593
+      },
+      "fold_expectancies": [
+        0.6363636363636364,
+        0.5,
+        0.5193005321206792
+      ],
+      "mean_oos_expectancy": 0.5518880561614384,
+      "trades_per_fold": [
+        11,
+        14,
+        21
+      ],
+      "total_trades": 46,
+      "closed_trades": 46,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0169",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.687778,
+        "Goldilocks Lower": 0.030503,
+        "Goldilocks Upper": 0.726999,
+        "Goldilocks Duration (bars)": 26,
+        "Intensity Smoothing Length": 5,
+        "Impulse Size x Avg Body": 1.518982
+      },
+      "fold_expectancies": [
+        0.33015183578869095,
+        0.7,
+        0.6027833129800861
+      ],
+      "mean_oos_expectancy": 0.5443117162562591,
+      "trades_per_fold": [
+        9,
+        10,
+        17
+      ],
+      "total_trades": 36,
+      "closed_trades": 36,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0067",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.820865,
+        "Goldilocks Lower": 0.039637,
+        "Goldilocks Upper": 0.59389,
+        "Goldilocks Duration (bars)": 24,
+        "Intensity Smoothing Length": 5,
+        "Impulse Size x Avg Body": 1.359096
+      },
+      "fold_expectancies": [
+        0.2916368507110773,
+        0.5714285714285714,
+        0.7609140405887509
+      ],
+      "mean_oos_expectancy": 0.5413264875761332,
+      "trades_per_fold": [
+        6,
+        7,
+        14
+      ],
+      "total_trades": 27,
+      "closed_trades": 27,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0153",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.615297,
+        "Goldilocks Lower": 0.034732,
+        "Goldilocks Upper": 0.57482,
+        "Goldilocks Duration (bars)": 27,
+        "Intensity Smoothing Length": 6,
+        "Impulse Size x Avg Body": 1.526046
+      },
+      "fold_expectancies": [
+        0.25,
+        0.6666666666666666,
+        0.6878749064468699
+      ],
+      "mean_oos_expectancy": 0.5348471910378455,
+      "trades_per_fold": [
+        8,
+        9,
+        15
+      ],
+      "total_trades": 32,
+      "closed_trades": 32,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0179",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.877974,
+        "Goldilocks Lower": 0.038783,
+        "Goldilocks Upper": 0.565916,
+        "Goldilocks Duration (bars)": 22,
+        "Intensity Smoothing Length": 5,
+        "Impulse Size x Avg Body": 1.492643
+      },
+      "fold_expectancies": [
+        0.3956319344731871,
+        0.5714285714285714,
+        0.607562543869068
+      ],
+      "mean_oos_expectancy": 0.5248743499236088,
+      "trades_per_fold": [
+        7,
+        7,
+        13
+      ],
+      "total_trades": 27,
+      "closed_trades": 27,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0133",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.522818,
+        "Goldilocks Lower": 0.037977,
+        "Goldilocks Upper": 0.519844,
+        "Goldilocks Duration (bars)": 25,
+        "Intensity Smoothing Length": 8,
+        "Impulse Size x Avg Body": 1.335963
+      },
+      "fold_expectancies": [
+        0.4,
+        0.5833333333333334,
+        0.587555179395471
+      ],
+      "mean_oos_expectancy": 0.5236295042429348,
+      "trades_per_fold": [
+        10,
+        12,
+        18
+      ],
+      "total_trades": 40,
+      "closed_trades": 40,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0173",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.470194,
+        "Goldilocks Lower": 0.039842,
+        "Goldilocks Upper": 0.625752,
+        "Goldilocks Duration (bars)": 20,
+        "Intensity Smoothing Length": 6,
+        "Impulse Size x Avg Body": 1.573375
+      },
+      "fold_expectancies": [
+        0.7142857142857143,
+        0.3552865681014571,
+        0.4978536261026965
+      ],
+      "mean_oos_expectancy": 0.5224753028299559,
+      "trades_per_fold": [
+        7,
+        8,
+        15
+      ],
+      "total_trades": 30,
+      "closed_trades": 30,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0119",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 2.063262,
+        "Goldilocks Lower": 0.034547,
+        "Goldilocks Upper": 0.505314,
+        "Goldilocks Duration (bars)": 22,
+        "Intensity Smoothing Length": 5,
+        "Impulse Size x Avg Body": 1.343046
+      },
+      "fold_expectancies": [
+        0.47862439388394973,
+        0.5714285714285714,
+        0.4914520712065446
+      ],
+      "mean_oos_expectancy": 0.5138350121730219,
+      "trades_per_fold": [
+        8,
+        7,
+        15
+      ],
+      "total_trades": 30,
+      "closed_trades": 30,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0049",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.770754,
+        "Goldilocks Lower": 0.038322,
+        "Goldilocks Upper": 0.556383,
+        "Goldilocks Duration (bars)": 20,
+        "Intensity Smoothing Length": 5,
+        "Impulse Size x Avg Body": 1.518045
+      },
+      "fold_expectancies": [
+        0.38883663992659084,
+        0.375,
+        0.7660217438670194
+      ],
+      "mean_oos_expectancy": 0.50995279459787,
+      "trades_per_fold": [
+        7,
+        8,
+        13
+      ],
+      "total_trades": 28,
+      "closed_trades": 28,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0117",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.578367,
+        "Goldilocks Lower": 0.03853,
+        "Goldilocks Upper": 0.641576,
+        "Goldilocks Duration (bars)": 18,
+        "Intensity Smoothing Length": 8,
+        "Impulse Size x Avg Body": 1.415018
+      },
+      "fold_expectancies": [
+        0.6363636363636364,
+        0.4166666666666667,
+        0.46837073431710796
+      ],
+      "mean_oos_expectancy": 0.5071336791158036,
+      "trades_per_fold": [
+        11,
+        12,
+        21
+      ],
+      "total_trades": 44,
+      "closed_trades": 44,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0072",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.634606,
+        "Goldilocks Lower": 0.029757,
+        "Goldilocks Upper": 0.63596,
+        "Goldilocks Duration (bars)": 27,
+        "Intensity Smoothing Length": 8,
+        "Impulse Size x Avg Body": 1.522975
+      },
+      "fold_expectancies": [
+        0.3981110807230766,
+        0.5714285714285714,
+        0.5420533492531996
+      ],
+      "mean_oos_expectancy": 0.5038643338016159,
+      "trades_per_fold": [
+        10,
+        14,
+        19
+      ],
+      "total_trades": 43,
+      "closed_trades": 43,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0149",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.555172,
+        "Goldilocks Lower": 0.031165,
+        "Goldilocks Upper": 0.596045,
+        "Goldilocks Duration (bars)": 20,
+        "Intensity Smoothing Length": 7,
+        "Impulse Size x Avg Body": 1.480089
+      },
+      "fold_expectancies": [
+        0.5,
+        0.5,
+        0.4689408667393997
+      ],
+      "mean_oos_expectancy": 0.4896469555797999,
+      "trades_per_fold": [
+        12,
+        14,
+        20
+      ],
+      "total_trades": 46,
+      "closed_trades": 46,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0069",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.50586,
+        "Goldilocks Lower": 0.036861,
+        "Goldilocks Upper": 0.657781,
+        "Goldilocks Duration (bars)": 19,
+        "Intensity Smoothing Length": 7,
+        "Impulse Size x Avg Body": 1.432923
+      },
+      "fold_expectancies": [
+        0.6363636363636364,
+        0.405433297229913,
+        0.42149925667727856
+      ],
+      "mean_oos_expectancy": 0.48776539675694264,
+      "trades_per_fold": [
+        11,
+        12,
+        20
+      ],
+      "total_trades": 43,
+      "closed_trades": 43,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0120",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.662124,
+        "Goldilocks Lower": 0.025477,
+        "Goldilocks Upper": 0.662199,
+        "Goldilocks Duration (bars)": 25,
+        "Intensity Smoothing Length": 7,
+        "Impulse Size x Avg Body": 1.528485
+      },
+      "fold_expectancies": [
+        0.4272302934389108,
+        0.4666666666666667,
+        0.5636045570935594
+      ],
+      "mean_oos_expectancy": 0.485833839066379,
+      "trades_per_fold": [
+        14,
+        15,
+        20
+      ],
+      "total_trades": 49,
+      "closed_trades": 49,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0161",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.710021,
+        "Goldilocks Lower": 0.036212,
+        "Goldilocks Upper": 0.506313,
+        "Goldilocks Duration (bars)": 24,
+        "Intensity Smoothing Length": 7,
+        "Impulse Size x Avg Body": 1.420503
+      },
+      "fold_expectancies": [
+        0.3981418108471676,
+        0.46153846153846156,
+        0.5878490752010525
+      ],
+      "mean_oos_expectancy": 0.4825097825288938,
+      "trades_per_fold": [
+        10,
+        13,
+        17
+      ],
+      "total_trades": 40,
+      "closed_trades": 40,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0172",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.571535,
+        "Goldilocks Lower": 0.023544,
+        "Goldilocks Upper": 0.559856,
+        "Goldilocks Duration (bars)": 18,
+        "Intensity Smoothing Length": 6,
+        "Impulse Size x Avg Body": 1.43674
+      },
+      "fold_expectancies": [
+        0.375,
+        0.5625,
+        0.49964996128717004
+      ],
+      "mean_oos_expectancy": 0.4790499870957234,
+      "trades_per_fold": [
+        16,
+        16,
+        22
+      ],
+      "total_trades": 54,
+      "closed_trades": 54,
+      "n_positive_folds": 3
+    },
+    {
+      "config_id": "sot_sobol_0025",
+      "params": {
+        "SL ATR Mult / Liquidity Buffer": 1.623818,
+        "Goldilocks Lower": 0.038859,
+        "Goldilocks Upper": 0.588756,
+        "Goldilocks Duration (bars)": 25,
+        "Intensity Smoothing Length": 7,
+        "Impulse Size x Avg Body": 1.37889
+      },
+      "fold_expectancies": [
+        0.25,
+        0.6666666666666666,
+        0.5157863473015091
+      ],
+      "mean_oos_expectancy": 0.4774843379893919,
+      "trades_per_fold": [
+        8,
+        9,
+        19
+      ],
+      "total_trades": 36,
+      "closed_trades": 36,
+      "n_positive_folds": 3
+    }
+  ]
+}

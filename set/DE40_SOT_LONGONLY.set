@@ -1,0 +1,5 @@
+InpServerUTC=3
+InpModuleMask=128
+InpMagic=4000
+InpShowDashboard=false
+InpSotAllowShort=false

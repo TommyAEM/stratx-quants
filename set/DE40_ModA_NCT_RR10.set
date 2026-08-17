@@ -1,0 +1,13 @@
+InpModuleMask=1
+InpServerUTC=3
+InpMinATR=5.0
+InpMaxATR=800.0
+InpMaxSpreadPts=300
+InpMagic=446404093
+InpNewsCurrencies=EUR,USD
+InpUseNativeConf=2
+InpNcVwapSide=false
+InpNcVolSpike=false
+InpEnablePartialClose=false
+InpTPMode=3
+InpTP_RR=1.0
