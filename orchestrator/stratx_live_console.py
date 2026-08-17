@@ -235,6 +235,31 @@ REPAIR_ESCALATION_DIRECTIVES = [
     "ESCALATE_REPAIR_LEVEL: architecture-level EIV exhausted -> Head Quant thesis review.",
 ]
 
+# ANTI-STALL CIRCUIT BREAKER (Mission: Self-Healing is the core engine).
+# When the Council refuses to mandate a mutation 3+ times in a row under a
+# SAMPLE-INSUFFICIENT / dead-champion regime, the ORCHESTRATOR (not the LLM)
+# forces one deterministic frequency-restoration mutation keyed to the ACTIVE
+# repair level. This guarantees every iteration produces a physical MT5 test,
+# a real child-parent delta, and a self-review advance — the loop can never
+# idle in a forensics-only refusal spiral again.
+FORCED_FREQUENCY_RESTORATION = {
+    "L1_PARAMETER": "PARAMETER RELAXATION: loosen the tightest entry trigger thresholds by ~30% (reduce InpMinBreakATR and InpDispBodyATR, widen InpFillFraction tolerance) to restore trade frequency toward N>=20 per test window.",
+    "L2_SESSION_TIME": "SESSION WIDENING: expand the active trading window (start 1 hour earlier, end 1 hour later) and remove any sub-session lockouts to restore trade frequency toward N>=20 per test window.",
+    "L3_INDICATOR_LOGIC": "FILTER REMOVAL: disable the single most restrictive regime/confluence gate in Block 3 (drop one filter entirely) to restore trade frequency toward N>=20 per test window.",
+    "L4_ARCHITECTURE": "ENTRY REBUILD: simplify Block 4 to a minimal two-condition trigger (level sweep + close back inside the range) with all auxiliary confluence gates disabled, then re-measure the raw population.",
+    "L5_PIVOT_NEW_ALPHA": "THESIS INVERSION: invert the entry direction logic (trade the breakout continuation instead of the false-breakout reversal) and re-measure the population on the same geometry.",
+}
+
+# A champion whose trade population is statistically non-existent must never
+# own the baseline. Below this floor the champion is DEAD and gets recycled.
+CHAMPION_MIN_TRADES = 5
+
+def is_dead_population(metrics: Optional[Dict[str, Any]]) -> bool:
+    """True when a metrics bundle has no statistically meaningful population."""
+    if not metrics:
+        return True
+    return bool(metrics.get("dead_strategy")) or metrics.get("total_trades", 0) < CHAMPION_MIN_TRADES
+
 # Physical JSON Brain File (Inspectable in Notepad anytime)
 BRAIN_FILE = Path("C:/Trading/DE40-Research/stratx_brain.json")
 
@@ -781,6 +806,91 @@ def format_matched_winner_block(mw: Optional[Dict[str, Any]]) -> str:
             lines.append(f"  • {s['feature']}: loser median={s['loser_median']} vs winner median={s['winner_median']} (effect {s['effect_size']})")
         else:
             lines.append(f"  • {s['feature']}: losers {s['loser_dist']} vs winners {s['winner_dist']}")
+    return "\n".join(lines)
+
+
+def compute_population_enrichment(trade_df: pd.DataFrame) -> Optional[Dict[str, Any]]:
+    """
+    FULL-POPULATION WR/RR/TRADE ENRICHMENT (Self-Heal core behaviour).
+    Enriches EVERY trade (not just the losing cohort) and computes, per bucket
+    (GMT hour and market regime): sample size, win rate, average R, average
+    winner R, average loser R, realised reward:risk ratio and expectancy.
+    This is the evidence base that separates losing clusters from matched
+    winners and lets the Council attack the actual dominant weakness.
+    Pure descriptive statistics — prescribes NO trading solution.
+    """
+    if trade_df is None or len(trade_df) < 5 or "R" not in trade_df.columns:
+        return None
+
+    df = trade_df.copy()
+    if "gmt_hour" not in df.columns and "time_open" in df.columns:
+        try:
+            df["gmt_hour"] = pd.to_datetime(
+                df["time_open"].astype(str).str.replace(".", "-", n=2, regex=False),
+                errors="coerce"
+            ).dt.hour
+        except Exception:
+            df["gmt_hour"] = None
+
+    def _bucket_stats(sub: pd.DataFrame) -> Dict[str, Any]:
+        r = sub["R"].astype(float)
+        wins = r[r > 0]
+        losses = r[r < 0]
+        avg_win = float(wins.mean()) if len(wins) else 0.0
+        avg_loss = float(abs(losses.mean())) if len(losses) else 0.0
+        return {
+            "n": int(len(sub)),
+            "win_rate": round(float((r > 0).mean()), 4),
+            "avg_R": round(float(r.mean()), 3),
+            "avg_winner_R": round(avg_win, 3),
+            "avg_loser_R": round(avg_loss, 3),
+            "realized_RR": round(avg_win / avg_loss, 2) if avg_loss > 0 else None,
+            "expectancy_R": round(float(r.mean()), 3),
+        }
+
+    enrichment: Dict[str, Any] = {
+        "population_n": int(len(df)),
+        "overall": _bucket_stats(df),
+        "by_gmt_hour": {},
+        "by_regime": {},
+    }
+    if "gmt_hour" in df.columns:
+        for hour, sub in df.groupby("gmt_hour"):
+            if hour is not None and not pd.isna(hour) and len(sub) >= 2:
+                enrichment["by_gmt_hour"][int(hour)] = _bucket_stats(sub)
+    if "market_regime" in df.columns:
+        for regime, sub in df.groupby("market_regime"):
+            if isinstance(regime, str) and len(sub) >= 2:
+                enrichment["by_regime"][regime] = _bucket_stats(sub)
+    return enrichment
+
+
+def format_population_enrichment_block(enr: Optional[Dict[str, Any]]) -> str:
+    """Renders full-population WR/RR enrichment for forensic prompts (neutral, factual)."""
+    if not enr:
+        return "[POPULATION ENRICHMENT]: unavailable (N < 5 trades — frequency restoration is the primary imperative)."
+    o = enr["overall"]
+    lines = [
+        f"[POPULATION ENRICHMENT — FULL {enr['population_n']}-TRADE BASE]: "
+        f"WR={o['win_rate']*100:.1f}% | avgR={o['avg_R']:+.2f} | "
+        f"avgWin={o['avg_winner_R']:+.2f}R avgLoss={o['avg_loser_R']:.2f}R | "
+        f"realized RR={o['realized_RR']} | expectancy={o['expectancy_R']:+.2f}R/trade"
+    ]
+    if enr["by_gmt_hour"]:
+        lines.append("  WR/RR BY GMT HOUR (win rate | avg R | realized RR | n):")
+        for hour in sorted(enr["by_gmt_hour"]):
+            s = enr["by_gmt_hour"][hour]
+            lines.append(
+                f"    {hour:02d}:00  WR={s['win_rate']*100:.0f}%  avgR={s['avg_R']:+.2f}  "
+                f"RR={s['realized_RR']}  n={s['n']}"
+            )
+    if enr["by_regime"]:
+        lines.append("  WR/RR BY MARKET REGIME:")
+        for regime, s in enr["by_regime"].items():
+            lines.append(
+                f"    {regime}: WR={s['win_rate']*100:.0f}%  avgR={s['avg_R']:+.2f}  "
+                f"RR={s['realized_RR']}  n={s['n']}"
+            )
     return "\n".join(lines)
 
 
@@ -1377,6 +1487,54 @@ class StratXLiveConsole:
         # never the todo list). Deterministic Python gatekeeper.
         self.self_review = SelfReviewEngine()
 
+    def _reset_champion_lineage(self, state: Dict[str, Any], note: str = "") -> None:
+        """Recycle a dead champion: the module template reclaims the baseline."""
+        state["champion_code"] = None
+        state["champion_metrics"] = None
+        state["champion_params"] = None
+        state["champion_score"] = -1e18
+        if note:
+            state["lineage_note"] = note
+
+    def _escalate_repair_ladder(self, state: Dict[str, Any], thesis_name: str) -> None:
+        """
+        Shared escalation pressure valve. Reachable from EVERY failure path
+        (non-mutation verdict, debunked gate, compile failure, gate failure) —
+        previously only reachable after a full backtest iteration, which let
+        forensics-only refusal spirals stall the repair level forever.
+        """
+        if state["consecutive_fails_at_level"] < self.MAX_FAILS_PER_LEVEL:
+            return
+        max_level_idx = len(self.REPAIR_LEVELS) - 1
+        if state["repair_level_idx"] < max_level_idx:
+            state["repair_level_idx"] += 1
+            state["consecutive_fails_at_level"] = 0
+            print(f"{Colors.RED_BOLD}>>> ESCALATING to {self.REPAIR_LEVELS[state['repair_level_idx']]} <<<{Colors.ENDC}\n", flush=True)
+        else:
+            incubation_used = state.get("thesis_iteration_count", 0)
+            if incubation_used < self.MAX_ITERATIONS_PER_THESIS:
+                # DEEP INCUBATION LOCK: pivoting is FORBIDDEN. Restart the repair
+                # ladder from L1 on the retained champion baseline (gains compound).
+                print(f"🔒 {Colors.CYAN_BOLD}[DEEP INCUBATION LOCK]: L5 ceiling reached, but only "
+                      f"{incubation_used}/{self.MAX_ITERATIONS_PER_THESIS} compounding iterations exhausted on "
+                      f"{thesis_name}. Thesis pivot FORBIDDEN — restarting repair ladder from L1 "
+                      f"on the champion baseline (improvements retained).{Colors.ENDC}\n", flush=True)
+                state["repair_level_idx"] = 0
+                state["consecutive_fails_at_level"] = 0
+            else:
+                print(f"{Colors.YELLOW_BOLD}🛑 DEEP INCUBATION BUDGET EXHAUSTED ({incubation_used} iterations, "
+                      f"physical backtest on every step). Thesis still below the institutional gate — "
+                      f"discarding lineage and pivoting to a fresh Alpha concept...{Colors.ENDC}\n", flush=True)
+                state["repair_level_idx"] = 0
+                state["consecutive_fails_at_level"] = 0
+                state["champion_thesis"] = None
+                self._reset_champion_lineage(state)
+                state["thesis_iteration_count"] = 0
+                state["lineage_note"] = ""
+                state["iterations_since_improvement"] = 0
+                state["temperature"] = 0.0
+                state["forced_jab"] = None
+
     def run_live_mission(self, initial_phase: str = "PHASE_1_DISCOVERY"):
         state = {
             "iteration": 0,
@@ -1398,7 +1556,8 @@ class StratXLiveConsole:
             # --- Simulated Annealing State ---
             "iterations_since_improvement": 0,  # Stagnation counter on the current thesis
             "temperature": 0.0,                 # 0.0 = cold hill-climb, 1.0 = hot random jab
-            "forced_jab": None                  # Pending mandatory structural mutation
+            "forced_jab": None,                 # Pending mandatory structural mutation
+            "consecutive_non_mutation": 0       # Council refusal streak (anti-stall circuit breaker)
         }
 
         # --- CRASH-RESILIENT RESUME: reload champion lineage & incubation progress ---
@@ -4056,9 +4215,16 @@ void OnTick()
                 # =====================================================================
                 # 🏛️ STRATX QUANTS: FORENSICS & FAILURE CLASSIFICATION
                 # =====================================================================
-                losing_trades = trade_df[trade_df['R'] < 0].head(8) if 'R' in trade_df.columns else trade_df.head(8)
-                enriched_losers_df = compute_trade_context("DE40", losing_trades) if sample_is_sufficient else losing_trades
-                trade_blotter = format_trade_blotter(enriched_losers_df) if sample_is_sufficient else f"[SAMPLE INSUFFICIENT — N={trade_count} trades recorded]"
+                # FULL-POPULATION TRADE ENRICHMENT (Self-Heal core behaviour):
+                # enrich EVERY trade with session/regime context — not just the
+                # losing cohort — then derive WR/RR enrichment per hour & regime.
+                enriched_population_df = compute_trade_context("DE40", trade_df) if sample_is_sufficient else trade_df
+                population_enrichment = compute_population_enrichment(enriched_population_df) if sample_is_sufficient else None
+                population_enrichment_block = format_population_enrichment_block(population_enrichment)
+                state["last_population_enrichment"] = population_enrichment
+
+                losing_trades = enriched_population_df[enriched_population_df['R'] < 0].head(8) if 'R' in enriched_population_df.columns else enriched_population_df.head(8)
+                trade_blotter = format_trade_blotter(losing_trades) if sample_is_sufficient else f"[SAMPLE INSUFFICIENT — N={trade_count} trades recorded]"
                 brain_history = read_from_brain([active_thesis["name"].upper(), "DE40", "X1X"])
 
                 # --- MATCHED-WINNER COMPARATIVE ANALYSIS (Tier-1 core behaviour) ---
@@ -4084,6 +4250,9 @@ TRADE BLOTTER:
 
 MATCHED-WINNER COMPARATIVE ANALYSIS (what separates losers from winners in the SAME population):
 {matched_winner_block}
+
+FULL-POPULATION WR/RR/TRADE ENRICHMENT (every trade, bucketed by hour & regime):
+{population_enrichment_block}
 
 DETERMINISTIC TOOLBELT FACTS:
 {skill_context}
@@ -4158,6 +4327,9 @@ Market Specialist Assessment: {causal_failure} (Class: {failure_class})
 Statistician Audit: {stat_view}
 Red Team Adversarial Critique: {red_team_view}
 
+FULL-POPULATION WR/RR/TRADE ENRICHMENT (every trade, bucketed by hour & regime):
+{population_enrichment_block}
+
 YOUR TASK:
 Synthesize council confidence, evidence confidence, degree of disagreement, and define the NEXT SINGLE CAUSAL RESEARCH QUESTION and EXACT MUTATION.
 
@@ -4221,7 +4393,10 @@ Output JSON with neutral structural keys:
                     "HYPOTHESIS_REFUTED", "EXPERIMENT_DESIGN_REQUIRED", "DATA_REPAIR_REQUIRED"
                 }
                 council_verdict = council_raw.get("council_verdict")
-                if (council_verdict in COUNCIL_NON_MUTATION_VERDICTS) or not causal_mutation:
+                council_refused = (council_verdict in COUNCIL_NON_MUTATION_VERDICTS) or not causal_mutation
+                state["consecutive_non_mutation"] = state.get("consecutive_non_mutation", 0) + 1 if council_refused else 0
+
+                if council_refused and state["consecutive_non_mutation"] < 3:
                     print(f"🧭 {Colors.YELLOW_BOLD}[COUNCIL NON-MUTATION VERDICT]: {council_verdict or 'NO_MUTATION_YET'} — "
                           f"no code change mandated this iteration. Committing forensics-only memory and looping under SAME goal {goal_id}.{Colors.ENDC}\n", flush=True)
                     write_to_brain(
@@ -4232,14 +4407,59 @@ Output JSON with neutral structural keys:
                         metrics={}
                     )
                     state["consecutive_fails_at_level"] += 1
+                    # The GOAL owns the loop: a forensics-only iteration still
+                    # advances the SAME self-review goal (previously the session
+                    # froze at iteration 1 forever on this path).
+                    self.self_review.advance_iteration(sr_session)
+                    state["self_review_session"] = sr_session
+                    state["last_self_review"] = {
+                        "goal_status": "REASSESSING",
+                        "unmet_dimensions": ["NO_MUTATION_VERDICT — forensics-only iteration, no physical evidence produced"],
+                        "prediction_match": "NOT_TESTABLE",
+                        "causal_belief_update": "UNCHANGED",
+                        "recommended_route": f" council_refusal_streak={state['consecutive_non_mutation']}"
+                    }
+                    # Anti-stall: refusals exert the SAME escalation pressure as
+                    # failed backtests (previously unreachable on this path).
+                    self._escalate_repair_ladder(state, active_thesis["name"])
                     save_checkpoint(state)
                     continue
 
+                if council_refused:
+                    # ANTI-STALL CIRCUIT BREAKER: the Council has refused to act
+                    # 3+ times in a row while the goal is unmet. Self-Healing is
+                    # the core engine, not an optional optimisation — the
+                    # orchestrator forces ONE deterministic frequency-restoration
+                    # mutation keyed to the ACTIVE repair level, guaranteeing a
+                    # physical MT5 test and real child-parent delta this iteration.
+                    forced_mutation = FORCED_FREQUENCY_RESTORATION.get(
+                        cur_level, FORCED_FREQUENCY_RESTORATION["L1_PARAMETER"])
+                    print(f"🚨 {Colors.RED_BOLD}[ANTI-STALL OVERRIDE]: Council refused mutation "
+                          f"{state['consecutive_non_mutation']}x consecutively under unmet goal {goal_id}. "
+                          f"Forcing deterministic {cur_level} frequency-restoration mutation so Self-Healing "
+                          f"produces REAL MT5 evidence this iteration.{Colors.ENDC}\n", flush=True)
+                    causal_mutation = forced_mutation
+                    research_q = (f"Does the forced {cur_level} frequency-restoration change restore a "
+                                  f"statistically valid trade population (N>=20) without destroying expectancy?")
+                    if not failure_class:
+                        failure_class = "FREQUENCY_COLLAPSE"
+                    state["consecutive_non_mutation"] = 0
+                    write_to_brain(
+                        memory_id=f"MEM_{it:04d}_ANTISTALL_{active_thesis['name']}",
+                        tags=["ANTI_STALL_OVERRIDE", cur_level, active_thesis["name"].upper()],
+                        fix=f"FORCED_MUTATION[{cur_level}]: {forced_mutation[:100]}",
+                        success=False,
+                        metrics={}
+                    )
+
                 # --- PRE-COMPUTE PROPOSAL GATE (Tier-2): never re-burn compute on debunked mutations ---
                 debunked_gate = pre_compute_debunked_gate(causal_mutation)
-                if not debunked_gate["is_approved"]:
+                if not debunked_gate["is_approved"] and not council_refused:
                     print(f"🚫 {Colors.YELLOW_BOLD}[PRE-COMPUTE PROPOSAL GATE REJECTED]: {debunked_gate['rejection_reasons'][0]}{Colors.ENDC}\n", flush=True)
                     state["consecutive_fails_at_level"] += 1
+                    self.self_review.advance_iteration(sr_session)
+                    state["self_review_session"] = sr_session
+                    self._escalate_repair_ladder(state, active_thesis["name"])
                     save_checkpoint(state)
                     continue
 
@@ -4375,6 +4595,20 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     # commit below executes, the iteration owes a memory record.
                     state["awaiting_memory_commit"] = True
 
+                    # --- EVIDENCE-BASE RECYCLING (Self-Heal core behaviour) ---
+                    # The forensic evidence base tracks the LARGEST real trade
+                    # population ever produced — even when the child is NOT
+                    # promoted. Previously trade_df only refreshed on champion
+                    # promotion, so one dead champion froze the Council's
+                    # evidence at a stale N<5 sample forever (the exact stall
+                    # observed at iterations 31-35: forensics-only refusals).
+                    if len(real_trades_df) > len(trade_df):
+                        stale_n = len(trade_df)
+                        trade_df = real_trades_df.copy()
+                        print(f"📚 {Colors.CYAN_BOLD}[EVIDENCE BASE RECYCLED]: new candidate population N={len(real_trades_df)} "
+                              f"supersedes stale N={stale_n}. Full-population WR/RR enrichment, matched-winner "
+                              f"analysis and cluster forensics now run on the freshest physical evidence.{Colors.ENDC}\n", flush=True)
+
                     if child_metrics.get("total_trades", 0) == 0:
                         print(f"{Colors.RED_BOLD}❌ MT5 PHYSICAL RESULT: 0 Trades. EA is filtering out all market data on real ticks.{Colors.ENDC}\n", flush=True)
                         child_metrics["win_rate"] = 0.0
@@ -4445,18 +4679,43 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                 trade_returns = real_trades_df['R'].tolist() if 'R' in real_trades_df.columns else []
                 t_quant = calculate_t_quant(trade_returns)
                 has_champion = state.get("champion_code") is not None
-                promotion_allowed = (t_quant["passed"] or not has_champion) and not delta_info["is_freq_collapse"]
-                
+
+                # --- DEAD-STRATEGY DISCIPLINE (Self-Heal core behaviour) ---
+                # A child/champion with a statistically non-existent population
+                # (N < CHAMPION_MIN_TRADES) is DEAD. Dead children may NEVER be
+                # promoted (previously the very first dead child became champion
+                # unconditionally and poisoned the baseline forever). A dead
+                # champion is RECYCLED: the module template reclaims the baseline
+                # so the next mutation compounds from a live parent, not a corpse.
+                child_is_dead = is_dead_population(child_metrics)
+                champion_is_dead = has_champion and is_dead_population(champ_metrics)
+                if champion_is_dead:
+                    self._reset_champion_lineage(state, note=(
+                        f"DEAD CHAMPION RECYCLED: previous champion had N="
+                        f"{(champ_metrics or {}).get('total_trades', 0)} trades (statistically non-existent). "
+                        f"Baseline reset to the {active_thesis['name']} module template — mutations now "
+                        f"compound from a live parent. Explore a DIFFERENT hypothesis than the recycled lineage."
+                    ))
+                    print(f"♻️  {Colors.YELLOW_BOLD}[DEAD CHAMPION RECYCLED]: Champion population N="
+                          f"{(champ_metrics or {}).get('total_trades', 0)} < {CHAMPION_MIN_TRADES}. Baseline reverted to "
+                          f"{active_thesis['name']} module template; dead lineage cannot own the compounding parent.{Colors.ENDC}\n", flush=True)
+                    has_champion = False
+                    champ_metrics = None
+
+                promotion_allowed = (t_quant["passed"] or not has_champion) and not delta_info["is_freq_collapse"] and not child_is_dead
+
                 if complexity_pen > 0:
                     print(f"🧮 {Colors.YELLOW}[COMPLEXITY PENALTY]: -{complexity_pen * 100.0:.1f} fitness pts (indicator/input over limit).{Colors.ENDC}", flush=True)
-                if delta_info["is_freq_collapse"]:
+                if child_is_dead:
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION BLOCKED]: Child is DEAD (N={child_metrics.get('total_trades', 0)} < {CHAMPION_MIN_TRADES} or dead_strategy). Champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
+                elif delta_info["is_freq_collapse"]:
                     print(f"📉 {Colors.RED_BOLD}[PROMOTION BLOCKED]: Frequency collapse ({child_metrics.get('total_trades', 0)} < 5 trades). Champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
                 elif not t_quant["passed"] and has_champion:
                     print(f"📉 {Colors.YELLOW}[T-QUANT BLOCK]: t={t_quant['t_stat']}, p={t_quant['p_value']} — edge not statistically significant; champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
 
                 prev_champ_score = state.get("champion_score", -1e18)
                 prev_display = f"{prev_champ_score:.1f}" if prev_champ_score > -1e17 else "BASELINE"
-                
+
                 if child_score > prev_champ_score and promotion_allowed:
                     last_child_promoted = True
                     state["champion_code"] = child_code
@@ -4478,6 +4737,20 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                           f"(t={t_quant['t_stat']}, p={t_quant['p_value']}). Champion code carried forward as next iteration's parent baseline.{Colors.ENDC}\n", flush=True)
                 else:
                     last_child_promoted = False
+                    # --- TIE-STALL DETECTION: an identical dead result is a FAILED ---
+                    # --- EXPERIMENT, not a rollback to a meaningful champion.     ---
+                    identical_dead_tie = (
+                        child_is_dead and not has_champion
+                        and child_score == prev_champ_score
+                    ) or (
+                        child_is_dead and has_champion
+                        and child_metrics.get("total_trades") == (champ_metrics or {}).get("total_trades")
+                        and child_score == prev_champ_score
+                    )
+                    no_op_child = (child_code.strip() == (base_parent_code or "").strip())
+                    if no_op_child:
+                        print(f"⚠️ {Colors.YELLOW_BOLD}[NO-OP CHILD DETECTED]: Architect returned the parent code verbatim "
+                              f"(LLM fallback). This iteration produced ZERO new information — counted as a failed experiment.{Colors.ENDC}\n", flush=True)
                     state["lineage_note"] = (
                         f"ROLLBACK ALERT: The last mutation DEGRADED the strategy "
                         f"(fitness {child_score:.1f} vs champion {prev_champ_score:.1f} | WR={child_metrics['win_rate']*100:.1f}% "
@@ -4489,6 +4762,11 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                           f"Reverting parent baseline to last best champion code.{Colors.ENDC}\n", flush=True)
                     # --- SIMULATED ANNEALING: STAGNATION TRACKER & RANDOM JAB TRIGGER ---
                     state["iterations_since_improvement"] = state.get("iterations_since_improvement", 0) + 1
+                    if identical_dead_tie or no_op_child:
+                        # Dead ties and no-op children exert REAL escalation pressure
+                        # (previously they spun an infinite rollback loop at L0).
+                        state["consecutive_fails_at_level"] += 1
+                        self._escalate_repair_ladder(state, active_thesis["name"])
                     print(f"🔄 {Colors.YELLOW}[STAGNATION]: {state['iterations_since_improvement']} iteration(s) since last improvement (temperature {state.get('temperature', 0.0):.1f}).{Colors.ENDC}", flush=True)
                     if state["iterations_since_improvement"] >= 5:
                         state["temperature"] = 1.0
@@ -4734,39 +5012,9 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     state["consecutive_fails_at_level"] += 1
 
                 print(f"⚠️  {Colors.PINK_BOLD}Phase/WF Gates Unmet:{Colors.ENDC} {Colors.WHITE}{failures} | {wf_reason}{Colors.ENDC}\n", flush=True)
-                if state["consecutive_fails_at_level"] >= self.MAX_FAILS_PER_LEVEL:
-                    max_level_idx = len(self.REPAIR_LEVELS) - 1
-                    if state["repair_level_idx"] < max_level_idx:
-                        state["repair_level_idx"] += 1
-                        state["consecutive_fails_at_level"] = 0
-                        print(f"{Colors.RED_BOLD}>>> ESCALATING to {self.REPAIR_LEVELS[state['repair_level_idx']]} <<<{Colors.ENDC}\n", flush=True)
-                    else:
-                        incubation_used = state.get("thesis_iteration_count", 0)
-                        if incubation_used < self.MAX_ITERATIONS_PER_THESIS:
-                            # DEEP INCUBATION LOCK: pivoting is FORBIDDEN. Restart the repair
-                            # ladder from L1 on the retained champion baseline (gains compound).
-                            print(f"🔒 {Colors.CYAN_BOLD}[DEEP INCUBATION LOCK]: L5 ceiling reached, but only "
-                                  f"{incubation_used}/{self.MAX_ITERATIONS_PER_THESIS} compounding iterations exhausted on "
-                                  f"{active_thesis['name']}. Thesis pivot FORBIDDEN — restarting repair ladder from L1 "
-                                  f"on the champion baseline (improvements retained).{Colors.ENDC}\n", flush=True)
-                            state["repair_level_idx"] = 0
-                            state["consecutive_fails_at_level"] = 0
-                        else:
-                            print(f"{Colors.YELLOW_BOLD}🛑 DEEP INCUBATION BUDGET EXHAUSTED ({incubation_used} iterations, "
-                                  f"physical backtest on every step). Thesis still below the institutional gate — "
-                                  f"discarding lineage and pivoting to a fresh Alpha concept...{Colors.ENDC}\n", flush=True)
-                            state["repair_level_idx"] = 0
-                            state["consecutive_fails_at_level"] = 0
-                            state["champion_thesis"] = None
-                            state["champion_code"] = None
-                            state["champion_metrics"] = None
-                            state["champion_params"] = None
-                            state["champion_score"] = -1e18
-                            state["thesis_iteration_count"] = 0
-                            state["lineage_note"] = ""
-                            state["iterations_since_improvement"] = 0
-                            state["temperature"] = 0.0
-                            state["forced_jab"] = None
+                # Shared escalation pressure valve (deep-incubation lock, ladder
+                # restart, and budget-exhaustion pivot all live in the helper).
+                self._escalate_repair_ladder(state, active_thesis["name"])
                 # Goal unmet this iteration -> advance to the NEXT iteration under
                 # the SAME self_review_goal_id (todo completion has no exit authority).
                 self.self_review.advance_iteration(sr_session)

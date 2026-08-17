@@ -53,15 +53,20 @@ import pandas as pd
 from orchestrator.stratx_live_console import (
     compute_child_parent_delta,
     compute_matched_winner_analysis,
+    compute_population_enrichment,
     compute_real_yearly_metrics,
     enforce_memory_commitment,
     evaluate_final_portfolio_gates,
+    format_population_enrichment_block,
+    is_dead_population,
     pre_compute_debunked_gate,
     run_governor_decision,
     run_independent_review,
     safe_parse_json,
     check_pass_gates,
     MODULE_MIN_TRADES_PER_YEAR,
+    CHAMPION_MIN_TRADES,
+    FORCED_FREQUENCY_RESTORATION,
 )
 import orchestrator.stratx_live_console as console_mod
 from orchestrator.stratx_goal_loop import StratXGoalLoopOrchestrator
@@ -351,6 +356,83 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
             portfolio_modules=[], wf_evidence_available=True)
         self.assertEqual(review["verdict"], "FAIL")
         self.assertTrue(any("20" in o for o in review["objections"]))
+
+    def test_K_dead_population_never_owns_baseline(self):
+        """TEST K (anti-stall): a 1-trade dead result is DEAD and must never be
+        promoted as champion nor own the compounding parent baseline."""
+        self.assertTrue(is_dead_population({"total_trades": 1, "win_rate": 0.0,
+                                            "profit_factor": 0.0, "dead_strategy": True}))
+        self.assertTrue(is_dead_population({"total_trades": 4}))
+        self.assertTrue(is_dead_population(None))
+        self.assertFalse(is_dead_population({"total_trades": CHAMPION_MIN_TRADES}))
+        self.assertFalse(is_dead_population({"total_trades": 40, "dead_strategy": False}))
+
+    def test_L_escalation_reachable_from_every_failure_path(self):
+        """TEST L (anti-stall): the shared repair-ladder helper escalates after
+        MAX_FAILS_PER_LEVEL — including the forensics-only non-mutation path
+        that previously stalled the repair level at L0 forever."""
+        console = console_mod.StratXLiveConsole.__new__(console_mod.StratXLiveConsole)
+        console.REPAIR_LEVELS = ["L1_PARAMETER", "L2_SESSION_TIME", "L3_INDICATOR_LOGIC",
+                                 "L4_ARCHITECTURE", "L5_PIVOT_NEW_ALPHA"]
+        console.MAX_FAILS_PER_LEVEL = 3
+        console.MAX_ITERATIONS_PER_THESIS = 35
+        state = {"repair_level_idx": 0, "consecutive_fails_at_level": 3,
+                 "thesis_iteration_count": 10}
+        console._escalate_repair_ladder(state, "X1X_M1_FBO")
+        self.assertEqual(state["repair_level_idx"], 1)
+        self.assertEqual(state["consecutive_fails_at_level"], 0)
+        # Deep incubation lock: L5 ceiling + budget remaining -> restart at L1, no pivot
+        state = {"repair_level_idx": 4, "consecutive_fails_at_level": 3,
+                 "thesis_iteration_count": 10}
+        console._escalate_repair_ladder(state, "X1X_M1_FBO")
+        self.assertEqual(state["repair_level_idx"], 0)
+        # Budget exhausted -> lineage discarded, pivot permitted
+        state = {"repair_level_idx": 4, "consecutive_fails_at_level": 3,
+                 "thesis_iteration_count": 35, "champion_code": "X", "champion_thesis": "T",
+                 "champion_metrics": {}, "champion_params": None, "champion_score": 10.0,
+                 "lineage_note": "x", "iterations_since_improvement": 2,
+                 "temperature": 1.0, "forced_jab": "y"}
+        console._escalate_repair_ladder(state, "X1X_M1_FBO")
+        self.assertIsNone(state["champion_code"])
+        self.assertEqual(state["champion_score"], -1e18)
+        self.assertEqual(state["thesis_iteration_count"], 0)
+
+    def test_M_dead_champion_recycle_restores_template_baseline(self):
+        """TEST M (baseline recycling): _reset_champion_lineage clears the dead
+        lineage so active_thesis['base_code'] reclaims the parent baseline."""
+        console = console_mod.StratXLiveConsole.__new__(console_mod.StratXLiveConsole)
+        state = {"champion_code": "dead_code", "champion_metrics": {"total_trades": 1},
+                 "champion_params": None, "champion_score": -82.0, "lineage_note": "old"}
+        console._reset_champion_lineage(state, note="DEAD CHAMPION RECYCLED")
+        self.assertIsNone(state["champion_code"])
+        self.assertIsNone(state["champion_metrics"])
+        self.assertEqual(state["champion_score"], -1e18)
+        self.assertIn("DEAD CHAMPION RECYCLED", state["lineage_note"])
+
+    def test_N_forced_frequency_restoration_covers_all_levels(self):
+        """TEST N (anti-stall circuit breaker): every repair level has a
+        deterministic forced mutation so the loop can never idle."""
+        for lvl in ["L1_PARAMETER", "L2_SESSION_TIME", "L3_INDICATOR_LOGIC",
+                    "L4_ARCHITECTURE", "L5_PIVOT_NEW_ALPHA"]:
+            self.assertIn(lvl, FORCED_FREQUENCY_RESTORATION)
+            self.assertTrue(len(FORCED_FREQUENCY_RESTORATION[lvl]) > 20)
+
+    def test_O_population_enrichment_full_wr_rr_buckets(self):
+        """TEST O (enrichment): full-population enrichment computes WR, avgR,
+        realized RR and expectancy per GMT hour across ALL trades (not just
+        losers), and refuses to fabricate on tiny samples."""
+        df = _df(12)
+        df["gmt_hour"] = [8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11]
+        enr = compute_population_enrichment(df)
+        self.assertIsNotNone(enr)
+        self.assertEqual(enr["population_n"], 12)
+        self.assertAlmostEqual(enr["overall"]["win_rate"], 0.5, places=3)
+        self.assertEqual(enr["overall"]["realized_RR"], 1.0)
+        self.assertIn(8, enr["by_gmt_hour"])
+        self.assertIn("WR=", format_population_enrichment_block(enr))
+        # Fabrication guard: N < 5 -> unavailable
+        self.assertIsNone(compute_population_enrichment(_df(3)))
+        self.assertIn("unavailable", format_population_enrichment_block(None))
 
 
 if __name__ == "__main__":
