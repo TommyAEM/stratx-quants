@@ -1,23 +1,23 @@
 {
-  "iteration": 111,
+  "iteration": 112,
   "research_phase": "PHASE_1_DISCOVERY",
-  "repair_level_idx": 3,
-  "consecutive_fails_at_level": 2,
+  "repair_level_idx": 0,
+  "consecutive_fails_at_level": 0,
   "goal_status": "ACTIVE",
   "portfolio_modules": [],
   "portfolio_target_modules": 5,
   "portfolio_target_trades": 120,
-  "champion_thesis": "X1X_M1_PDC",
+  "champion_thesis": null,
   "champion_code": null,
   "champion_metrics": null,
   "champion_params": null,
   "champion_score": -1e+18,
-  "thesis_iteration_count": 2,
-  "lineage_note": "ROLLBACK ALERT: The last mutation DEGRADED the strategy (fitness -93.2 vs champion -1000000000000000000.0 | WR=67.1% PF=0.76 DD=59.6%). The engine has reverted to the last best champion code. You MUST explore a DIFFERENT, mutually exclusive hypothesis than the last failed attempt.",
-  "iterations_since_improvement": 1,
+  "thesis_iteration_count": 0,
+  "lineage_note": "RESET: Clean institutional baseline initialized with strict 6% MaxDD ceiling.",
+  "iterations_since_improvement": 0,
   "temperature": 0.0,
   "forced_jab": null,
-  "consecutive_non_mutation": 1,
+  "consecutive_non_mutation": 0,
   "self_review_session": {
     "self_review_id": "SREV_0292BCFA",
     "mission_id": "de40-x1x",
@@ -33,11 +33,11 @@
       "min_trades_per_year": 20.0
     },
     "goal_constraints": {
-      "max_drawdown": 0.2
+      "max_drawdown": 0.06
     },
     "goal_status": "ACTIVE",
     "status": "ACTIVE",
-    "iteration": 63,
+    "iteration": 64,
     "history": [
       {
         "iteration": 3,
@@ -957,7 +957,7 @@
     "current_hypothesis_ids": [],
     "current_experiment_ids": [],
     "created_at": "2026-08-17T19:16:40.360192+00:00",
-    "updated_at": "2026-08-17T22:34:26.973039+00:00"
+    "updated_at": "2026-08-17T22:36:02.060249+00:00"
   },
   "self_review_goal_id": "SR_M1_001",
   "awaiting_memory_commit": false,
@@ -1131,7 +1131,7 @@
     ],
     "prediction_match": "NOT_TESTABLE",
     "causal_belief_update": "UNCHANGED",
-    "recommended_route": " council_refusal_streak=1"
+    "recommended_route": " council_refusal_streak=2"
   },
   "last_child_parent_delta": {
     "parent_trades": 0,
@@ -1221,5 +1221,6 @@
     "score": -7.77,
     "trades": 20
   },
-  "edge_screen_file": "C:\\Trading\\DE40-Research\\evidence\\edge_screen.json"
+  "edge_screen_file": "C:\\Trading\\DE40-Research\\evidence\\edge_screen.json",
+  "active_thesis_index": 0
 }
