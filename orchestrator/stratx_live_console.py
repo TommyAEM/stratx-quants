@@ -59,6 +59,18 @@ from orchestrator.brain_vectordb import (
     load_brain_context
 )
 from orchestrator.llm_client import StratXLLMClient
+from skills.self_review_engine import SelfReviewEngine
+
+# =====================================================================
+# AUTHORITATIVE X1X MODULE FREQUENCY FLOOR (docs/PASS_GATES.md)
+# A module is NOT the portfolio: each module must independently sustain
+# >= 20 logical trades/year. The portfolio reaches its aggregate target
+# by SUMMING specialist modules, never by weakening this floor.
+# =====================================================================
+MODULE_MIN_TRADES_PER_YEAR = 20.0
+
+# Canonical Self-Review goal statuses (status 'DONE' is FORBIDDEN for self-review)
+SELF_REVIEW_STATUSES = ["ACTIVE", "TESTING", "REASSESSING", "PASSED", "ESCALATING", "BLOCKED", "EXHAUSTED"]
 
 # Vibrant 24-bit TrueColor / ANSI 256 Neon Theme
 class Colors:
@@ -213,46 +225,78 @@ def score_strategy_metrics(metrics: Dict[str, Any]) -> float:
     dd = metrics.get("max_drawdown", 1.0)
     return ((pf * wr) - (dd * 2.0)) * 100.0
 
-# Simulated Annealing "Random Jab" deck: forced structural mutations used to escape
-# local optima when the champion stagnates (temperature rises, careful hill-climbing pauses).
-RANDOM_JABS = [
-    "INVERT THE LOGIC: If the strategy buys breakouts, change it to fade breakouts (sell).",
-    "TIMEFRAME SHIFT: Shift the entry execution to a higher timeframe (e.g., M15 -> H1) and hold trades longer.",
-    "INDICATOR SWAP: Remove the primary trend/regime filter and replace it with a Choppiness Index or ADX filter.",
-    "EXIT OVERHAUL: Remove the fixed Take Profit and replace it with an ATR trailing stop or Parabolic SAR trail.",
+# Stagnation escalation directives: STRUCTURAL REPAIR LEVELS ONLY.
+# These contain zero trading solutions — the losing-trade forensic analysis,
+# not randomness, decides which lever to test next (anti curve-fitting guard).
+REPAIR_ESCALATION_DIRECTIVES = [
+    "ESCALATE_REPAIR_LEVEL: parameter-level EIV exhausted -> rule/logic level.",
+    "ESCALATE_REPAIR_LEVEL: rule-level EIV exhausted -> component level.",
+    "ESCALATE_REPAIR_LEVEL: component-level EIV exhausted -> architecture level.",
+    "ESCALATE_REPAIR_LEVEL: architecture-level EIV exhausted -> Head Quant thesis review.",
 ]
 
 # Physical JSON Brain File (Inspectable in Notepad anytime)
 BRAIN_FILE = Path("C:/Trading/DE40-Research/stratx_brain.json")
 
-def write_to_brain(memory_id: str, tags: list, fix: str, success: bool, metrics: dict):
-    """Physically writes the memory to a JSON file and updates confidence."""
+def _evidence_weight(evidence_quality: Optional[dict]) -> float:
+    """
+    Scales belief movement by EVIDENCE QUALITY (Tier-2 spec §4) instead of
+    hardcoded increments: sample size, validation stability, prediction match,
+    and implementation fidelity all modulate how far a belief may move.
+    """
+    if not evidence_quality:
+        return 1.0
+    w = 1.0
+    n = int(evidence_quality.get("n_trades", 0) or 0)
+    if n < 5:
+        w *= 0.25   # SAMPLE_INSUFFICIENT: beliefs barely move on tiny populations
+    elif n < 15:
+        w *= 0.60
+    if not evidence_quality.get("wf_evidence_available", True):
+        w *= 0.50   # no real walk-forward evidence -> halve conviction
+    elif not evidence_quality.get("wf_passed", True):
+        w *= 0.60   # failed decay audit weakens evidentiary value
+    if evidence_quality.get("implementation_fidelity") == "MISMATCH":
+        w *= 0.30   # implementation failure is weak evidence about the strategy
+    return max(0.10, min(1.50, w))
+
+def write_to_brain(memory_id: str, tags: list, fix: str, success: bool, metrics: dict,
+                   evidence_quality: Optional[dict] = None):
+    """Physically writes the memory to a JSON file and updates confidence (evidence-weighted)."""
     brain = []
     if BRAIN_FILE.exists():
         try:
             brain = json.loads(BRAIN_FILE.read_text(encoding="utf-8"))
         except Exception:
             brain = []
-            
+
+    weight = _evidence_weight(evidence_quality)
+
     # Check if we've tried this EXACT fix before
     existing_entry = next((m for m in brain if m.get("fix") == fix), None)
-    
+
     if existing_entry:
         old_conf = existing_entry.get("confidence", 0.5)
-        existing_conf = old_conf + (0.15 if success else -0.20)
+        existing_conf = old_conf + (0.15 * weight if success else -0.20 * weight)
         existing_entry["confidence"] = max(0.0, min(1.0, round(existing_conf, 2)))
         existing_entry["status"] = "VALIDATED" if existing_conf >= 0.7 else "DEBUNKED" if existing_conf <= 0.2 else "TESTING"
         existing_entry["times_attempted"] = existing_entry.get("times_attempted", 1) + 1
         existing_entry["metrics"] = metrics
+        existing_entry["last_evidence_weight"] = round(weight, 3)
     else:
+        init_conf = round(0.5 + 0.10 * weight, 2) if success else round(0.5 - 0.20 * weight, 2)
+        # Contextual outcome, not binary SUCCESS/FAILED: a single observation
+        # starts at TESTING and only crosses VALIDATED/DEBUNKED on accumulated
+        # evidence-weighted confidence (Mission §12).
         brain.append({
             "id": memory_id,
             "tags": tags,
             "fix": fix,
-            "confidence": 0.60 if success else 0.30,
-            "status": "VALIDATED" if success else "DEBUNKED",
+            "confidence": init_conf,
+            "status": "VALIDATED" if init_conf >= 0.7 else "DEBUNKED" if init_conf <= 0.2 else "TESTING",
             "times_attempted": 1,
-            "metrics": metrics
+            "metrics": metrics,
+            "last_evidence_weight": round(weight, 3)
         })
         
     BRAIN_FILE.write_text(json.dumps(brain, indent=2), encoding="utf-8")
@@ -379,6 +423,91 @@ QUANT_KNOWLEDGE_BASE = """
    Step 4 - Trend validity gate for Fib pullbacks (OLS confluence):
      - Compute OLS slope and R^2 manually over iClose values (no native LinearReg function exists in MQL5).
      - Only take pullbacks when slope sign matches the swing direction AND R^2 > 0.70.
+
+7. INSTITUTIONAL MULTI-ANCHORED VWAP & STANDARD DEVIATION BANDS (GROUND TRUTH - NATIVE MQL5)
+   MQL5 has NO native iVWAP(). You MUST compute multi-anchored VWAP and standard deviation bands natively from bar arrays.
+
+   A. Core Math for Multi-Anchored VWAP & Standard Deviation:
+      Typical_Price = (High + Low + Close) / 3.0
+      Cumulative_VP = Sum(Typical_Price * Volume) from Anchor_Time to Current_Bar
+      Cumulative_V  = Sum(Volume) from Anchor_Time to Current_Bar
+      VWAP = Cumulative_VP / Cumulative_V
+      Variance = Sum(Volume * (Typical_Price - VWAP)^2) / Cumulative_V
+      StdDev = Sqrt(Variance)
+      Upper_1SD = VWAP + (1.0 * StdDev),  Lower_1SD = VWAP - (1.0 * StdDev)
+      Upper_2SD = VWAP + (2.0 * StdDev),  Lower_2SD = VWAP - (2.0 * StdDev)
+      Upper_3SD = VWAP + (3.0 * StdDev),  Lower_3SD = VWAP - (3.0 * StdDev)
+
+   B. Exact Compilable Native MQL5 Anchor Function:
+      bool ComputeAnchoredVWAP(datetime anchor_time, double &out_vwap, double &out_std_dev, double &upper_2sd, double &lower_2sd)
+      {
+         int start_bar = iBarShift(_Symbol, PERIOD_CURRENT, anchor_time, false);
+         if(start_bar < 1) return false;
+         
+         double sum_pv = 0.0, sum_v = 0.0;
+         for(int i = start_bar; i >= 1; i--)
+         {
+            double tp = (iHigh(_Symbol, PERIOD_CURRENT, i) + iLow(_Symbol, PERIOD_CURRENT, i) + iClose(_Symbol, PERIOD_CURRENT, i)) / 3.0;
+            long vol = iVolume(_Symbol, PERIOD_CURRENT, i);
+            if(vol <= 0) vol = 1;
+            sum_pv += tp * (double)vol;
+            sum_v  += (double)vol;
+         }
+         if(sum_v <= 0.0) return false;
+         out_vwap = sum_pv / sum_v;
+         
+         double sum_sq_diff = 0.0;
+         for(int i = start_bar; i >= 1; i--)
+         {
+            double tp = (iHigh(_Symbol, PERIOD_CURRENT, i) + iLow(_Symbol, PERIOD_CURRENT, i) + iClose(_Symbol, PERIOD_CURRENT, i)) / 3.0;
+            long vol = iVolume(_Symbol, PERIOD_CURRENT, i);
+            if(vol <= 0) vol = 1;
+            sum_sq_diff += (double)vol * (tp - out_vwap) * (tp - out_vwap);
+         }
+         out_std_dev = MathSqrt(sum_sq_diff / sum_v);
+         upper_2sd = out_vwap + (2.0 * out_std_dev);
+         lower_2sd = out_vwap - (2.0 * out_std_dev);
+         return true;
+      }
+
+   C. The 4 Institutional Anchors:
+      1. Intraday Session VWAP (sVWAP): anchor_time = StringToTime(TimeToString(TimeCurrent(), TIME_DATE) + " 00:00") (or 07:00 Frankfurt Open).
+      2. Asia Anchored VWAP (asia_VWAP): anchor_time = StringToTime(TimeToString(TimeCurrent(), TIME_DATE) + " 00:00") evaluated at London/Frankfurt Open.
+      3. Previous Day Static VWAP (pdVWAP): anchor_time = Yesterday 00:00 to Yesterday 23:59 (Static institutional mean line).
+      4. Weekly Anchored VWAP (wVWAP): anchor_time = Beginning of current week Monday 00:00 (Macro institutional trend filter).
+
+   D. Institutional Alpha Triggers using VWAP Confluences:
+      - 2.0 Sigma Mean-Reversion: When price wicks beyond Upper_2SD (or Lower_2SD) and closes back inside with FVG confluence -> Mean-reversion to VWAP midline.
+      - Asia VWAP Reclaim: When Frankfurt/London sweeps Asian High/Low and closes back above/below Asia Anchored VWAP -> Directional trend expansion.
+      - Prior Day VWAP Retest: When price breaks out and retraces to test pdVWAP as dynamic support/resistance with ATR SL buffer.
+
+8. INSTITUTIONAL VOLUME PROFILE & VALUE AREA MATRIX (GROUND TRUTH - NATIVE MQL5)
+   - Point of Control (POC): The highest volume price bin in the profile. Acts as the primary fair-value magnet.
+   - Value Area High/Low (VAH/VAL): Range containing 70% of total volume (1 standard deviation).
+     * Inside Value Area (VAL <= Price <= VAH) = Balanced Consolidation (Mean-Reversion favoured).
+     * Acceptance Outside Value Area (Close > VAH or Close < VAL) = Value Migration / Breakout Expansion.
+   - High Volume Nodes (HVNs): Resistance/Support brick walls where price slows down (ideal scale-out/TP zones).
+   - Low Volume Nodes (LVNs): Liquidity vacuums where price traverses rapidly (ideal breakout entry and momentum path).
+
+9. STRATX MA GOLDILOCKS DISCOVERY FRAMEWORK (PARAMETER LANDSCAPE & ZONE ROBUSTNESS)
+   A conventional strategy asks "Which EMA crosses which?". Goldilocks asks: "What parameter plateau provides sufficient responsiveness without overfitting noise?"
+   
+   A. The 3-Tier MA Structural Architecture:
+      - Fast / Trigger MA (e.g. EMA 8-20): Entry timing, pullback recovery, momentum acceleration.
+      - Medium / Structure MA (e.g. EMA 35-55): Active trend direction, healthy pullback boundary.
+      - Slow / Regime MA (e.g. EMA 100-200): Macro bull/bear regime filter, long/short directional boundary.
+   
+   B. Parameter Landscape Plateau Rule (Robustness vs Peak-Fitting):
+      - If only EMA 18/61 works while 17/60 and 19/62 fail -> REJECT as parameter curve-fit artifact.
+      - Require a stable plateau (e.g. Fast 14-22, Slow 50-65 all yielding PF >= 1.80, DSR > 1.2).
+   
+   C. Goldilocks Normalized Metrics:
+      - MA Separation: Separation = (MA_fast - MA_slow) / ATR.
+        * Tiny separation (< 0.15 ATR) = No trend / consolidation noise (Block entry).
+        * Moderate separation (0.20 - 0.80 ATR) = Goldilocks healthy trend expansion.
+        * Extreme separation (> 1.20 ATR) = Overextended move (Block chasing entries).
+      - MA Slope: Slope = (MA_t - MA_t-n) / ATR. Avoid flat slope (< 0.05 ATR/bar); require moderate slope.
+      - MA Reclaim Entry: Trend remains aligned (Fast > Med > Slow); price pulls back below Fast MA, rejects deeper structure, and closes back ABOVE Fast MA with upward slope velocity.
 """
 
 def get_fvg_knowledge() -> str:
@@ -515,7 +644,11 @@ def compute_child_parent_delta(parent_metrics: Optional[Dict[str, Any]], child_m
     c_pf = child_metrics.get("profit_factor", 0.0)
     delta_pf = c_pf - p_pf
     
-    is_freq_collapse = (c_trades < 5 and p_trades >= 5) or (c_trades == 0 and p_trades > 0)
+    is_freq_collapse = (
+        (c_trades < 5 and p_trades >= 5)
+        or (c_trades == 0 and p_trades > 0)
+        or (p_trades >= 20 and c_trades <= 0.20 * p_trades)  # >= 80% population destruction
+    )
     is_sample_insufficient = c_trades < 5
     
     if is_freq_collapse:
@@ -523,13 +656,46 @@ def compute_child_parent_delta(parent_metrics: Optional[Dict[str, Any]], child_m
         primary_question = f"Why did the mutation eliminate {abs(delta_trades)} parent trades? Which specific gate in Block 2, 3, or 4 caused the filter over-restriction?"
     elif is_sample_insufficient:
         verdict = f"SAMPLE INSUFFICIENT (N={c_trades} < 5). Cannot perform cluster forensics on single child trade."
-        primary_question = f"How do we widen signal criteria to reach minimum statistical sample size (>= 15 trades/yr)?"
+        primary_question = f"How do we widen signal criteria to reach minimum statistical sample size (>= {MODULE_MIN_TRADES_PER_YEAR:.0f} trades/yr)?"
     elif delta_pf > 0 and delta_wr >= 0:
         verdict = f"ALPHA IMPROVEMENT: Child increased PF by {delta_pf:+.2f} and WR by {delta_wr:+.1f}% across {c_trades} trades."
         primary_question = f"Does the child improvement retain walk-forward stability and low drawdowns?"
     else:
         verdict = f"PERFORMANCE DEGRADATION: Child PF changed by {delta_pf:+.2f}, WR by {delta_wr:+.1f}% across {c_trades} trades."
         primary_question = f"Why did the child underperform parent across the {c_trades} executed trades?"
+
+    # --- Mission §9: trade-level population delta (who was removed/added/flipped) ---
+    same_trades = removed_trades = new_trades = 0
+    winner_removed = loser_removed = 0
+    loser_to_winner = winner_to_loser = 0
+    net_r_delta = 0.0
+    if (
+        parent_df is not None and child_df is not None
+        and "time_open" in parent_df.columns and "time_open" in child_df.columns
+        and len(parent_df) > 0
+    ):
+        p_r = parent_df["R"] if "R" in parent_df.columns else pd.Series([0.0] * len(parent_df))
+        c_r = child_df["R"] if "R" in child_df.columns else pd.Series([0.0] * len(child_df))
+        p_map = dict(zip(parent_df["time_open"].astype(str), p_r))
+        c_map = dict(zip(child_df["time_open"].astype(str), c_r))
+        net_r_delta = float(c_r.sum() - p_r.sum())
+
+        for t, r in p_map.items():
+            if t in c_map:
+                same_trades += 1
+                if r < 0 and c_map[t] > 0:
+                    loser_to_winner += 1
+                elif r > 0 and c_map[t] < 0:
+                    winner_to_loser += 1
+            else:
+                removed_trades += 1
+                if r > 0:
+                    winner_removed += 1
+                elif r < 0:
+                    loser_removed += 1
+        new_trades = sum(1 for t in c_map if t not in p_map)
+
+    freq_retention = (c_trades / p_trades * 100.0) if p_trades > 0 else 0.0
 
     return {
         "parent_trades": p_trades,
@@ -538,11 +704,260 @@ def compute_child_parent_delta(parent_metrics: Optional[Dict[str, Any]], child_m
         "pct_trade_change": pct_trade_change,
         "delta_wr_pct": delta_wr,
         "delta_pf": delta_pf,
+        # Mission §9 trade-level lineage
+        "same_trades": same_trades,
+        "removed_trades": removed_trades,
+        "new_trades": new_trades,
+        "winner_removed": winner_removed,
+        "loser_removed": loser_removed,
+        "loser_to_winner": loser_to_winner,
+        "winner_to_loser": winner_to_loser,
+        # Canonical aliases consumed by SelfReviewEngine (skills/self_review_engine.py)
+        "net_R_delta": round(net_r_delta, 4),
+        "losers_removed_count": loser_removed,
+        "winners_removed_count": winner_removed,
+        "frequency_retention_pct": round(freq_retention, 2),
+        "same_trade_count": same_trades,
+        "new_trade_count": new_trades,
         "is_freq_collapse": is_freq_collapse,
         "is_sample_insufficient": is_sample_insufficient,
         "verdict": verdict,
         "primary_question": primary_question
     }
+
+def compute_matched_winner_analysis(trade_df: pd.DataFrame) -> Optional[Dict[str, Any]]:
+    """
+    MATCHED-WINNER COMPARATIVE ENGINE (Tier-1 core behaviour).
+    Compares the losing cohort against the winning cohort of the SAME population
+    so repairs attack the characteristic that actually separates bad trades from
+    good ones — instead of blindly deleting losing hours (curve-fitting guard).
+    Pure descriptive statistics: prescribes NO trading solution.
+    """
+    if trade_df is None or len(trade_df) < 5 or "R" not in trade_df.columns:
+        return None
+    losers = trade_df[trade_df["R"] < 0]
+    winners = trade_df[trade_df["R"] > 0]
+    if len(losers) == 0 or len(winners) == 0:
+        return None
+
+    separations: List[Dict[str, Any]] = []
+    numeric_cols = [c for c in ["gmt_hour", "MAE_R", "MFE_R", "adx", "vwap_dist_%", "lr_slope", "dxy_beta", "entry"]
+                    if c in trade_df.columns]
+    for col in numeric_cols:
+        try:
+            l_med = float(pd.to_numeric(losers[col], errors="coerce").median())
+            w_med = float(pd.to_numeric(winners[col], errors="coerce").median())
+            if np.isnan(l_med) or np.isnan(w_med):
+                continue
+            pooled_std = float(pd.to_numeric(trade_df[col], errors="coerce").std()) or 1e-9
+            effect = abs(l_med - w_med) / pooled_std
+            separations.append({"feature": col, "loser_median": round(l_med, 4),
+                                "winner_median": round(w_med, 4), "effect_size": round(effect, 3)})
+        except Exception:
+            continue
+
+    for col in ["market_regime", "active_pattern", "side"]:
+        if col in trade_df.columns:
+            l_dist = losers[col].value_counts(normalize=True).round(3).to_dict()
+            w_dist = winners[col].value_counts(normalize=True).round(3).to_dict()
+            separations.append({"feature": col, "loser_dist": l_dist, "winner_dist": w_dist,
+                                "effect_size": None})
+
+    separations.sort(key=lambda s: -(s["effect_size"] or 0.0) if s.get("effect_size") is not None else 0.0)
+    return {
+        "loser_count": int(len(losers)),
+        "winner_count": int(len(winners)),
+        "top_separating_features": separations[:5]
+    }
+
+
+def format_matched_winner_block(mw: Optional[Dict[str, Any]]) -> str:
+    """Renders the matched-winner comparison for forensic prompts (neutral, factual)."""
+    if not mw:
+        return "[MATCHED WINNERS]: unavailable (insufficient population or missing context columns)."
+    lines = [f"[MATCHED WINNERS]: {mw['loser_count']} losers vs {mw['winner_count']} matched winners from the SAME population."]
+    for s in mw["top_separating_features"]:
+        if s.get("effect_size") is not None:
+            lines.append(f"  • {s['feature']}: loser median={s['loser_median']} vs winner median={s['winner_median']} (effect {s['effect_size']})")
+        else:
+            lines.append(f"  • {s['feature']}: losers {s['loser_dist']} vs winners {s['winner_dist']}")
+    return "\n".join(lines)
+
+
+def enforce_memory_commitment(state: Dict[str, Any], module_name: str) -> bool:
+    """
+    MEMORY COMMITMENT INVARIANT (Mission §12 / Regression TEST F).
+    If the previous iteration ended without committing its learning, the next
+    experiment is BLOCKED until a tombstone record has been committed.
+    Returns True when a violation was found and repaired.
+    """
+    if not state.get("awaiting_memory_commit"):
+        return False
+    write_to_brain(
+        memory_id=f"MEM_{state.get('iteration', 0):04d}_INTERRUPTED_{module_name}",
+        tags=["MEMORY_COMMIT_ENFORCED", module_name.upper()],
+        fix="INTERRUPTED_ITERATION_TOMBSTONE",
+        success=False,
+        metrics={}
+    )
+    state["awaiting_memory_commit"] = False
+    return True
+
+
+def pre_compute_debunked_gate(proposed_mutation: Optional[str]) -> Dict[str, Any]:
+    """
+    PRE-COMPUTE PROPOSAL GATE (Tier-2): before burning a physical MT5 run, reject
+    mutations already DEBUNKED in the physical brain unless the proposal carries
+    a material-context justification. Deterministic, append-only read of stratx_brain.json.
+    """
+    if not proposed_mutation or not BRAIN_FILE.exists():
+        return {"is_approved": True, "rejection_reasons": []}
+    try:
+        brain = json.loads(BRAIN_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {"is_approved": True, "rejection_reasons": []}
+
+    prop_norm = re.sub(r"\s+", " ", str(proposed_mutation).strip().lower())
+    for m in brain:
+        if m.get("status") != "DEBUNKED":
+            continue
+        fix_norm = re.sub(r"\s+", " ", str(m.get("fix", "")).strip().lower())
+        if fix_norm and (fix_norm == prop_norm or fix_norm in prop_norm or prop_norm in fix_norm):
+            return {
+                "is_approved": False,
+                "rejection_reasons": [
+                    f"DUPLICATE_LOW_EIV: mutation matches DEBUNKED brain entry '{m.get('fix')}' "
+                    f"(confidence {m.get('confidence', 0):.2f}, attempted {m.get('times_attempted', 1)}x). "
+                    f"Requires REPEAT_JUSTIFICATION + MATERIAL_CONTEXT_DIFFERENCE."
+                ]
+            }
+    return {"is_approved": True, "rejection_reasons": []}
+
+
+def compute_real_yearly_metrics(trades_df: pd.DataFrame) -> Optional[Dict[str, Dict[str, float]]]:
+    """
+    Builds the multi-year / walk-forward metric breakdown from the REAL physical
+    trade population (grouped by calendar year of time_open).
+    Returns None when no usable time column exists — fabrication of per-year
+    metrics from aggregate scalars is forbidden (evidence integrity).
+    """
+    if trades_df is None or len(trades_df) == 0 or "time_open" not in trades_df.columns or "R" not in trades_df.columns:
+        return None
+    try:
+        years = pd.to_datetime(trades_df["time_open"], format="%Y.%m.%d %H:%M:%S", errors="coerce").dt.year
+        if years.isna().all():
+            return None
+        out: Dict[str, Dict[str, float]] = {}
+        for yr, idx in years.groupby(years).groups.items():
+            sub = trades_df.loc[idx]
+            r = sub["R"].astype(float)
+            wins = r[r > 0]
+            losses = r[r < 0]
+            gross_win = float(wins.sum())
+            gross_loss = float(abs(losses.sum()))
+            out[f"{int(yr)}"] = {
+                "win_rate": float(len(wins) / len(r)) if len(r) else 0.0,
+                "profit_factor": (gross_win / gross_loss) if gross_loss > 0 else (999.0 if gross_win > 0 else 0.0),
+                "trades": int(len(r))
+            }
+        return out or None
+    except Exception:
+        return None
+
+
+def run_independent_review(module_name: str, child_metrics: Dict[str, Any], annualized_trades: float,
+                           wf_passed: bool, wf_reason: str, t_quant: Dict[str, Any],
+                           delta_info: Dict[str, Any], portfolio_modules: List[Dict[str, Any]],
+                           wf_evidence_available: bool = True) -> Dict[str, Any]:
+    """
+    INDEPENDENT REVIEWER (deterministic, adversarial).
+    Question: WHY SHOULD I DISTRUST THIS CLAIM OF SUCCESS?
+    Re-verifies every acceptance gate from raw evidence. Any objection => FAIL
+    and the SAME self-review goal is reopened with objections attached.
+    """
+    objections: List[str] = []
+
+    if child_metrics.get("win_rate", 0.0) < 0.70:
+        objections.append(f"WR {child_metrics.get('win_rate', 0.0)*100:.1f}% below 70% gate")
+    if child_metrics.get("profit_factor", 0.0) < 2.00:
+        objections.append(f"PF {child_metrics.get('profit_factor', 0.0):.2f} below 2.00 gate")
+    if child_metrics.get("risk_reward", 0.0) < 1.00:
+        objections.append(f"Realised payoff {child_metrics.get('risk_reward', 0.0):.2f} below 1.00 gate")
+    if annualized_trades < MODULE_MIN_TRADES_PER_YEAR:
+        objections.append(f"Annualized frequency {annualized_trades:.1f}/yr below {MODULE_MIN_TRADES_PER_YEAR:.0f}/yr floor")
+    if not wf_evidence_available:
+        objections.append("VALIDATION_EVIDENCE_UNAVAILABLE: no real per-year trade population to audit walk-forward decay")
+    elif not wf_passed:
+        objections.append(f"Walk-forward/decay gate failed: {wf_reason}")
+    if not t_quant.get("passed", False):
+        objections.append(f"T-quant insignificance: t={t_quant.get('t_stat')}, p={t_quant.get('p_value')} (edge not statistically significant)")
+    if delta_info.get("is_freq_collapse"):
+        objections.append("FREQUENCY_COLLAPSE: child destroyed the parent trade population")
+    if delta_info.get("is_sample_insufficient"):
+        objections.append(f"SAMPLE_INSUFFICIENT: child N={delta_info.get('child_trades', 0)} < 5")
+
+    for m in portfolio_modules:
+        if (m.get("win_rate") == child_metrics.get("win_rate")
+                and m.get("profit_factor") == child_metrics.get("profit_factor")
+                and m.get("raw_trades") == child_metrics.get("total_trades")):
+            objections.append(f"DUPLICATE_ALPHA: metrics identical to admitted module {m.get('name')}")
+
+    verdict = "PASS" if not objections else "FAIL"
+    return {
+        "reviewer": "INDEPENDENT_REVIEWER",
+        "module": module_name,
+        "verdict": verdict,
+        "objections": objections,
+        "loopback": None if verdict == "PASS" else "REOPEN_SAME_SELF_REVIEW_GOAL",
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+
+def run_governor_decision(review_result: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    GOVERNOR (deterministic). Question: WHAT SHOULD THE RESEARCH ORGANISATION DO NEXT?
+    A rejection is NOT workflow completion — it routes back into self-review.
+    """
+    if review_result.get("verdict") == "PASS":
+        return {"decision": "PROMOTE", "reason": "Independent review passed all adversarial checks.",
+                "next": "FREEZE_MODULE_AND_OPEN_NEXT_PORTFOLIO_GOAL"}
+    return {"decision": "RETURN_TO_SELF_REVIEW",
+            "reason": f"Independent review objections: {review_result.get('objections', [])}",
+            "next": "REOPEN_SAME_SELF_REVIEW_GOAL_WITH_OBJECTIONS"}
+
+
+def evaluate_final_portfolio_gates(portfolio_modules: List[Dict[str, Any]], combined_max_dd: Optional[float],
+                                   risk_per_trade_pct: float = 1.0, max_concurrent: int = 1,
+                                   max_combined_dd: float = 0.10) -> Dict[str, Any]:
+    """
+    FINAL X1X PORTFOLIO GATE (Mission §24): 1% risk per trade, max 1 concurrent
+    position across ALL modules, combined MaxDD < 10%. 5 accepted modules do NOT
+    complete the mission if the combined portfolio breaches the DD ceiling.
+    """
+    combined_trades = float(sum(m.get("annualized_trades", 0.0) for m in portfolio_modules))
+    result = {
+        "modules": len(portfolio_modules),
+        "combined_annual_trades": combined_trades,
+        "risk_per_trade_pct": risk_per_trade_pct,
+        "max_concurrent": max_concurrent,
+        "combined_max_dd": combined_max_dd,
+        "passed": True,
+        "failures": []
+    }
+    if len(portfolio_modules) < 5:
+        result["passed"] = False
+        result["failures"].append(f"Only {len(portfolio_modules)} modules admitted (< 5)")
+    if combined_trades < 100.0:
+        result["passed"] = False
+        result["failures"].append(f"Combined frequency {combined_trades:.1f}/yr < 100/yr")
+    if combined_max_dd is None:
+        result["passed"] = False
+        result["failures"].append("COMBINED_DD_UNVERIFIED: master portfolio EA has no physical backtest evidence")
+    elif combined_max_dd >= max_combined_dd:
+        result["passed"] = False
+        result["failures"].append(f"FINAL_PORTFOLIO_FAIL: combined MaxDD {combined_max_dd*100:.1f}% >= {max_combined_dd*100:.0f}% at 1% risk / 1 concurrent")
+    return result
+
 
 def print_self_review_hud(goal_id: str, active_module: str, attempt: int, 
                            champion_metrics: Optional[Dict[str, Any]], 
@@ -552,7 +967,7 @@ def print_self_review_hud(goal_id: str, active_module: str, attempt: int,
                            healing_action: str):
     print(f"\n{Colors.PURPLE_BOLD}{'='*80}", flush=True)
     print(f"🎯 ACTIVE SELF-REVIEW GOAL: [{goal_id}] — {active_module} ACCEPTANCE", flush=True)
-    print(f"   Target Criteria: WR >= 70.0% | PF >= 2.00 | Realised Payoff >= 1.00 | Trades >= 15.0/yr", flush=True)
+    print(f"   Target Criteria: WR >= 70.0% | PF >= 2.00 | Realised Payoff >= 1.00 | Trades >= {MODULE_MIN_TRADES_PER_YEAR:.1f}/yr", flush=True)
     print(f"   Status: IN PROGRESS (Attempt #{attempt} under Goal {goal_id})", flush=True)
     print(f"{Colors.PURPLE}{'-'*80}{Colors.ENDC}", flush=True)
     
@@ -632,11 +1047,15 @@ def validate_quant_math(hq_blueprint: Dict[str, Any], df_rates: Optional[pd.Data
 def safe_parse_json(text: str, default_role: str = "HEAD QUANT") -> Dict[str, Any]:
     """Extracts and repairs JSON from LLM output, never throwing an unhandled exception."""
     if not text:
+        # NEUTRAL FALLBACK: an empty LLM response is an evidence event, NOT a
+        # trading decision. The orchestrator must never fabricate a repair.
         return {
-            "reasoning": "Standard quantitative repair applied.",
-            "recommended_fix": "Session & Volatility Filter",
-            "memory_tags": ["SESSION_FILTER", "ATR_FILTER"],
-            "indicators_used": ["ATR", "Time Session Filters"]
+            "llm_status": "EMPTY_RESPONSE",
+            "reasoning": "LLM returned an empty response. No quantitative conclusion drawn.",
+            "recommended_fix": None,
+            "council_verdict": "INSUFFICIENT_EVIDENCE",
+            "memory_tags": ["LLM_EMPTY_RESPONSE"],
+            "indicators_used": []
         }
         
     clean_str = text.strip()
@@ -659,12 +1078,15 @@ def safe_parse_json(text: str, default_role: str = "HEAD QUANT") -> Dict[str, An
             parsed["mql5_code"] = fence_match.group(1).strip()
         return parsed
     except Exception:
-        # Fallback regex extraction
+        # Fallback regex extraction — NEUTRAL: carries the raw fragment for
+        # forensics but prescribes NO trading solution (anti prompt-contamination).
         res: Dict[str, Any] = {
+            "llm_status": "PARSE_RECOVERED",
             "reasoning": clean_str[:300],
-            "recommended_fix": "Session filter and ATR threshold adjustment",
-            "memory_tags": ["QUANT_REPAIR", "GMM_REGIME_FILTER"],
-            "indicators_used": ["ATR", "Time Session Filters"]
+            "recommended_fix": None,
+            "council_verdict": "REQUIRES_MORE_FORENSICS",
+            "memory_tags": ["LLM_PARSE_RECOVERY"],
+            "indicators_used": []
         }
         
         if fence_match and len(fence_match.group(1).strip()) > 80:
@@ -675,7 +1097,7 @@ def safe_parse_json(text: str, default_role: str = "HEAD QUANT") -> Dict[str, An
             try:
                 res["hypotheses"] = json.loads(hyp_match.group(1))
             except Exception:
-                res["hypotheses"] = [{"id": "H1", "statement": "Asian overlap stop-hunt filter"}]
+                res["hypotheses"] = [{"id": "H1", "statement": "<CAUSAL_HYPOTHESIS_UNPARSED>"}]
                 
         fix_match = re.search(r'"recommended_fix"\s*:\s*"([^"]+)"', clean_str)
         if fix_match:
@@ -694,6 +1116,25 @@ def safe_parse_json(text: str, default_role: str = "HEAD QUANT") -> Dict[str, An
 class RepetitionLoopError(Exception):
     """Raised when the LLM stream enters a repetition loop; must escape the per-chunk parser and trigger a real retry."""
     pass
+
+# Model routing audit trail: every invocation records the REQUESTED tier and the
+# ACTUAL gateway/model that answered. Silent model fallback is forbidden — a
+# failover is always visible here and in the console output.
+MODEL_INVOCATION_LOG: List[Dict[str, Any]] = []
+
+def _record_model_invocation(role: str, tier: str, requested_model: str, actual_gateway: Optional[str],
+                             actual_model: Optional[str], success: bool, attempts: int):
+    MODEL_INVOCATION_LOG.append({
+        "role": role,
+        "requested_tier": tier,
+        "requested_model": requested_model,
+        "actual_gateway": actual_gateway,
+        "actual_model": actual_model,
+        "fallback_used": bool(actual_model and actual_model != requested_model),
+        "success": success,
+        "attempts": attempts,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    })
 
 def stream_llm(role: str, prompt: str, max_retries: int = 3) -> Dict[str, Any]:
     tier = ROLE_MODEL_TIER.get(role.upper(), "alibaba_pro")
@@ -809,7 +1250,12 @@ def stream_llm(role: str, prompt: str, max_retries: int = 3) -> Dict[str, Any]:
                             continue
 
                 print(f"\n{divider_color}{'='*80}{Colors.ENDC}\n", flush=True)
-                return safe_parse_json(full_content or full_reasoning, default_role=role)
+                _record_model_invocation(role, tier, gateways[0]["model"], gateway["name"], gateway["model"], True, attempt)
+                if gateway["model"] != gateways[0]["model"]:
+                    print(f"{Colors.YELLOW}[MODEL ROUTE NOTICE]: {role} requested {gateways[0]['model']} but was answered by FALLBACK {gateway['name']} ({gateway['model']}). Recorded in MODEL_INVOCATION_LOG.{Colors.ENDC}\n", flush=True)
+                result = safe_parse_json(full_content or full_reasoning, default_role=role)
+                result["_model_route"] = {"requested_model": gateways[0]["model"], "actual_model": gateway["model"], "actual_gateway": gateway["name"]}
+                return result
 
             except urllib.error.HTTPError as e:
                 print(f"\n{Colors.YELLOW}[Gateway HTTP {e.code} on {gateway['name']}]: {e}. Failing over to backup gateway...{Colors.ENDC}\n", flush=True)
@@ -818,11 +1264,19 @@ def stream_llm(role: str, prompt: str, max_retries: int = 3) -> Dict[str, Any]:
                 print(f"\n{Colors.YELLOW}[Stream Notice on {gateway['name']}]: {e}. Retrying attempt {attempt}/{max_retries}...{Colors.ENDC}\n", flush=True)
                 time.sleep(1.5)
 
+    # TOTAL GATEWAY EXHAUSTION: return a neutral UNREACHABLE marker. The
+    # orchestrator MUST NOT fabricate a trading decision on behalf of the
+    # council — callers must treat this as a genuine external blocker.
+    _record_model_invocation(role, tier, gateways[0]["model"], None, None, False, max_retries)
+    print(f"\n{Colors.RED_BOLD}🛑 [ALL MODEL GATEWAYS UNREACHABLE for {role}]: No quantitative output produced. Marking iteration as BLOCKED-prone.{Colors.ENDC}\n", flush=True)
     return {
-        "reasoning": "Applied institutional volatility and opening range filter.",
-        "recommended_fix": "Session Filter and ATR floor",
-        "memory_tags": ["SESSION_FILTER", "ATR_FLOOR"],
-        "indicators_used": ["ATR", "Time Session Filters"]
+        "llm_status": "ALL_GATEWAYS_UNREACHABLE",
+        "reasoning": "All configured model gateways failed. No quantitative conclusion drawn.",
+        "recommended_fix": None,
+        "council_verdict": "DATA_REPAIR_REQUIRED",
+        "memory_tags": ["LLM_UNREACHABLE"],
+        "indicators_used": [],
+        "_model_route": {"requested_model": gateways[0]["model"], "actual_model": None, "actual_gateway": None}
     }
 
 # =====================================================================
@@ -919,6 +1373,9 @@ class StratXLiveConsole:
         # forensic mutation cycles: 1 backtest -> losing-cluster diagnosis -> structural fix.
         self.SWEEP_MIN_WR = 0.70
         self.SWEEP_MIN_PF = 2.00
+        # Persistent Self-Review goal state machine (the GOAL owns the loop,
+        # never the todo list). Deterministic Python gatekeeper.
+        self.self_review = SelfReviewEngine()
 
     def run_live_mission(self, initial_phase: str = "PHASE_1_DISCOVERY"):
         state = {
@@ -954,6 +1411,16 @@ class StratXLiveConsole:
                     print(f"♻️ {Colors.LIME_BOLD}[RESUME]: Recovered checkpoint at iteration {state['iteration']} "
                           f"| Thesis: {state.get('champion_thesis') or 'none'} | Champion fitness: {state.get('champion_score', -1e18):.1f} "
                           f"| Incubation: {state.get('thesis_iteration_count', 0)}/{self.MAX_ITERATIONS_PER_THESIS}{Colors.ENDC}\n", flush=True)
+                    # Context/session continuation: a BLOCKED (external blocker now
+                    # resolved by restart) or ESCALATING (safety ceiling) mission is
+                    # rehydrated and continues under the SAME self-review goal.
+                    if state.get("goal_status") in ("BLOCKED", "ESCALATING"):
+                        print(f"♻️ {Colors.YELLOW_BOLD}[RESUME]: Previous status {state['goal_status']} "
+                              f"({state.get('blocker_reason') or state.get('escalation_reason')}) — reactivating mission "
+                              f"under SAME goal {state.get('self_review_goal_id')}.{Colors.ENDC}\n", flush=True)
+                        state["goal_status"] = "ACTIVE"
+                        state.pop("blocker_reason", None)
+                        state.pop("escalation_reason", None)
             except Exception as e:
                 print(f"⚠️ Checkpoint unreadable ({e}); starting fresh.", flush=True)
 
@@ -3165,6 +3632,316 @@ void OnTick()
       ExecuteSell(sl, close1 - 2.0 * (sl - close1));
    }
 }"""
+            },
+            {
+                "id": 15,
+                "name": "Module_15_DE40_MultiAnchored_VWAP_Bands",
+                "title": "Multi-Anchored VWAP 2.0 Sigma Reversal & Asia Reclaim (M15)",
+                "session": "European / US Session (07:00 - 18:00 GMT)",
+                "danger_critique": "Blind limit orders at VWAP bands fail when a breakout expansion occurs; must require bar close rejection and multi-anchor confluence.",
+                "quant_mandate": "Compute native Session VWAP + 2.0 Sigma Bands, Asia Anchored VWAP, and Prior Day VWAP. Fade 2.0 Sigma exhaustion only on candle rejection close. FBL 50% partial at 1.0R, trail remainder to VWAP midline.",
+                "base_code": """//+------------------------------------------------------------------+
+//| Module 15: DE40 Multi-Anchored VWAP 2.0 Sigma Reversal (M15)      |
+//+------------------------------------------------------------------+
+#property copyright "StratX Institutional Quant Desk"
+#property version   "1.00"
+#include <Trade/Trade.mqh>
+
+input int    InpMaxSpreadPoints = 15;
+input double InpRiskPercent     = 0.5;
+input long   InpMagic           = 260115;
+input string InpComment         = "M15_MultiVWAP";
+
+CTrade   trade;
+int      atr_handle = INVALID_HANDLE;
+datetime g_last_bar_time = 0;
+
+bool IsNewBar()
+{
+   datetime cur_bar_time = iTime(_Symbol, _Period, 0);
+   if(cur_bar_time == g_last_bar_time) return false;
+   g_last_bar_time = cur_bar_time;
+   return true;
+}
+
+bool HasOpenPosition()
+{
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+      if(PositionGetSymbol(i) == _Symbol && PositionGetInteger(POSITION_MAGIC) == InpMagic)
+         return true;
+   return false;
+}
+
+double GetATR(int shift)
+{
+   double buf[];
+   ArraySetAsSeries(buf, true);
+   if(CopyBuffer(atr_handle, 0, shift, 1, buf) < 1) return 0.0;
+   return buf[0];
+}
+
+bool ComputeAnchoredVWAP(datetime anchor_time, double &out_vwap, double &out_std_dev, double &upper_2sd, double &lower_2sd)
+{
+   int start_bar = iBarShift(_Symbol, PERIOD_CURRENT, anchor_time, false);
+   if(start_bar < 1) return false;
+   
+   double sum_pv = 0.0, sum_v = 0.0;
+   for(int i = start_bar; i >= 1; i--)
+   {
+      double tp = (iHigh(_Symbol, PERIOD_CURRENT, i) + iLow(_Symbol, PERIOD_CURRENT, i) + iClose(_Symbol, PERIOD_CURRENT, i)) / 3.0;
+      long vol = iVolume(_Symbol, PERIOD_CURRENT, i);
+      if(vol <= 0) vol = 1;
+      sum_pv += tp * (double)vol;
+      sum_v  += (double)vol;
+   }
+   if(sum_v <= 0.0) return false;
+   out_vwap = sum_pv / sum_v;
+   
+   double sum_sq_diff = 0.0;
+   for(int i = start_bar; i >= 1; i--)
+   {
+      double tp = (iHigh(_Symbol, PERIOD_CURRENT, i) + iLow(_Symbol, PERIOD_CURRENT, i) + iClose(_Symbol, PERIOD_CURRENT, i)) / 3.0;
+      long vol = iVolume(_Symbol, PERIOD_CURRENT, i);
+      if(vol <= 0) vol = 1;
+      sum_sq_diff += (double)vol * (tp - out_vwap) * (tp - out_vwap);
+   }
+   out_std_dev = MathSqrt(sum_sq_diff / sum_v);
+   upper_2sd = out_vwap + (2.0 * out_std_dev);
+   lower_2sd = out_vwap - (2.0 * out_std_dev);
+   return true;
+}
+
+double CalcLots(double sl_distance)
+{
+   double tick_val  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+   double tick_size = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+   if(tick_val <= 0.0 || tick_size <= 0.0 || sl_distance <= 0.0) return 0.01;
+   double risk_amt = AccountInfoDouble(ACCOUNT_EQUITY) * InpRiskPercent / 100.0;
+   double lots     = NormalizeDouble(risk_amt / ((sl_distance / tick_size) * tick_val), 2);
+   double min_lot  = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double max_lot  = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
+   return MathMax(min_lot, MathMin(max_lot, lots));
+}
+
+void ExecuteBuy(double sl_price, double tp_price)
+{
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   if(ask - sl_price <= 0.0 || tp_price <= ask) return;
+   trade.Buy(CalcLots(ask - sl_price), _Symbol, 0.0,
+             NormalizeDouble(sl_price, _Digits), NormalizeDouble(tp_price, _Digits), InpComment);
+}
+
+void ExecuteSell(double sl_price, double tp_price)
+{
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   if(sl_price - bid <= 0.0 || tp_price >= bid) return;
+   trade.Sell(CalcLots(sl_price - bid), _Symbol, 0.0,
+              NormalizeDouble(sl_price, _Digits), NormalizeDouble(tp_price, _Digits), InpComment);
+}
+
+int OnInit()
+{
+   trade.SetExpertMagicNumber((ulong)InpMagic);
+   atr_handle = iATR(_Symbol, PERIOD_CURRENT, 14);
+   if(atr_handle == INVALID_HANDLE) return INIT_FAILED;
+   return INIT_SUCCEEDED;
+}
+
+void OnTick()
+{
+   if(!IsNewBar()) return;
+   if(HasOpenPosition()) return;
+   if(SymbolInfoInteger(_Symbol, SYMBOL_SPREAD) > InpMaxSpreadPoints) return;
+
+   MqlDateTime dt;
+   TimeCurrent(dt);
+   // Restrict to active liquidity hours 07:00 - 17:30 GMT
+   if(dt.hour < 7 || dt.hour >= 18) return;
+
+   datetime session_anchor = StringToTime(TimeToString(TimeCurrent(), TIME_DATE) + " 00:00");
+   double session_vwap, std_dev, upper_2sd, lower_2sd;
+   if(!ComputeAnchoredVWAP(session_anchor, session_vwap, std_dev, upper_2sd, lower_2sd)) return;
+
+   double atr = GetATR(1);
+   if(atr <= 0.0) return;
+
+   double low1   = iLow(_Symbol, PERIOD_CURRENT, 1);
+   double high1  = iHigh(_Symbol, PERIOD_CURRENT, 1);
+   double close1 = iClose(_Symbol, PERIOD_CURRENT, 1);
+   double open1  = iOpen(_Symbol, PERIOD_CURRENT, 1);
+
+   // Buy: Low pierced lower 2.0 Sigma, closed back above with bullish body
+   if(low1 <= lower_2sd && close1 > lower_2sd && close1 > open1)
+   {
+      double sl = low1 - (1.0 * atr);
+      double tp = session_vwap;
+      ExecuteBuy(sl, tp);
+   }
+   // Sell: High pierced upper 2.0 Sigma, closed back below with bearish body
+   else if(high1 >= upper_2sd && close1 < upper_2sd && close1 < open1)
+   {
+      double sl = high1 + (1.0 * atr);
+      double tp = session_vwap;
+      ExecuteSell(sl, tp);
+   }
+}"""
+            },
+            {
+                "id": 16,
+                "name": "Module_16_DE40_MAGoldilocks_Plateau_M15",
+                "title": "MA Goldilocks Parameter Plateau & Structural Reclaim (M15)",
+                "session": "European Session Window (07:00 - 17:30 GMT)",
+                "danger_critique": "Basic MA crossovers enter late in mature trends and chop to death in low-volatility ranges; must require normalized ATR separation and reclaim entry.",
+                "quant_mandate": "3-Tier MA Goldilocks architecture (Fast 18, Med 50, Slow 200). Require normalized MA separation between 0.20 and 0.85 ATR. Enter on Fast MA reclaim with structural slope confirmation. FBL partial at 1.0R.",
+                "base_code": """//+------------------------------------------------------------------+
+//| Module 16: DE40 MA Goldilocks Structural Reclaim (M15)           |
+//+------------------------------------------------------------------+
+#property copyright "StratX Institutional Quant Desk"
+#property version   "1.00"
+#include <Trade/Trade.mqh>
+
+input int    InpFastMA          = 18;
+input int    InpMedMA           = 50;
+input int    InpSlowMA          = 200;
+input double InpMinSepATR       = 0.20;
+input double InpMaxSepATR       = 0.85;
+input int    InpMaxSpreadPoints = 15;
+input double InpRiskPercent     = 0.5;
+input long   InpMagic           = 260116;
+input string InpComment         = "M16_MAGoldilocks";
+
+CTrade   trade;
+int      fast_ma_handle = INVALID_HANDLE;
+int      med_ma_handle  = INVALID_HANDLE;
+int      slow_ma_handle = INVALID_HANDLE;
+int      atr_handle     = INVALID_HANDLE;
+datetime g_last_bar_time = 0;
+
+bool IsNewBar()
+{
+   datetime cur_bar_time = iTime(_Symbol, _Period, 0);
+   if(cur_bar_time == g_last_bar_time) return false;
+   g_last_bar_time = cur_bar_time;
+   return true;
+}
+
+bool HasOpenPosition()
+{
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+      if(PositionGetSymbol(i) == _Symbol && PositionGetInteger(POSITION_MAGIC) == InpMagic)
+         return true;
+   return false;
+}
+
+double GetBuf(int handle, int shift)
+{
+   double buf[];
+   ArraySetAsSeries(buf, true);
+   if(CopyBuffer(handle, 0, shift, 1, buf) < 1) return 0.0;
+   return buf[0];
+}
+
+double CalcLots(double sl_distance)
+{
+   double tick_val  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+   double tick_size = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+   if(tick_val <= 0.0 || tick_size <= 0.0 || sl_distance <= 0.0) return 0.01;
+   double risk_amt = AccountInfoDouble(ACCOUNT_EQUITY) * InpRiskPercent / 100.0;
+   double lots     = NormalizeDouble(risk_amt / ((sl_distance / tick_size) * tick_val), 2);
+   double min_lot  = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double max_lot  = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
+   return MathMax(min_lot, MathMin(max_lot, lots));
+}
+
+void ExecuteBuy(double sl_price, double tp_price)
+{
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   if(ask - sl_price <= 0.0 || tp_price <= ask) return;
+   trade.Buy(CalcLots(ask - sl_price), _Symbol, 0.0,
+             NormalizeDouble(sl_price, _Digits), NormalizeDouble(tp_price, _Digits), InpComment);
+}
+
+void ExecuteSell(double sl_price, double tp_price)
+{
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   if(sl_price - bid <= 0.0 || tp_price >= bid) return;
+   trade.Sell(CalcLots(sl_price - bid), _Symbol, 0.0,
+              NormalizeDouble(sl_price, _Digits), NormalizeDouble(tp_price, _Digits), InpComment);
+}
+
+int OnInit()
+{
+   trade.SetExpertMagicNumber((ulong)InpMagic);
+   fast_ma_handle = iMA(_Symbol, PERIOD_CURRENT, InpFastMA, 0, MODE_EMA, PRICE_CLOSE);
+   med_ma_handle  = iMA(_Symbol, PERIOD_CURRENT, InpMedMA,  0, MODE_EMA, PRICE_CLOSE);
+   slow_ma_handle = iMA(_Symbol, PERIOD_CURRENT, InpSlowMA, 0, MODE_EMA, PRICE_CLOSE);
+   atr_handle     = iATR(_Symbol, PERIOD_CURRENT, 14);
+   
+   if(fast_ma_handle == INVALID_HANDLE || med_ma_handle == INVALID_HANDLE || 
+      slow_ma_handle == INVALID_HANDLE || atr_handle == INVALID_HANDLE) 
+      return INIT_FAILED;
+      
+   return INIT_SUCCEEDED;
+}
+
+void OnTick()
+{
+   if(!IsNewBar()) return;
+   if(HasOpenPosition()) return;
+   if(SymbolInfoInteger(_Symbol, SYMBOL_SPREAD) > InpMaxSpreadPoints) return;
+
+   MqlDateTime dt;
+   TimeCurrent(dt);
+   // Session gate: 07:00 to 17:30 GMT
+   if(dt.hour < 7 || dt.hour >= 18) return;
+
+   double fast1 = GetBuf(fast_ma_handle, 1);
+   double fast2 = GetBuf(fast_ma_handle, 2);
+   double med1  = GetBuf(med_ma_handle, 1);
+   double slow1 = GetBuf(slow_ma_handle, 1);
+   double atr   = GetBuf(atr_handle, 1);
+   
+   if(fast1 <= 0.0 || med1 <= 0.0 || slow1 <= 0.0 || atr <= 0.0) return;
+
+   double separation = MathAbs(fast1 - med1) / atr;
+   // Goldilocks Separation Check: Not compressed (< 0.20 ATR), not overextended (> 0.85 ATR)
+   if(separation < InpMinSepATR || separation > InpMaxSepATR) return;
+
+   double close1 = iClose(_Symbol, PERIOD_CURRENT, 1);
+   double open1  = iOpen(_Symbol, PERIOD_CURRENT, 1);
+   double low1   = iLow(_Symbol, PERIOD_CURRENT, 1);
+   double high1  = iHigh(_Symbol, PERIOD_CURRENT, 1);
+   double low2   = iLow(_Symbol, PERIOD_CURRENT, 2);
+   double high2  = iHigh(_Symbol, PERIOD_CURRENT, 2);
+   double close2 = iClose(_Symbol, PERIOD_CURRENT, 2);
+
+   // Bullish Goldilocks Reclaim:
+   // 1. Regime & Alignment: Fast > Med > Slow
+   // 2. Prior bar dipped below Fast MA (pullback)
+   // 3. Current bar closed back above Fast MA with upward slope velocity
+   if(fast1 > med1 && med1 > slow1)
+   {
+      if(close2 < fast2 && close1 > fast1 && close1 > open1 && fast1 >= fast2)
+      {
+         double sl = MathMin(low1, low2) - (0.5 * atr);
+         double tp = close1 + 2.0 * (close1 - sl);
+         ExecuteBuy(sl, tp);
+      }
+   }
+   // Bearish Goldilocks Reclaim:
+   // 1. Regime & Alignment: Fast < Med < Slow
+   // 2. Prior bar spiked above Fast MA (pullback)
+   // 3. Current bar closed back below Fast MA with downward slope velocity
+   else if(fast1 < med1 && med1 < slow1)
+   {
+      if(close2 > fast2 && close1 < fast1 && close1 < open1 && fast1 <= fast2)
+      {
+         double sl = MathMax(high1, high2) + (0.5 * atr);
+         double tp = close1 - 2.0 * (sl - close1);
+         ExecuteSell(sl, tp);
+      }
+   }
+}"""
             }
         ]
 
@@ -3204,6 +3981,35 @@ void OnTick()
 
                 base_parent_code = state.get("champion_code") or active_thesis["base_code"]
                 champ_metrics = state.get("champion_metrics")
+
+                # --- PERSISTENT SELF-REVIEW GOAL SESSION (Mission §1) ---
+                # The GOAL owns the loop. Iterations continue under the SAME
+                # self_review_goal_id until the goal genuinely passes; todo
+                # completion has zero authority to end self-review.
+                sr_session = state.get("self_review_session")
+                if not isinstance(sr_session, dict) or sr_session.get("goal_id") != goal_id:
+                    sr_session = self.self_review.create_goal_session(
+                        mission_id="de40-x1x",
+                        module_id=active_thesis["name"],
+                        parent_id=active_thesis["name"],
+                        goal_id=goal_id,
+                        goal_definition=f"{active_thesis['name']} institutional acceptance under X1X module gates",
+                        goal_metrics={"win_rate": 0.70, "profit_factor": 2.00, "risk_reward": 1.00,
+                                      "min_trades_per_year": MODULE_MIN_TRADES_PER_YEAR},
+                        goal_constraints={"max_drawdown": 0.20}
+                    )
+                    state["self_review_session"] = sr_session
+                    state["self_review_goal_id"] = goal_id
+                    state["awaiting_memory_commit"] = False
+                    save_checkpoint(state)
+
+                # --- MEMORY COMMITMENT INVARIANT (Mission §12 / Regression TEST F) ---
+                # A new experiment is FORBIDDEN while a previous backtested
+                # iteration has not committed its learning to memory.
+                if enforce_memory_commitment(state, active_thesis["name"]):
+                    save_checkpoint(state)
+                    print(f"🧠 {Colors.YELLOW_BOLD}[MEMORY COMMITMENT INVARIANT]: Previous iteration lacked a memory commit. "
+                          f"Tombstone committed — experiment flow unblocked.{Colors.ENDC}\n", flush=True)
 
                 # ---- 1. CHECK FOR ASYNCHRONOUS USER DIRECTIVE ----
                 user_directive = check_user_directive()
@@ -3248,6 +4054,11 @@ void OnTick()
                 trade_blotter = format_trade_blotter(enriched_losers_df) if sample_is_sufficient else f"[SAMPLE INSUFFICIENT — N={trade_count} trades recorded]"
                 brain_history = read_from_brain([active_thesis["name"].upper(), "DE40", "X1X"])
 
+                # --- MATCHED-WINNER COMPARATIVE ANALYSIS (Tier-1 core behaviour) ---
+                matched_winners = compute_matched_winner_analysis(trade_df) if sample_is_sufficient else None
+                matched_winner_block = format_matched_winner_block(matched_winners)
+                state["last_matched_winner_comparison"] = matched_winners
+
                 # -----------------------------------------------------------------
                 # FORENSIC AUTOPSY (MARKET STRUCTURE SPECIALIST)
                 # -----------------------------------------------------------------
@@ -3257,6 +4068,9 @@ Evidence Provenance: {provenance_tag}
 
 TRADE BLOTTER:
 {trade_blotter}
+
+MATCHED-WINNER COMPARATIVE ANALYSIS (what separates losers from winners in the SAME population):
+{matched_winner_block}
 
 DETERMINISTIC TOOLBELT FACTS:
 {skill_context}
@@ -3334,18 +4148,25 @@ Red Team Adversarial Critique: {red_team_view}
 YOUR TASK:
 Synthesize council confidence, evidence confidence, degree of disagreement, and define the NEXT SINGLE CAUSAL RESEARCH QUESTION and EXACT MUTATION.
 
+You are NOT forced to mandate a mutation. If the evidence does not justify one, set
+"council_verdict" to one of: INSUFFICIENT_EVIDENCE | NO_MUTATION_YET | REQUIRES_MORE_FORENSICS |
+HYPOTHESIS_REFUTED | EXPERIMENT_DESIGN_REQUIRED | DATA_REPAIR_REQUIRED — and leave
+"single_causal_mutation" null. Only when the evidence supports a surgical change, set
+"council_verdict": "MUTATION_MANDATED".
+
 Output JSON with neutral structural keys:
 {{
+  "council_verdict": "<MUTATION_MANDATED | INSUFFICIENT_EVIDENCE | NO_MUTATION_YET | REQUIRES_MORE_FORENSICS | HYPOTHESIS_REFUTED | EXPERIMENT_DESIGN_REQUIRED | DATA_REPAIR_REQUIRED>",
   "council_confidence_pct": 80,
   "evidence_confidence": "<HIGH | MEDIUM | LOW>",
   "degree_of_disagreement": "<LOW | MODERATE | HIGH>",
   "single_causal_research_question": "<falsifiable hypothesis directly addressing the diagnosed failure>",
-  "single_causal_mutation": "<isolated, surgical code modification specifying exact block and logic>"
+  "single_causal_mutation": "<isolated, surgical code modification specifying exact block and logic, or null>"
 }}
 """
                 council_raw = stream_llm("COUNCIL JUDGE", council_prompt)
-                research_q = council_raw.get("single_causal_research_question", "Test loosening filter constraints to restore frequency.")
-                causal_mutation = council_raw.get("single_causal_mutation", "Modify Block 3 filter thresholds.")
+                research_q = council_raw.get("single_causal_research_question") or "<UNRESOLVED_CAUSAL_QUESTION>"
+                causal_mutation = council_raw.get("single_causal_mutation")  # None => no mutation mandated
                 conf_pct = council_raw.get("council_confidence_pct", 80)
                 disagree = council_raw.get("degree_of_disagreement", "LOW")
 
@@ -3356,6 +4177,58 @@ Output JSON with neutral structural keys:
                 print(f"  Research Question: {research_q}", flush=True)
                 print(f"  Single Causal Mutation: {causal_mutation}", flush=True)
                 print(f"{'='*80}{Colors.ENDC}\n", flush=True)
+
+                # --- ITERATION EVIDENCE RECORD (consumed by memory commit & brain) ---
+                # Reconstructed from the roles that actually ran this iteration.
+                # (Fixes the undefined `head_quant_raw` defect: memory commit and
+                #  module admission previously crashed with NameError every loop.)
+                head_quant_raw = {
+                    "reasoning": f"[{failure_class}] {causal_failure} | Research Q: {research_q}",
+                    "recommended_fix": causal_mutation,
+                    "memory_tags": [active_thesis["name"].upper(), failure_class, "DE40", "X1X"],
+                    "indicators_used": [],
+                    "council_verdict": council_raw.get("council_verdict", "MUTATION_MANDATED"),
+                    "research_question": research_q,
+                    "council_confidence_pct": conf_pct,
+                    "degree_of_disagreement": disagree,
+                    "_model_route": council_raw.get("_model_route")
+                }
+
+                # --- Mission §16: Council is NOT forced to emit a mutation ---
+                if council_raw.get("llm_status") == "ALL_GATEWAYS_UNREACHABLE":
+                    state["goal_status"] = "BLOCKED"
+                    state["blocker_reason"] = "ALL_MODEL_GATEWAYS_UNREACHABLE"
+                    save_checkpoint(state)
+                    print(f"{Colors.RED_BOLD}🛑 [GENUINE EXTERNAL BLOCKER]: All model gateways unreachable. "
+                          f"Mission marked BLOCKED (checkpoint saved). Fix connectivity and restart to resume.{Colors.ENDC}\n", flush=True)
+                    break
+
+                COUNCIL_NON_MUTATION_VERDICTS = {
+                    "INSUFFICIENT_EVIDENCE", "NO_MUTATION_YET", "REQUIRES_MORE_FORENSICS",
+                    "HYPOTHESIS_REFUTED", "EXPERIMENT_DESIGN_REQUIRED", "DATA_REPAIR_REQUIRED"
+                }
+                council_verdict = council_raw.get("council_verdict")
+                if (council_verdict in COUNCIL_NON_MUTATION_VERDICTS) or not causal_mutation:
+                    print(f"🧭 {Colors.YELLOW_BOLD}[COUNCIL NON-MUTATION VERDICT]: {council_verdict or 'NO_MUTATION_YET'} — "
+                          f"no code change mandated this iteration. Committing forensics-only memory and looping under SAME goal {goal_id}.{Colors.ENDC}\n", flush=True)
+                    write_to_brain(
+                        memory_id=f"MEM_{it:04d}_FORENSICS_{active_thesis['name']}",
+                        tags=["FORENSICS_ONLY", failure_class, active_thesis["name"].upper()],
+                        fix=f"NO_MUTATION: {council_verdict or 'NO_MUTATION_YET'}",
+                        success=False,
+                        metrics={}
+                    )
+                    state["consecutive_fails_at_level"] += 1
+                    save_checkpoint(state)
+                    continue
+
+                # --- PRE-COMPUTE PROPOSAL GATE (Tier-2): never re-burn compute on debunked mutations ---
+                debunked_gate = pre_compute_debunked_gate(causal_mutation)
+                if not debunked_gate["is_approved"]:
+                    print(f"🚫 {Colors.YELLOW_BOLD}[PRE-COMPUTE PROPOSAL GATE REJECTED]: {debunked_gate['rejection_reasons'][0]}{Colors.ENDC}\n", flush=True)
+                    state["consecutive_fails_at_level"] += 1
+                    save_checkpoint(state)
+                    continue
 
                 # -----------------------------------------------------------------
                 # MQL5 ARCHITECT: SURGICAL CODE MUTATION
@@ -3392,6 +4265,13 @@ DIRECTIVES:
                 print_mql5_diff(base_parent_code, child_code)
 
                 # --- 6.2 COMPILE-CATCH-FIX SELF-HEALING LOOP ---
+                # Peer critique bundle for the escalation prompt (fixes the
+                # undefined `peer_critique` defect that crashed the 3rd repair attempt).
+                peer_critique = (
+                    f"Statistician: {stat_view}\n"
+                    f"Red Team: {red_team_view}\n"
+                    f"Council verdict: {head_quant_raw['council_verdict']} | Research Q: {research_q} | Mandated mutation: {causal_mutation}"
+                )
                 module_file_path = self.portfolio_dir / f"{active_thesis['name']}.mq5"
                 compile_success = False
                 max_compile_retries = 3
@@ -3477,6 +4357,10 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     last_delta_info = delta_info
                     last_child_metrics = dict(child_metrics)
                     last_child_df = real_trades_df.copy()
+                    state["last_child_parent_delta"] = delta_info  # Tier-2 evidence lineage
+                    # Memory commitment invariant: from this point until the brain
+                    # commit below executes, the iteration owes a memory record.
+                    state["awaiting_memory_commit"] = True
 
                     if child_metrics.get("total_trades", 0) == 0:
                         print(f"{Colors.RED_BOLD}❌ MT5 PHYSICAL RESULT: 0 Trades. EA is filtering out all market data on real ticks.{Colors.ENDC}\n", flush=True)
@@ -3488,7 +4372,18 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                         print(f"📊 {Colors.YELLOW_BOLD}[CHILD-PARENT DELTA]: {delta_info['verdict']}{Colors.ENDC}\n", flush=True)
                         
                 except Exception as e:
-                    print(f"{Colors.RED_BOLD}🛑 SYSTEM HALTED DUE TO MT5 DATA/TEST FAILURE: {e}{Colors.ENDC}\n", flush=True)
+                    # Mission §1/§20: the goal must SURVIVE an MT5 failure.
+                    # A physical tester failure is a GENUINE_EXTERNAL_BLOCKER:
+                    # mark BLOCKED (not DONE, not silent abort) and checkpoint.
+                    print(f"{Colors.RED_BOLD}🛑 [GENUINE EXTERNAL BLOCKER] MT5 DATA/TEST FAILURE: {e}{Colors.ENDC}\n", flush=True)
+                    print(f"{Colors.YELLOW}Mission marked BLOCKED — checkpoint saved. Restore MT5/data and restart to resume the SAME self-review goal.{Colors.ENDC}\n", flush=True)
+                    state["goal_status"] = "BLOCKED"
+                    state["blocker_reason"] = f"MT5_FAILURE: {e}"
+                    sr_sess = state.get("self_review_session")
+                    if isinstance(sr_sess, dict):
+                        sr_sess["status"] = "BLOCKED"
+                        sr_sess["goal_status"] = "BLOCKED"
+                        state["self_review_session"] = sr_sess
                     save_checkpoint(state)
                     break
 
@@ -3503,9 +4398,31 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                         child_metrics.get("win_rate") == last_module.get("win_rate") and
                         child_metrics.get("total_trades") == last_module.get("total_trades") and
                         child_metrics.get("total_trades", 0) > 0):
-                        print(f"⚠️ {Colors.RED_BOLD}[ALPHA DUPLICATION DETECTED]: Metrics match previous module. Rejecting duplicate/cached report and hunting new thesis.{Colors.ENDC}\n", flush=True)
+                        print(f"⚠️ {Colors.RED_BOLD}[ALPHA DUPLICATION DETECTED]: Metrics match previous module. "
+                              f"Governor routes: THESIS_REVIEW -> pivot to a fresh alpha concept (no forced repair level).{Colors.ENDC}\n", flush=True)
+                        # Commit the duplicate finding BEFORE pivoting (memory commitment invariant).
+                        write_to_brain(
+                            memory_id=f"MEM_{it:04d}_DUP_{active_thesis['name']}",
+                            tags=["ALPHA_DUPLICATION", active_thesis["name"].upper()],
+                            fix=f"DUPLICATE_ALPHA_OF:{last_module.get('name')}",
+                            success=False,
+                            metrics=child_metrics
+                        )
+                        state["awaiting_memory_commit"] = False
                         state["research_phase"] = "PHASE_1_DISCOVERY"
-                        state["repair_level_idx"] = 4 # Force L5 Thesis Pivot
+                        state["repair_level_idx"] = 0
+                        state["consecutive_fails_at_level"] = 0
+                        state["champion_thesis"] = None
+                        state["champion_code"] = None
+                        state["champion_metrics"] = None
+                        state["champion_params"] = None
+                        state["champion_score"] = -1e18
+                        state["thesis_iteration_count"] = 0
+                        state["lineage_note"] = ""
+                        state["iterations_since_improvement"] = 0
+                        state["temperature"] = 0.0
+                        state["forced_jab"] = None
+                        save_checkpoint(state)
                         continue
                 
                 # --- 7.5 CHAMPION LINEAGE TRACKER (COMPOUNDING MUTATIONS & ROLLBACK) ---
@@ -3562,33 +4479,90 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     print(f"🔄 {Colors.YELLOW}[STAGNATION]: {state['iterations_since_improvement']} iteration(s) since last improvement (temperature {state.get('temperature', 0.0):.1f}).{Colors.ENDC}", flush=True)
                     if state["iterations_since_improvement"] >= 5:
                         state["temperature"] = 1.0
-                        state["forced_jab"] = random.choice(RANDOM_JABS)
-                        state["iterations_since_improvement"] = 0  # give the jab room to work
-                        print(f"🔥 {Colors.RED_BOLD}[SIMULATED ANNEALING]: Escaping local optimum! Temperature -> 1.0. "
-                              f"Forcing Random Jab on the champion baseline:{Colors.ENDC}\n   {state['forced_jab']}\n", flush=True)
+                        state["forced_jab"] = REPAIR_ESCALATION_DIRECTIVES[min(state.get("repair_level_idx", 0), len(REPAIR_ESCALATION_DIRECTIVES) - 1)]
+                        state["iterations_since_improvement"] = 0  # give the escalation room to work
+                        print(f"🔥 {Colors.RED_BOLD}[STAGNATION ESCALATION]: Local optimum detected. Temperature -> 1.0. "
+                              f"Routing to next repair level (forensic analysis, NOT randomness, selects the mutation):{Colors.ENDC}\n   {state['forced_jab']}\n", flush=True)
 
-                # Multi-Year Walk-Forward Breakdown (Calculated from Real Scraped Metrics)
-                metrics_by_year = {
-                    "2023_DEV": {"win_rate": child_metrics["win_rate"] * 0.94, "profit_factor": child_metrics["profit_factor"] * 0.90},
-                    "2024_DEV": {"win_rate": child_metrics["win_rate"], "profit_factor": child_metrics["profit_factor"]},
-                    "2025_VAL": {"win_rate": child_metrics["win_rate"] * 0.97, "profit_factor": child_metrics["profit_factor"] * 0.95}
-                }
+                # Multi-Year Walk-Forward Breakdown — computed from the REAL physical
+                # trade population ONLY. The previous version fabricated per-year
+                # metrics by multiplying aggregates by 0.94/0.90/0.97; that is
+                # evidence fraud and is now forbidden (Mission §8).
+                yearly_metrics = compute_real_yearly_metrics(real_trades_df)
+                wf_evidence_available = yearly_metrics is not None and len(yearly_metrics) >= 2
+                if wf_evidence_available:
+                    agg_wr = child_metrics.get("win_rate", 0.0)
+                    agg_pf = child_metrics.get("profit_factor", 0.0)
+                    decay_failures = [
+                        f"{yr} (WR {ym['win_rate']*100:.1f}% / PF {ym['profit_factor']:.2f})"
+                        for yr, ym in yearly_metrics.items()
+                        if ym["win_rate"] < agg_wr * 0.90 or ym["profit_factor"] < agg_pf * 0.90
+                    ]
+                    wf_passed = len(decay_failures) == 0
+                    wf_reason = ("Real per-year decay within 10% tolerance across all years."
+                                 if wf_passed else f"REAL yearly decay >10% in: {decay_failures}")
+                else:
+                    wf_passed = False
+                    wf_reason = ("VALIDATION_EVIDENCE_UNAVAILABLE: need >= 2 distinct calendar years "
+                                 "of real physical trades to audit walk-forward decay.")
 
                 # ---- 8. HARD GATE EVALUATION & VECTOR BRAIN CONFIDENCE COMMIT ----
-                strict_criteria = RESEARCH_PHASE_GATES.get(current_phase, RESEARCH_PHASE_GATES["PHASE_1_DISCOVERY"])
-                wf_passed, wf_reason = check_walk_forward_gates(metrics_by_year, current_phase, strict_criteria)
                 passed, met_dims, failures = check_pass_gates(child_metrics, current_phase)
 
+                # ---- 8.5 PERSISTENT SELF-REVIEW GOAL EVALUATION (goal owns the loop) ----
+                TOTAL_YEARS_TESTED = 1.33 # Exact physical backtest window (2023.09 to 2024.12 = 1.33 yrs)
+                annualized_trades = round(child_metrics.get("total_trades", 0) / TOTAL_YEARS_TESTED, 1)
+                experiment_spec = {
+                    "experiment_id": f"EXP_IT{it}_{active_thesis['name']}",
+                    "market_thesis": causal_failure,
+                    "predicted_effect": research_q,
+                    "predicted_damage": "Potential frequency reduction from tightened gating",
+                    "parameter_changes": {"mutation": str(causal_mutation)[:120]}
+                }
+                sr_result = self.self_review.evaluate_goal(
+                    sr_session,
+                    candidate_id=f"{active_thesis['name']}_IT{it}",
+                    candidate_metrics={**child_metrics, "trades_per_year": annualized_trades},
+                    child_parent_delta=delta_info,
+                    spec=experiment_spec,
+                    receipt={"compile_success": compile_success}
+                )
+                state["self_review_session"] = sr_session
+                state["last_self_review"] = {
+                    "goal_status": sr_result["goal_status"],
+                    "unmet_dimensions": sr_result["unmet_dimensions"],
+                    "prediction_match": sr_result["review_record"]["prediction_match"],
+                    "causal_belief_update": sr_result["review_record"]["causal_belief_update"],
+                    "recommended_route": sr_result["review_record"]["recommended_route"]
+                }
+                print(f"🔁 {Colors.PURPLE_BOLD}[SELF-REVIEW {goal_id} | Iteration {sr_session.get('iteration')}]: "
+                      f"Prediction {sr_result['review_record']['prediction_match']} | Belief {sr_result['review_record']['causal_belief_update']} | "
+                      f"Goal: {sr_result['goal_status']} | Unmet: {sr_result['unmet_dimensions'][:2]}{Colors.ENDC}\n", flush=True)
+
                 # Commit to Physical JSON Brain (stratx_brain.json) & Native ChromaDB
+                # Belief movement is EVIDENCE-WEIGHTED (sample size, validation
+                # stability, prediction match) — not hardcoded increments (Tier-2 spec §4).
+                evidence_quality = {
+                    "n_trades": int(child_metrics.get("total_trades", 0)),
+                    "wf_passed": bool(wf_passed),
+                    "wf_evidence_available": bool(wf_evidence_available),
+                    "prediction_match": sr_result["review_record"]["prediction_match"],
+                    "implementation_fidelity": sr_result["review_record"]["implementation_fidelity"],
+                    "matched_winner_comparison": state.get("last_matched_winner_comparison")
+                }
+                state["last_evidence_quality"] = evidence_quality
                 write_to_brain(
                     memory_id=f"MEM_{it:04d}_{active_thesis['name']}",
                     tags=head_quant_raw.get("memory_tags", [active_thesis["name"].upper()]),
-                    fix=head_quant_raw.get("recommended_fix", "MQL5 Strategy Logic"),
+                    fix=head_quant_raw.get("recommended_fix") or "MQL5 Strategy Logic",
                     success=passed and wf_passed,
-                    metrics=child_metrics
+                    metrics=child_metrics,
+                    evidence_quality=evidence_quality
                 )
                 committed_mem = commit_tripartite_memory(head_quant_raw, child_metrics, state)
-                print(f"💾 {Colors.WHITE_BOLD}[PHYSICAL BRAIN COMMITTED]: Saved to stratx_brain.json | Memory ID: MEM_{it:04d} | Status: {committed_mem['status']}{Colors.ENDC}\n", flush=True)
+                state["awaiting_memory_commit"] = False  # memory commitment invariant satisfied
+                save_checkpoint(state)
+                print(f"💾 {Colors.WHITE_BOLD}[PHYSICAL BRAIN COMMITTED]: Saved to stratx_brain.json | Memory ID: MEM_{it:04d} | Status: {committed_mem['status']} | Outcome: {committed_mem.get('outcome_context')}{Colors.ENDC}\n", flush=True)
 
                 # --- PORTFOLIO MULTI-STRATEGY EVALUATION (STRICT ANNUALIZED MATH) ---
                 TOTAL_YEARS_TESTED = 1.33 # Exact physical backtest window (2023.09 to 2024.12 = 1.33 yrs)
@@ -3612,8 +4586,60 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     wf_passed
                 )
 
-                # 3. MODULE ADMISSION (institutional quality floor: WR >= 70%, PF >= 2.00, Payoff >= 1.0, Freq >= 15.0/yr)
-                if is_institutional_quality and annualized_trades >= 15.0:
+                # 3. MODULE ADMISSION PIPELINE (Mission §17/§18/§19):
+                #    SELF_REVIEW exit gatekeeper -> INDEPENDENT REVIEW -> GOVERNOR -> admit/freeze.
+                #    Reviewer or Governor rejection REOPENS THE SAME GOAL — never workflow completion.
+                if is_institutional_quality and annualized_trades >= MODULE_MIN_TRADES_PER_YEAR:
+                    exit_check = self.self_review.can_exit_self_review(sr_session)
+                    if not exit_check["can_exit"]:
+                        print(f"⛔ {Colors.YELLOW_BOLD}[SELF-REVIEW EXIT FORBIDDEN]: {exit_check['reason']} — "
+                              f"looping under SAME goal {goal_id}.{Colors.ENDC}\n", flush=True)
+                        state["consecutive_fails_at_level"] += 1
+                        save_checkpoint(state)
+                        continue
+
+                    review_result = run_independent_review(
+                        module_name=active_thesis["name"],
+                        child_metrics=child_metrics,
+                        annualized_trades=annualized_trades,
+                        wf_passed=wf_passed,
+                        wf_reason=wf_reason,
+                        t_quant=t_quant,
+                        delta_info=delta_info,
+                        portfolio_modules=state["portfolio_modules"],
+                        wf_evidence_available=wf_evidence_available
+                    )
+                    state["independent_reviews"] = (state.get("independent_reviews", []) + [review_result])[-20:]
+
+                    if review_result["verdict"] != "PASS":
+                        # Mission §18: REOPEN THE SAME SELF-REVIEW GOAL with objections as constraints.
+                        print(f"🔴 {Colors.RED_BOLD}[INDEPENDENT REVIEWER: FAIL]: {review_result['objections']}{Colors.ENDC}", flush=True)
+                        print(f"   -> REOPENING self-review goal {goal_id} with reviewer objections as constraints.\n", flush=True)
+                        sr_session["goal_status"] = "REASSESSING"
+                        sr_session["status"] = "REASSESSING"
+                        sr_session.setdefault("reviewer_objections", []).extend(review_result["objections"])
+                        self.self_review.advance_iteration(sr_session)
+                        state["self_review_session"] = sr_session
+                        state["consecutive_fails_at_level"] += 1
+                        save_checkpoint(state)
+                        continue
+
+                    governor = run_governor_decision(review_result, state)
+                    state["last_governor_decision"] = governor
+                    if governor["decision"] != "PROMOTE":
+                        # Mission §19: Governor loopback — another research route, not completion.
+                        print(f"🏛️ {Colors.YELLOW_BOLD}[GOVERNOR: {governor['decision']}]: {governor['reason']}{Colors.ENDC}\n", flush=True)
+                        sr_session["goal_status"] = "REASSESSING"
+                        sr_session["status"] = "REASSESSING"
+                        self.self_review.advance_iteration(sr_session)
+                        state["self_review_session"] = sr_session
+                        save_checkpoint(state)
+                        continue
+
+                    print(f"🏛️ {Colors.LIME_BOLD}[GOVERNOR: PROMOTE]: {governor['reason']}{Colors.ENDC}\n", flush=True)
+                    sr_session["goal_status"] = "PASSED"
+                    sr_session["status"] = "PASSED"
+                    state["self_review_session"] = sr_session
                     module_name = active_thesis["name"]
                     module_file = self.portfolio_dir / f"{module_name}.mq5"
                     module_file.write_text(child_code, encoding="utf-8")
@@ -3654,6 +4680,18 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                         state["required_modules"] = min(current_modules_count + 1, 6)  # X1X spec: 5 required, 6 MAX
                         state["required_annual_trades"] = max(100.0, combined_annual_trades)  # X1X spec: combined >= 100 tpy
                         print(f"🚀 {Colors.YELLOW_BOLD}QUANT DESK CONTINUING: Auto-expanding portfolio target to {state['required_modules']} modules for infinite diversification.{Colors.ENDC}\n", flush=True)
+
+                        # FINAL PORTFOLIO GATE (Mission §24 / Regression TEST J): admitted
+                        # modules do NOT complete the mission if combined DD breaches the
+                        # 10% ceiling at 1% risk / 1 concurrent position.
+                        portfolio_gate = evaluate_final_portfolio_gates(
+                            state["portfolio_modules"],
+                            combined_max_dd=state.get("portfolio_combined_dd")
+                        )
+                        state["last_portfolio_gate"] = portfolio_gate
+                        if not portfolio_gate["passed"]:
+                            print(f"⚠️ {Colors.YELLOW_BOLD}[FINAL PORTFOLIO GATE UNMET]: {portfolio_gate['failures']} "
+                                  f"— mission remains ACTIVE, self-healing continues.{Colors.ENDC}\n", flush=True)
                     else:
                         remaining_mods = required_mods - current_modules_count
                         print(f"🔄 {Colors.YELLOW_BOLD}[X1X MULTI-STRATEGY DISCOVERY]: {current_modules_count}/{required_mods} Modules Locked. Moving to Sister Alpha {current_modules_count+1}...{Colors.ENDC}\n", flush=True)
@@ -3716,6 +4754,11 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                             state["iterations_since_improvement"] = 0
                             state["temperature"] = 0.0
                             state["forced_jab"] = None
+                # Goal unmet this iteration -> advance to the NEXT iteration under
+                # the SAME self_review_goal_id (todo completion has no exit authority).
+                self.self_review.advance_iteration(sr_session)
+                state["self_review_session"] = sr_session
+                save_checkpoint(state)
                 continue
 
             except Exception as e:
@@ -3723,6 +4766,16 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                 traceback.print_exc()
                 print(f"{Colors.YELLOW}Self-recovering and continuing to next iteration in 3s...{Colors.ENDC}\n", flush=True)
                 time.sleep(3.0)
+
+        # Mission §23: hitting the safety ceiling while the goal is still ACTIVE is
+        # STAGNATION / SAFETY ESCALATION — never silent mission completion.
+        if state.get("goal_status") == "ACTIVE":
+            state["goal_status"] = "ESCALATING"
+            state["escalation_reason"] = "SAFETY_CEILING_REACHED"
+            save_checkpoint(state)
+            print(f"\n{Colors.RED_BOLD}🛑 [SAFETY CEILING REACHED at iteration {state.get('iteration')}]: "
+                  f"Routing to HEAD QUANT / RESEARCH GOVERNOR for EIV-exhaustion analysis. "
+                  f"This is NOT mission completion.{Colors.ENDC}\n", flush=True)
 
 def synthesize_master_portfolio_ea(portfolio_dir: Path, modules: List[Dict[str, Any]]) -> Path:
     """Combines all 5 frozen alpha modules into a single institutional Multi-Strategy Master EA."""
