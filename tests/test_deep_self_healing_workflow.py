@@ -55,6 +55,7 @@ from orchestrator.stratx_live_console import (
     compute_matched_winner_analysis,
     compute_population_enrichment,
     compute_real_yearly_metrics,
+    count_mutation_diff,
     enforce_memory_commitment,
     evaluate_final_portfolio_gates,
     format_population_enrichment_block,
@@ -416,6 +417,16 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
                     "L4_ARCHITECTURE", "L5_PIVOT_NEW_ALPHA"]:
             self.assertIn(lvl, FORCED_FREQUENCY_RESTORATION)
             self.assertTrue(len(FORCED_FREQUENCY_RESTORATION[lvl]) > 20)
+
+    def test_P_mutation_diff_detector_catches_noop_children(self):
+        """TEST P (anti no-op): verbatim-parent children must be detected so the
+        engine never burns a physical MT5 run re-measuring the parent
+        (observed live: 7 consecutive identical 8-trade reports)."""
+        parent = "int OnInit(){return 0;}\nvoid OnTick(){\n   double x = 1.0;\n}\n"
+        identical = "int OnInit(){return 0;}\nvoid OnTick(){\n   double x = 1.0;\n}\n"
+        mutated  = "int OnInit(){return 0;}\nvoid OnTick(){\n   double x = 0.5;\n}\n"
+        self.assertEqual(count_mutation_diff(parent, identical), 0)
+        self.assertGreaterEqual(count_mutation_diff(parent, mutated), 2)
 
     def test_O_population_enrichment_full_wr_rr_buckets(self):
         """TEST O (enrichment): full-population enrichment computes WR, avgR,

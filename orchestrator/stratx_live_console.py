@@ -1431,6 +1431,25 @@ def print_quant_skill_panel(skill_observations: str):
             print(f"{Colors.WHITE}{line}{Colors.ENDC}", flush=True)
     print("="*80 + "\n", flush=True)
 
+MUTATION_AUDIT_FILE = Path("C:/Trading/DE40-Research/evidence/mutation_audit.jsonl")
+
+def count_mutation_diff(parent_code: str, child_code: str) -> int:
+    """Number of genuinely changed lines between parent and child EA code."""
+    diff = difflib.unified_diff(
+        parent_code.splitlines(), child_code.splitlines(), lineterm='')
+    return sum(1 for l in diff if (l.startswith('+') or l.startswith('-'))
+               and not l.startswith('+++') and not l.startswith('---'))
+
+def log_mutation_audit(record: Dict[str, Any]) -> None:
+    """Append-only per-iteration mutation audit trail (inspectable JSONL)."""
+    try:
+        MUTATION_AUDIT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        record = {"timestamp": time.strftime("%Y-%m-%d %H:%M:%S"), **record}
+        with open(MUTATION_AUDIT_FILE, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record, default=str) + "\n")
+    except Exception:
+        pass  # audit logging must never break the research loop
+
 def print_mql5_diff(parent_code: str, child_code: str):
     print("\n" + "="*80, flush=True)
     print(f"💻 {Colors.WHITE_BOLD}[MQL5 ARCHITECT - CODE MUTATION DIFF]{Colors.ENDC}", flush=True)
@@ -4572,8 +4591,16 @@ Output JSON with neutral structural keys:
                     # orchestrator forces ONE deterministic frequency-restoration
                     # mutation keyed to the ACTIVE repair level, guaranteeing a
                     # physical MT5 test and real child-parent delta this iteration.
-                    forced_mutation = FORCED_FREQUENCY_RESTORATION.get(
-                        cur_level, FORCED_FREQUENCY_RESTORATION["L1_PARAMETER"])
+                    # PREFERENCE: the Historian's genuinely-untested direction
+                    # (mined from the memory ledger) over the fixed ladder.
+                    untested = historian_raw.get("untested_direction")
+                    if isinstance(untested, str) and len(untested.strip()) >= 30 \
+                            and "none" not in untested.strip().lower()[:8]:
+                        forced_mutation = (f"HISTORIAN-NOMINATED UNTESTED DIRECTION [{cur_level}]: "
+                                           f"{untested.strip()}")
+                    else:
+                        forced_mutation = FORCED_FREQUENCY_RESTORATION.get(
+                            cur_level, FORCED_FREQUENCY_RESTORATION["L1_PARAMETER"])
                     print(f"🚨 {Colors.RED_BOLD}[ANTI-STALL OVERRIDE]: Council refused mutation "
                           f"{state['consecutive_non_mutation']}x consecutively under unmet goal {goal_id}. "
                           f"Forcing deterministic {cur_level} frequency-restoration mutation so Self-Healing "
@@ -4635,7 +4662,56 @@ DIRECTIVES:
                 architect_raw = stream_llm("MQL5 ARCHITECT", architect_prompt)
                 mql5_code = architect_raw.get("mql5_code") or architect_raw.get("code_snippet", "")
                 child_code = mql5_code.strip() if len(mql5_code.strip()) > 100 and ("OnTick" in mql5_code or "void" in mql5_code) else base_parent_code
+
+                # --- NO-OP ARCHITECT RETRY: if the LLM silently returned the ---
+                # --- parent verbatim, demand the mutation explicitly ONCE.     ---
+                if child_code.strip() == (base_parent_code or "").strip():
+                    print(f"⚠️ {Colors.YELLOW_BOLD}[ARCHITECT NO-OP]: returned parent code unchanged. "
+                          f"Retrying once with an explicit change-demand...{Colors.ENDC}\n", flush=True)
+                    retry_prompt = architect_prompt + (
+                        "\nCRITICAL FAILURE ON PREVIOUS ATTEMPT: you returned the parent code UNCHANGED. "
+                        "This wastes a physical MT5 run and produces ZERO information. You MUST output the "
+                        "COMPLETE MQL5 file with the mandated mutation VISIBLY applied — at minimum, change the "
+                        "exact inputs, thresholds, session hours, or logic blocks named in the mutation. "
+                        "A diff of zero lines is a failed answer."
+                    )
+                    architect_raw = stream_llm("MQL5 ARCHITECT", retry_prompt)
+                    mql5_code = architect_raw.get("mql5_code") or architect_raw.get("code_snippet", "")
+                    if len(mql5_code.strip()) > 100 and ("OnTick" in mql5_code or "void" in mql5_code):
+                        child_code = mql5_code.strip()
+
                 print_mql5_diff(base_parent_code, child_code)
+                mutation_diff_lines = count_mutation_diff(base_parent_code or "", child_code)
+                log_mutation_audit({
+                    "iteration": state.get("iteration"),
+                    "module": active_thesis["name"],
+                    "repair_level": cur_level,
+                    "mandated_mutation": str(causal_mutation)[:300],
+                    "architect_retry_used": True,
+                    "diff_lines_changed": mutation_diff_lines,
+                    "no_op_child": child_code.strip() == (base_parent_code or "").strip(),
+                })
+
+                if mutation_diff_lines == 0:
+                    # A verbatim-parent child would burn a physical MT5 run to
+                    # re-measure the parent and produce ZERO new information
+                    # (observed live: 7 consecutive identical 8-trade reports).
+                    # Skip the wasted run, count the failed experiment, escalate.
+                    print(f"🚫 {Colors.RED_BOLD}[NO-OP CHILD REJECTED]: Architect produced zero code changes after retry. "
+                          f"Skipping the wasted MT5 run, counting a failed experiment, and escalating.{Colors.ENDC}\n", flush=True)
+                    write_to_brain(
+                        memory_id=f"MEM_{it:04d}_NOOP_{active_thesis['name']}",
+                        tags=["NO_OP_CHILD", cur_level, active_thesis["name"].upper()],
+                        fix=f"ARCHITECT_NO_OP: {str(causal_mutation)[:100]}",
+                        success=False,
+                        metrics={}
+                    )
+                    state["consecutive_fails_at_level"] += 1
+                    self.self_review.advance_iteration(sr_session)
+                    state["self_review_session"] = sr_session
+                    self._escalate_repair_ladder(state, active_thesis["name"])
+                    save_checkpoint(state)
+                    continue
 
                 # --- 6.2 COMPILE-CATCH-FIX SELF-HEALING LOOP ---
                 # Peer critique bundle for the escalation prompt (fixes the
@@ -4760,6 +4836,18 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     else:
                         print(f"{Colors.CYAN_BOLD}📊 VERIFIED REAL VANTAGE RESULT: Trades={child_metrics['total_trades']} | WR={child_metrics['win_rate']*100:.1f}% | PF={child_metrics['profit_factor']} | DD={child_metrics['max_drawdown']*100:.1f}% | Report: {report_path.name}{Colors.ENDC}\n", flush=True)
                         print(f"📊 {Colors.YELLOW_BOLD}[CHILD-PARENT DELTA]: {delta_info['verdict']}{Colors.ENDC}\n", flush=True)
+                    log_mutation_audit({
+                        "iteration": state.get("iteration"),
+                        "module": active_thesis["name"],
+                        "repair_level": cur_level,
+                        "mandated_mutation": str(causal_mutation)[:300],
+                        "diff_lines_changed": mutation_diff_lines,
+                        "result_trades": child_metrics.get("total_trades"),
+                        "result_wr": child_metrics.get("win_rate"),
+                        "result_pf": child_metrics.get("profit_factor"),
+                        "result_dd": child_metrics.get("max_drawdown"),
+                        "report": report_path.name,
+                    })
                         
                 except Exception as e:
                     # Mission §1/§20: the goal must SURVIVE an MT5 failure.
