@@ -558,7 +558,7 @@ def get_quant_knowledge() -> str:
 # =====================================================================
 ROLE_MODEL_TIER = {
     # --- 7 CANONICAL STRATX LLM COUNCIL ROLES ---
-    "QUANT RESEARCHER": "alibaba_pro",               # Evaluates economic rationale & anomaly validity via Alibaba Dedicated Pro (DeepSeek V4 Pro 0813)
+    "QUANT RESEARCHER": "nanogpt_muse_spark",        # Long-Horizon Investigator: Evaluates economic rationale & anomaly validity via Meta Muse Spark 1.2 on NanoGPT
     "STATISTICIAN": "nanogpt_muse_spark",            # Audits sample size, DSR, overfitting & math via Meta Muse Spark 1.2 on NanoGPT
     "MARKET STRUCTURE SPECIALIST": "alibaba_pro",    # Validates order flow & session sweeps via Alibaba Dedicated Pro
     "EXECUTION SPECIALIST": "alibaba_pro",           # Audits spread sensitivity, tick points & slippage via Alibaba Dedicated Pro
@@ -1302,6 +1302,20 @@ def safe_parse_json(text: str, default_role: str = "HEAD QUANT") -> Dict[str, An
         
         if fence_match and len(fence_match.group(1).strip()) > 80:
             res["mql5_code"] = fence_match.group(1).strip()
+
+        # TRUNCATION SALVAGE: reasoning models can exhaust max_tokens mid-file,
+        # leaving an UNTERMINATED ```mql5 fence. The closing-fence regex above
+        # then matches nothing and the child silently reverts to parent code
+        # (the observed zero-diff no-op stall). Salvage the partial file — the
+        # compile-catch-fix loop repairs minor truncation; truly broken code
+        # fails compile and routes through the syntax-fixer as designed.
+        if "mql5_code" not in res:
+            open_fence = re.search(r'```(?:mql5|cpp|c)\s*([\s\S]+)$', text, re.IGNORECASE)
+            if open_fence:
+                salvaged = open_fence.group(1).strip()
+                if len(salvaged) > 400 and ("OnTick" in salvaged or "OnInit" in salvaged):
+                    res["mql5_code"] = salvaged
+                    res["llm_status"] = "PARSE_RECOVERED_TRUNCATED_FENCE"
             
         hyp_match = re.search(r'"hypotheses"\s*:\s*(\[[^\]]+\])', clean_str, re.DOTALL)
         if hyp_match:
@@ -4808,10 +4822,12 @@ DIRECTIVES:
                 architect_raw = stream_llm("MQL5 ARCHITECT", architect_prompt)
                 mql5_code = architect_raw.get("mql5_code") or architect_raw.get("code_snippet", "")
                 child_code = mql5_code.strip() if len(mql5_code.strip()) > 100 and ("OnTick" in mql5_code or "void" in mql5_code) else base_parent_code
+                architect_retry_used = False
 
                 # --- NO-OP ARCHITECT RETRY: if the LLM silently returned the ---
                 # --- parent verbatim, demand the mutation explicitly ONCE.     ---
                 if child_code.strip() == (base_parent_code or "").strip():
+                    architect_retry_used = True
                     print(f"⚠️ {Colors.YELLOW_BOLD}[ARCHITECT NO-OP]: returned parent code unchanged. "
                           f"Retrying once with an explicit change-demand...{Colors.ENDC}\n", flush=True)
                     retry_prompt = architect_prompt + (
@@ -4833,7 +4849,7 @@ DIRECTIVES:
                     "module": active_thesis["name"],
                     "repair_level": cur_level,
                     "mandated_mutation": str(causal_mutation)[:300],
-                    "architect_retry_used": True,
+                    "architect_retry_used": architect_retry_used,
                     "diff_lines_changed": mutation_diff_lines,
                     "no_op_child": child_code.strip() == (base_parent_code or "").strip(),
                 })
