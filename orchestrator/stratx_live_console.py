@@ -5415,6 +5415,43 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     has_champion = False
                     champ_metrics = None
 
+                # --- INSTANT FAST-KILL CIRCUIT BREAKER FOR CATASTROPHIC CANDIDATES ---
+                # A strategy hopelessly far from pass gates (DD >= 20%, PF < 0.85 on N >= 30) is discarded
+                # in an instant — never wasting compute or Council time on fantasy-land strategies.
+                c_dd = child_metrics.get("max_drawdown", 1.0)
+                c_pf = child_metrics.get("profit_factor", 0.0)
+                c_trades = child_metrics.get("total_trades", 0)
+                
+                is_catastrophic_failure = (
+                    (c_dd >= 0.20 and c_trades >= 30) or
+                    (c_pf < 0.85 and c_trades >= 50)
+                )
+                if is_catastrophic_failure:
+                    print(f"\n⚡ {Colors.RED_BOLD}[INSTANT FAST-KILL TRIGGERED]: {active_thesis['name']} is hopelessly underwater "
+                          f"(DD={c_dd*100:.1f}%, PF={c_pf:.2f}, Trades={c_trades}). "
+                          f"Instant discard: Committing memory and auto-pivoting immediately to the next institutional thesis candidate!{Colors.ENDC}\n", flush=True)
+                    write_to_brain(
+                        memory_id=f"MEM_{it:04d}_FASTKILL_{active_thesis['name']}",
+                        tags=["FAST_KILL_DISCARD", active_thesis["name"].upper()],
+                        fix=f"CATASTROPHIC_BLOWOUT: DD={c_dd*100:.1f}%, PF={c_pf:.2f}, N={c_trades}. Thesis discarded instantly without wasting Council debates.",
+                        success=False,
+                        metrics=child_metrics
+                    )
+                    state["awaiting_memory_commit"] = False
+                    state["active_thesis_index"] = state.get("active_thesis_index", 0) + 1
+                    state["research_phase"] = "PHASE_1_DISCOVERY"
+                    state["repair_level_idx"] = 0
+                    state["consecutive_fails_at_level"] = 0
+                    state["champion_thesis"] = None
+                    state["champion_code"] = None
+                    state["champion_metrics"] = None
+                    state["champion_params"] = None
+                    state["champion_score"] = -1e18
+                    state["thesis_iteration_count"] = 0
+                    state["lineage_note"] = f"FAST_KILL: Discarded {active_thesis['name']}. Pivoted immediately."
+                    save_checkpoint(state)
+                    continue
+
                 # --- HARD RISK GATES FOR PROMOTION ---
                 c_dd = child_metrics.get("max_drawdown", 1.0)
                 c_pf = child_metrics.get("profit_factor", 0.0)
