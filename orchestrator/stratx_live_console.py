@@ -4548,7 +4548,6 @@ void ManagePositions(double atr)
 {
    for(int i = PositionsTotal() - 1; i >= 0; i--)
    {
-      if(!trade.PositionModify) continue;
       ulong ticket = PositionGetTicket(i);
       if(ticket == 0) continue;
       if(PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
