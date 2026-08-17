@@ -482,6 +482,23 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
         self.assertEqual(out["params"]["InpMinBreakATR"], 0.225)
         self.assertEqual(out["metrics"]["total_trades"], 30)
         self.assertGreater(len(calls), 2)  # actually swept, not single-shot
+        Path("C:/Trading/DE40-Research/evidence/landscape_map_MOD_X.json").unlink(missing_ok=True)
+
+    def test_R_truncated_mql5_fence_is_salvaged(self):
+        """TEST R (anti no-op root cause): a reasoning-model response whose
+        ```mql5 fence was truncated mid-file by max_tokens must still yield
+        mql5_code (compile-fix loop repairs it) instead of silently reverting
+        the child to parent code."""
+        big_code = "// header\nint OnInit(){return 0;}\nvoid OnTick(){\n" + ("   double x = 1.0;\n" * 40)
+        truncated = "Here is the mutated EA:\n```mql5\n" + big_code  # no closing fence
+        res = safe_parse_json(truncated, default_role="MQL5 ARCHITECT")
+        self.assertIn("mql5_code", res)
+        self.assertIn("OnTick", res["mql5_code"])
+        self.assertEqual(res.get("llm_status"), "PARSE_RECOVERED_TRUNCATED_FENCE")
+        # Closed fences still take the normal path
+        closed = "```mql5\n" + big_code + "\n```"
+        res2 = safe_parse_json(closed, default_role="MQL5 ARCHITECT")
+        self.assertIn("mql5_code", res2)
 
 
 if __name__ == "__main__":
