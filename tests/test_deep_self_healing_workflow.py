@@ -57,6 +57,7 @@ from orchestrator.stratx_live_console import (
     compute_real_yearly_metrics,
     count_mutation_diff,
     apply_params_to_code,
+    run_walkforward_validation,
     enforce_memory_commitment,
     evaluate_final_portfolio_gates,
     format_population_enrichment_block,
@@ -499,6 +500,47 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
         closed = "```mql5\n" + big_code + "\n```"
         res2 = safe_parse_json(closed, default_role="MQL5 ARCHITECT")
         self.assertIn("mql5_code", res2)
+
+    def test_S_walkforward_anchored_oos_gate(self):
+        """TEST S (Validation Engineer): anchored walk-forward requires >=2 of 3
+        OOS windows within 80% decay tolerance, real OOS populations, and no
+        catastrophic collapse — using mocked physical runs per window."""
+        def make_mocks(is_pfs, oos_pfs, oos_trades):
+            seq = []
+            for i in range(3):
+                seq.append({"total_trades": 20, "profit_factor": is_pfs[i]})
+                seq.append({"total_trades": oos_trades[i], "profit_factor": oos_pfs[i]})
+            it = iter(seq)
+            return (lambda *a, **k: Path("rep.htm"),
+                    lambda *a, **k: next(it))
+
+        # PASS case: all windows hold within tolerance
+        rb, pr = make_mocks([2.0, 2.0, 2.0], [1.8, 1.7, 1.9], [5, 6, 4])
+        orig_rb, orig_pr = console_mod.run_mt5_backtest, console_mod.parse_mt5_report
+        orig_comp = console_mod.write_and_compile_mql5
+        console_mod.run_mt5_backtest, console_mod.parse_mt5_report = rb, pr
+        console_mod.write_and_compile_mql5 = lambda *a, **k: (True, "ok")
+        try:
+            out = run_walkforward_validation("MOD_WF", "code")
+            self.assertTrue(out["passed"])
+            self.assertEqual(out["passing_windows"], 3)
+
+            # FAIL case: catastrophic OOS collapse in one window
+            rb2, pr2 = make_mocks([2.0, 2.0, 2.0], [1.8, 0.3, 1.9], [5, 6, 4])
+            console_mod.run_mt5_backtest, console_mod.parse_mt5_report = rb2, pr2
+            out2 = run_walkforward_validation("MOD_WF", "code")
+            self.assertFalse(out2["passed"])
+            self.assertIn("catastrophic", out2["reason"])
+
+            # FAIL case: OOS population too small to be evidence
+            rb3, pr3 = make_mocks([2.0, 2.0, 2.0], [1.8, 1.8, 1.8], [5, 1, 2])
+            console_mod.run_mt5_backtest, console_mod.parse_mt5_report = rb3, pr3
+            out3 = run_walkforward_validation("MOD_WF", "code")
+            self.assertFalse(out3["passed"])
+        finally:
+            console_mod.run_mt5_backtest = orig_rb
+            console_mod.parse_mt5_report = orig_pr
+            console_mod.write_and_compile_mql5 = orig_comp
 
 
 if __name__ == "__main__":

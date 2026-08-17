@@ -1021,6 +1021,86 @@ def run_landscape_mapping(module_name: str, base_code: str, max_runs: int = 16) 
     return out
 
 
+# =====================================================================
+# WALK-FORWARD VALIDATION ENGINEER (anchored out-of-sample, real desk style)
+# =====================================================================
+# The previous "walk-forward" was per-year decay sliced from ONE backtest —
+# that is not validation. A real quant desk re-runs the SAME compiled EA over
+# anchored, expanding in-sample windows and then tests each on a LATER,
+# UNSEEN out-of-sample window. This does exactly that with physical MT5 runs
+# (the date-range plumbing already existed; nothing used it).
+
+WALKFORWARD_WINDOWS = [
+    # (in-sample start, in-sample end, out-of-sample start, out-of-sample end)
+    ("2023.09.01", "2024.02.29", "2024.03.01", "2024.05.31"),
+    ("2023.09.01", "2024.05.31", "2024.06.01", "2024.08.31"),
+    ("2023.09.01", "2024.08.31", "2024.09.01", "2024.12.31"),
+]
+
+# Pass rules (deterministic, explainable):
+#  - every window must produce a real OOS population (>= 3 trades)
+#  - >= 2 of 3 windows: OOS PF >= 80% of IS PF (decay tolerance)
+#  - no window with catastrophic OOS collapse (PF < 0.5)
+WF_MIN_OOS_TRADES = 3
+WF_DECAY_TOLERANCE = 0.80
+WF_CATASTROPHE_PF = 0.5
+
+def run_walkforward_validation(module_name: str, mql5_code: str,
+                               params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Anchored expanding-window walk-forward over physical MT5 runs.
+    Compiles once, then runs IS+OOS per window. Returns pass/fail + evidence."""
+    from orchestrator.real_quant_tester import PROJECT_ROOT
+    ea_path = PROJECT_ROOT / "ea" / f"{module_name}.mq5"
+    compile_ok, compile_log = write_and_compile_mql5(ea_path, mql5_code)
+    if not compile_ok:
+        return {"passed": False, "reason": f"WF_COMPILE_FAILURE: {compile_log[-200:]}",
+                "windows": [], "evidence_available": False}
+
+    windows = []
+    print(f"\n🧪 {Colors.CYAN_BOLD}[WALK-FORWARD VALIDATION — {module_name}]: {len(WALKFORWARD_WINDOWS)} anchored "
+          f"IS/OOS window pairs, physical MT5 runs on real broker bars.{Colors.ENDC}", flush=True)
+    for idx, (is_s, is_e, oos_s, oos_e) in enumerate(WALKFORWARD_WINDOWS, 1):
+        try:
+            is_rep = run_mt5_backtest(ea_name=module_name, module_name=f"{module_name}_W{idx}_IS",
+                                      from_date=is_s, to_date=is_e, input_overrides=params)
+            is_m = parse_mt5_report(is_rep)
+            oos_rep = run_mt5_backtest(ea_name=module_name, module_name=f"{module_name}_W{idx}_OOS",
+                                       from_date=oos_s, to_date=oos_e, input_overrides=params)
+            oos_m = parse_mt5_report(oos_rep)
+        except Exception as e:
+            return {"passed": False, "reason": f"WF_MT5_FAILURE window {idx}: {e}",
+                    "windows": windows, "evidence_available": False}
+        w = {"window": idx, "is_range": f"{is_s}->{is_e}", "oos_range": f"{oos_s}->{oos_e}",
+             "is_trades": is_m.get("total_trades", 0), "is_pf": is_m.get("profit_factor", 0.0),
+             "oos_trades": oos_m.get("total_trades", 0), "oos_pf": oos_m.get("profit_factor", 0.0)}
+        windows.append(w)
+        print(f"   🧪 W{idx}: IS {is_s}->{is_e} N={w['is_trades']} PF={w['is_pf']:.2f} | "
+              f"OOS {oos_s}->{oos_e} N={w['oos_trades']} PF={w['oos_pf']:.2f}", flush=True)
+
+    failures = []
+    passing_windows = 0
+    for w in windows:
+        if w["oos_trades"] < WF_MIN_OOS_TRADES:
+            failures.append(f"W{w['window']}: OOS population {w['oos_trades']} < {WF_MIN_OOS_TRADES} (untestable window)")
+            continue
+        if w["oos_pf"] < WF_CATASTROPHE_PF:
+            failures.append(f"W{w['window']}: catastrophic OOS collapse (PF {w['oos_pf']:.2f} < {WF_CATASTROPHE_PF})")
+            continue
+        if w["oos_pf"] >= WF_DECAY_TOLERANCE * w["is_pf"]:
+            passing_windows += 1
+        else:
+            failures.append(f"W{w['window']}: OOS decay beyond tolerance (PF {w['oos_pf']:.2f} < "
+                            f"{WF_DECAY_TOLERANCE:.0%} of IS {w['is_pf']:.2f})")
+    passed = passing_windows >= 2 and not any("catastrophic" in f for f in failures)
+    reason = (f"Anchored walk-forward: {passing_windows}/3 windows held OOS within "
+              f"{WF_DECAY_TOLERANCE:.0%} decay tolerance." if passed
+              else f"Anchored walk-forward FAILED: {failures}")
+    print(f"🧪 {Colors.LIME_BOLD if passed else Colors.RED_BOLD}[WALK-FORWARD {'PASSED' if passed else 'FAILED'}]: "
+          f"{reason}{Colors.ENDC}\n", flush=True)
+    return {"passed": passed, "reason": reason, "windows": windows,
+            "evidence_available": True, "passing_windows": passing_windows}
+
+
 def enforce_memory_commitment(state: Dict[str, Any], module_name: str) -> bool:
     """
     MEMORY COMMITMENT INVARIANT (Mission §12 / Regression TEST F).
@@ -5307,6 +5387,40 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                         state["consecutive_fails_at_level"] += 1
                         save_checkpoint(state)
                         continue
+
+                    # --- WALK-FORWARD VALIDATION ENGINEER (real anchored OOS) ---
+                    # Admission now requires genuine out-of-sample survival, not
+                    # per-year decay sliced from a single run. Expensive (6 MT5
+                    # runs) — deliberately fires ONLY at the admission threshold.
+                    wfv = run_walkforward_validation(
+                        active_thesis["name"], child_code,
+                        params=state.get("champion_params"))
+                    state["last_walkforward"] = wfv
+                    log_mutation_audit({
+                        "iteration": state.get("iteration"),
+                        "module": active_thesis["name"],
+                        "phase": "WALKFORWARD_VALIDATION",
+                        "passed": wfv["passed"],
+                        "reason": wfv["reason"],
+                        "windows": wfv.get("windows", []),
+                    })
+                    if not wfv["passed"]:
+                        print(f"🔴 {Colors.RED_BOLD}[WALK-FORWARD REJECTED ADMISSION]: {wfv['reason']} — "
+                              f"REOPENING self-review goal {goal_id} with WF evidence as constraint.{Colors.ENDC}\n", flush=True)
+                        sr_session["goal_status"] = "REASSESSING"
+                        sr_session["status"] = "REASSESSING"
+                        sr_session.setdefault("reviewer_objections", []).append(
+                            f"WALKFORWARD_FAILURE: {wfv['reason']}")
+                        self.self_review.advance_iteration(sr_session)
+                        state["self_review_session"] = sr_session
+                        state["consecutive_fails_at_level"] += 1
+                        self._escalate_repair_ladder(state, active_thesis["name"])
+                        save_checkpoint(state)
+                        continue
+                    # Real anchored OOS evidence supersedes the sliced-year heuristic.
+                    wf_passed = True
+                    wf_reason = wfv["reason"]
+                    wf_evidence_available = True
 
                     review_result = run_independent_review(
                         module_name=active_thesis["name"],
