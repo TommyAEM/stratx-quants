@@ -1,0 +1,45 @@
+{
+  "self_review_state_machine": {
+    "version": "1.0",
+    "generated_by": "STRATX deep self-healing workflow audit",
+    "goal_ownership": "The SELF_REVIEW_GOAL owns the loop. Todo/iteration/generation completion has zero exit authority.",
+    "statuses": ["ACTIVE", "TESTING", "REASSESSING", "PASSED", "ESCALATING", "BLOCKED", "EXHAUSTED"],
+    "forbidden_terminal_status": "DONE",
+    "states": {
+      "ACTIVE": "Goal loaded; next healing iteration may start (memory-commit invariant must be satisfied).",
+      "TESTING": "Experiment implemented, compiling, or running on physical MT5.",
+      "REASSESSING": "Iteration complete, goal unmet; learning committed; next highest-EIV action selected under SAME goal.",
+      "PASSED": "All mandatory module gates met (WR>=70%, PF>=2.00, Payoff>=1.00, Freq>=20/yr, validation pass). Routes to Independent Reviewer.",
+      "ESCALATING": "Safety ceiling or repair-level EIV exhaustion. Routes to Head Quant / Research Governor. NOT completion.",
+      "BLOCKED": "Genuine external blocker (MT5/data/gateway). Checkpointed; restart resumes SAME goal.",
+      "EXHAUSTED": "All five repair levels exhausted; thesis review / family pivot required."
+    },
+    "transitions": [
+      {"from": "ACTIVE", "event": "MEMORY_RETRIEVED + FORENSICS_COMPLETED (matched winners)", "to": "ACTIVE"},
+      {"from": "ACTIVE", "event": "COUNCIL_NON_MUTATION_VERDICT", "to": "REASSESSING", "note": "forensics-only memory commit, loop continues"},
+      {"from": "ACTIVE", "event": "MUTATION_MANDATED + PRE_COMPUTE_GATE_APPROVED", "to": "TESTING"},
+      {"from": "ACTIVE", "event": "PRE_COMPUTE_GATE_REJECTED (debunked repeat)", "to": "REASSESSING"},
+      {"from": "TESTING", "event": "COMPILE_FAILURE x3", "to": "REASSESSING"},
+      {"from": "TESTING", "event": "MT5_FAILURE", "to": "BLOCKED"},
+      {"from": "TESTING", "event": "MT5_COMPLETED + CHILD_PARENT_DELTA + SELF_REVIEW + MEMORY_COMMITTED", "to": "REASSESSING"},
+      {"from": "REASSESSING", "event": "GOAL_UNMET", "to": "ACTIVE", "note": "same SELF_REVIEW_GOAL_ID, iteration+1"},
+      {"from": "REASSESSING", "event": "GOAL_PASSED", "to": "PASSED"},
+      {"from": "PASSED", "event": "INDEPENDENT_REVIEW_PASSED + GOVERNOR_PROMOTE", "to": "FROZEN_MODULE", "note": "module frozen, mission stays ACTIVE, next portfolio goal opens"},
+      {"from": "PASSED", "event": "INDEPENDENT_REVIEW_FAIL / GOVERNOR_RETURN_TO_SELF_REVIEW", "to": "REASSESSING", "note": "SAME goal reopened with objections as constraints"},
+      {"from": "BLOCKED", "event": "RESTART_AFTER_BLOCKER_RESOLVED", "to": "ACTIVE"},
+      {"from": "ANY", "event": "SAFETY_CEILING_REACHED", "to": "ESCALATING"}
+    ],
+    "invariants": {
+      "memory_commit_before_next_iteration": true,
+      "sample_size_min_trades_for_forensics": 5,
+      "module_min_trades_per_year": 20.0,
+      "frequency_collapse_blocks_promotion": true,
+      "population_destruction_threshold_pct": 80,
+      "no_metric_cherry_picking": true,
+      "no_fabricated_walkforward_evidence": true,
+      "no_silent_model_fallback": true,
+      "no_random_mutations": true,
+      "final_portfolio_gate": {"risk_per_trade_pct": 1.0, "max_concurrent": 1, "combined_max_dd": 0.10}
+    }
+  }
+}
