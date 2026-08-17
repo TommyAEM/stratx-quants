@@ -74,6 +74,13 @@ from orchestrator.stratx_live_console import (
 import orchestrator.stratx_live_console as console_mod
 from orchestrator.stratx_goal_loop import StratXGoalLoopOrchestrator
 from skills.self_review_engine import SelfReviewEngine
+from orchestrator.edge_discovery import (
+    _binom_tail_pvalue,
+    _bh_fdr,
+    format_edge_screen_block,
+    screen_open_momentum,
+    load_bars,
+)
 
 
 def _df(n, start_day=1, rs=None):
@@ -541,6 +548,30 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
             console_mod.run_mt5_backtest = orig_rb
             console_mod.parse_mt5_report = orig_pr
             console_mod.write_and_compile_mql5 = orig_comp
+
+    def test_T_edge_discovery_screen_math(self):
+        """TEST T (PHASE_0 discovery): binomial tail, BH-FDR, screen formatting,
+        and real-data sanity (the screen must find occurrences on real bars and
+        must NOT fabricate significance)."""
+        # Binomial tail sanity
+        self.assertAlmostEqual(_binom_tail_pvalue(0, 5), 1.0)
+        self.assertLess(_binom_tail_pvalue(9, 10), 0.02)
+        self.assertGreater(_binom_tail_pvalue(3, 10), 0.5)
+        self.assertLessEqual(_binom_tail_pvalue(700, 1400), 1.0)  # large-n path
+        # BH-FDR: only genuinely tiny p-values flagged
+        flags = _bh_fdr([0.001, 0.40, 0.90])
+        self.assertEqual(flags, [True, False, False])
+        # Real-data screen: open momentum finds occurrences, honest p-value
+        df = load_bars()
+        self.assertGreater(len(df), 20000)
+        om = screen_open_momentum(df, 9, "TEST_OPEN")
+        self.assertGreater(om["occurrences"], 100)
+        self.assertTrue(0.0 <= om["p_value"] <= 1.0)
+        # Formatter never crashes on empty
+        self.assertIn("not run", format_edge_screen_block(None))
+        block = format_edge_screen_block({"data": {"bars": 10, "from": "2023-01-01", "to": "2023-02-01"},
+                                          "ranked_edges": []})
+        self.assertIn("No anomaly candidate", block)
 
 
 if __name__ == "__main__":

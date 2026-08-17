@@ -1825,6 +1825,27 @@ class StratXLiveConsole:
         print(f"   {Colors.YELLOW}INTERACTIVE: Use chat pane or edit directive.txt to steer anytime")
         print(f"{Colors.PURPLE_BOLD}==========================================================================={Colors.ENDC}\n", flush=True)
 
+        # --- PHASE_0: EDGE DISCOVERY SCREEN (the desk's front-end) ----------
+        # A human quant mines the raw data for conditional regularities BEFORE
+        # building or repairing any strategy. Run once per mission (cached);
+        # the measured edge map feeds every forensic/council prompt and the
+        # L5 pivot directive, so the desk builds around MEASURED anomalies
+        # instead of healing unsupported theses for weeks.
+        edge_screen = None
+        edge_screen_block = "[EDGE DISCOVERY SCREEN]: unavailable (run failed)."
+        try:
+            from orchestrator.edge_discovery import run_edge_screen, format_edge_screen_block, SCREEN_OUT
+            if SCREEN_OUT.exists():
+                edge_screen = json.loads(SCREEN_OUT.read_text(encoding="utf-8"))
+                print(f"🔬 {Colors.CYAN_BOLD}[EDGE DISCOVERY]: loaded cached screen ({SCREEN_OUT.name}).{Colors.ENDC}", flush=True)
+            else:
+                edge_screen = run_edge_screen(verbose=True)
+            if edge_screen:
+                edge_screen_block = format_edge_screen_block(edge_screen)
+                state["edge_screen_file"] = str(SCREEN_OUT)
+        except Exception as e:
+            print(f"⚠️ Edge discovery screen failed ({e}); continuing without it.", flush=True)
+
         ledger_path = Path("C:/Trading/DE40-Research/evidence/BRKRT_DEVGOLD_trades.csv")
         if ledger_path.exists():
             trade_df = pd.read_csv(ledger_path)
@@ -4497,6 +4518,9 @@ MATCHED-WINNER COMPARATIVE ANALYSIS (what separates losers from winners in the S
 FULL-POPULATION WR/RR/TRADE ENRICHMENT (every trade, bucketed by hour & regime):
 {population_enrichment_block}
 
+PHASE_0 MEASURED EDGE MAP (raw-data discovery screen — where edge actually lives):
+{edge_screen_block}
+
 DETERMINISTIC TOOLBELT FACTS:
 {skill_context}
 
@@ -4612,6 +4636,9 @@ Current Repair Level: {cur_level} (fails at level: {state.get('consecutive_fails
 BRAIN MEMORY — EVERY PAST FIX ATTEMPT, ITS OUTCOME AND STATUS:
 {brain_history}
 
+PHASE_0 MEASURED EDGE MAP (raw-data discovery — candidate edges ranked by measured support):
+{edge_screen_block}
+
 YOUR TASK:
 1. Mine the memory above for PATTERNS: which families of fixes were tried, how many times,
    and with what outcome (DEBUNKED vs TESTING vs successful).
@@ -4683,6 +4710,9 @@ Output JSON:
 Active Goal: {goal_id} ({active_thesis['name']})
 Evidence Provenance: {provenance_tag}
 Current Repair Level: {cur_level}
+
+PHASE_0 MEASURED EDGE MAP (raw-data discovery screen — where edge actually lives):
+{edge_screen_block}
 
 FULL 9-ROLE BENCH — SPECIALIST TESTIMONY:
 • Market Structure Specialist: {causal_failure} (Class: {failure_class})
@@ -4860,7 +4890,22 @@ Output JSON with neutral structural keys:
                     # genuinely-untested direction (mined from the memory ledger)
                     # over the fixed ladder.
                     untested = historian_raw.get("untested_direction")
-                    if isinstance(untested, str) and len(untested.strip()) >= 30 \
+                    top_edge = None
+                    if edge_screen and edge_screen.get("ranked_edges"):
+                        # Prefer a measured anomaly with positive forward expectancy
+                        for e in edge_screen["ranked_edges"]:
+                            if (e.get("mean_fwd_atr") or 0) > 0 and (e.get("occurrences") or 0) >= 100:
+                                top_edge = e
+                                break
+                    if cur_level == "L5_PIVOT_NEW_ALPHA" and top_edge:
+                        forced_mutation = (
+                            f"PIVOT TO MEASURED EDGE (PHASE_0 discovery): the data shows "
+                            f"'{top_edge['screen']}' with n={top_edge['occurrences']} occurrences, "
+                            f"WR={top_edge['win_rate']}, mean forward move {top_edge['mean_fwd_atr']} ATR. "
+                            f"Rebuild the entry architecture to capture THIS measured anomaly instead of "
+                            f"the current thesis — the discovery screen, not intuition, selects the pivot target."
+                        )
+                    elif isinstance(untested, str) and len(untested.strip()) >= 30 \
                             and "none" not in untested.strip().lower()[:8]:
                         forced_mutation = (f"HISTORIAN-NOMINATED UNTESTED DIRECTION [{cur_level}]: "
                                            f"{untested.strip()}")
