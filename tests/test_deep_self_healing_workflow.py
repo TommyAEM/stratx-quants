@@ -70,7 +70,7 @@ from orchestrator.stratx_live_console import (
     rank_theses_by_discovery,
     MODULE_MIN_TRADES_PER_YEAR,
     CHAMPION_MIN_TRADES,
-    FORCED_FREQUENCY_RESTORATION,
+    AUTHORITATIVE_GATES,
 )
 import orchestrator.stratx_live_console as console_mod
 from orchestrator.stratx_goal_loop import StratXGoalLoopOrchestrator
@@ -420,13 +420,13 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
         self.assertEqual(state["champion_score"], -1e18)
         self.assertIn("DEAD CHAMPION RECYCLED", state["lineage_note"])
 
-    def test_N_forced_frequency_restoration_covers_all_levels(self):
-        """TEST N (anti-stall circuit breaker): every repair level has a
-        deterministic forced mutation so the loop can never idle."""
-        for lvl in ["L1_PARAMETER", "L2_SESSION_TIME", "L3_INDICATOR_LOGIC",
-                    "L4_ARCHITECTURE", "L5_PIVOT_NEW_ALPHA"]:
-            self.assertIn(lvl, FORCED_FREQUENCY_RESTORATION)
-            self.assertTrue(len(FORCED_FREQUENCY_RESTORATION[lvl]) > 20)
+    def test_N_authoritative_gates_consistency(self):
+        """TEST N: Authoritative gates single source of truth verification."""
+        self.assertEqual(AUTHORITATIVE_GATES["MODULE_CANONICAL_MAX_DD"], 0.06)
+        self.assertEqual(AUTHORITATIVE_GATES["PORTFOLIO_COMBINED_MAX_DD"], 0.10)
+        self.assertEqual(AUTHORITATIVE_GATES["MIN_TRADES_ANNUAL"], 20.0)
+        self.assertEqual(AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_PF"], 2.00)
+        self.assertEqual(AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_WR"], 0.70)
 
     def test_P_mutation_diff_detector_catches_noop_children(self):
         """TEST P (anti no-op): verbatim-parent children must be detected so the

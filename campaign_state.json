@@ -1,8 +1,8 @@
 {
-  "iteration": 109,
+  "iteration": 111,
   "research_phase": "PHASE_1_DISCOVERY",
   "repair_level_idx": 3,
-  "consecutive_fails_at_level": 0,
+  "consecutive_fails_at_level": 2,
   "goal_status": "ACTIVE",
   "portfolio_modules": [],
   "portfolio_target_modules": 5,
@@ -12,18 +12,18 @@
   "champion_metrics": null,
   "champion_params": null,
   "champion_score": -1e+18,
-  "thesis_iteration_count": 1,
-  "lineage_note": "BASELINE_RESET: Previous 25.6% DD candidate rejected by hard risk gates.",
-  "iterations_since_improvement": 0,
+  "thesis_iteration_count": 2,
+  "lineage_note": "ROLLBACK ALERT: The last mutation DEGRADED the strategy (fitness -93.2 vs champion -1000000000000000000.0 | WR=67.1% PF=0.76 DD=59.6%). The engine has reverted to the last best champion code. You MUST explore a DIFFERENT, mutually exclusive hypothesis than the last failed attempt.",
+  "iterations_since_improvement": 1,
   "temperature": 0.0,
   "forced_jab": null,
-  "consecutive_non_mutation": 2,
+  "consecutive_non_mutation": 1,
   "self_review_session": {
     "self_review_id": "SREV_0292BCFA",
     "mission_id": "de40-x1x",
     "module_id": "X1X_M1_FBO",
     "parent_id": "X1X_M1_FBO",
-    "current_candidate_id": "X1X_M1_PDC_IT107",
+    "current_candidate_id": "X1X_M1_PDC_IT110",
     "goal_id": "SR_M1_001",
     "goal_definition": "X1X_M1_FBO institutional acceptance under X1X module gates",
     "goal_metrics": {
@@ -37,7 +37,7 @@
     },
     "goal_status": "ACTIVE",
     "status": "ACTIVE",
-    "iteration": 61,
+    "iteration": 63,
     "history": [
       {
         "iteration": 3,
@@ -887,25 +887,89 @@
           }
         },
         "timestamp": "2026-08-17T22:24:16.087591+00:00"
+      },
+      {
+        "iteration": 61,
+        "candidate_id": "X1X_M1_PDC_IT110",
+        "goal_status": "REASSESSING",
+        "all_passed": false,
+        "met_dimensions": [
+          "Trades/Year: 838.3 >= 20.0"
+        ],
+        "unmet_dimensions": [
+          "Win Rate: 67.1% < 70.0% (Deficit: 2.9%)",
+          "Profit Factor: 0.76 < 2.00 (Deficit: 1.24)",
+          "Risk/Reward: 0.37 < 1.00 (Deficit: 0.63)",
+          "Drawdown breach: 0.6 > max allowed 0.2"
+        ],
+        "review_record": {
+          "review_id": "REV_6B67596E",
+          "mission_id": "de40-x1x",
+          "generation_id": "GEN_61",
+          "experiment_id": "EXP_IT110_X1X_M1_PDC",
+          "parent_id": "X1X_M1_FBO",
+          "child_id": "X1X_M1_PDC_IT110",
+          "timestamp": "2026-08-17T22:32:45.473978+00:00",
+          "predicted_outcome": {
+            "predicted_effect": "Does the forced L4_ARCHITECTURE frequency-restoration change restore a statistically valid trade population (N>=20) without destroying expectancy?",
+            "predicted_damage": "Potential frequency reduction from tightened gating"
+          },
+          "observed_outcome": {
+            "net_R_delta": -198.0486,
+            "losers_removed": 92,
+            "winners_removed": 86,
+            "frequency_retention_pct": 0.0,
+            "same_trades": 3,
+            "new_trades": 494
+          },
+          "prediction_match": "CONTRADICTED",
+          "target_failure_status": "IMPROVED",
+          "new_failure_families": [
+            "FREQUENCY_COLLAPSE"
+          ],
+          "improved_dimensions": [
+            "Eliminated 92 unprofitable trades",
+            "Captured 494 new valid alpha trade opportunities"
+          ],
+          "damaged_dimensions": [
+            "Pruned 86 high-value winning trades",
+            "Frequency collapse: 100.0% trade volume dropped"
+          ],
+          "causal_belief_update": "REFUTED",
+          "experiment_design_quality": "VALID",
+          "implementation_fidelity": "MATCH",
+          "unexpected_findings": [
+            "Observed R delta -198.05R diverged from predicted benefit"
+          ],
+          "strategy_lesson": "Hypothesis refutation: Loss cluster identified. destroyed high-expectancy trades.",
+          "research_method_lesson": "Filter accretion on this feature causes out-of-sample damage. Pivot to entry timing or stop architecture.",
+          "recommended_route": "SELF_HEALER_HYPOTHESIS_PIVOT",
+          "workflow_gates": {
+            "self_review_completed": true,
+            "child_reforensics_required": false,
+            "child_reforensics_completed": false
+          }
+        },
+        "timestamp": "2026-08-17T22:32:45.474978+00:00"
       }
     ],
     "current_failure_map": [],
     "current_hypothesis_ids": [],
     "current_experiment_ids": [],
     "created_at": "2026-08-17T19:16:40.360192+00:00",
-    "updated_at": "2026-08-17T22:29:22.496981+00:00"
+    "updated_at": "2026-08-17T22:34:26.973039+00:00"
   },
   "self_review_goal_id": "SR_M1_001",
   "awaiting_memory_commit": false,
   "last_matched_winner_comparison": {
-    "loser_count": 290,
-    "winner_count": 198,
+    "loser_count": 328,
+    "winner_count": 169,
     "top_separating_features": [
       {
         "feature": "entry",
-        "loser_median": 18100.25,
-        "winner_median": 18367.175,
-        "effect_size": 0.187
+        "loser_median": 18148.95,
+        "winner_median": 18082.85,
+        "effect_size": 0.047
       },
       {
         "feature": "gmt_hour",
@@ -916,147 +980,147 @@
       {
         "feature": "side",
         "loser_dist": {
-          "BUY": 0.572,
-          "SELL": 0.428
+          "SELL": 0.646,
+          "BUY": 0.354
         },
         "winner_dist": {
-          "BUY": 0.636,
-          "SELL": 0.364
+          "SELL": 0.586,
+          "BUY": 0.414
         },
         "effect_size": null
       }
     ]
   },
   "last_population_enrichment": {
-    "population_n": 488,
+    "population_n": 497,
     "overall": {
-      "n": 488,
-      "win_rate": 0.4057,
-      "avg_R": -0.268,
-      "avg_winner_R": 0.804,
+      "n": 497,
+      "win_rate": 0.34,
+      "avg_R": -0.413,
+      "avg_winner_R": 0.728,
       "avg_loser_R": 1.0,
-      "realized_RR": 0.8,
-      "expectancy_R": -0.268
+      "realized_RR": 0.73,
+      "expectancy_R": -0.413
     },
     "by_gmt_hour": {
       "7": {
-        "n": 34,
-        "win_rate": 0.3824,
-        "avg_R": -0.308,
-        "avg_winner_R": 0.848,
-        "avg_loser_R": 1.023,
-        "realized_RR": 0.83,
-        "expectancy_R": -0.308
+        "n": 22,
+        "win_rate": 0.3182,
+        "avg_R": -0.41,
+        "avg_winner_R": 0.789,
+        "avg_loser_R": 0.969,
+        "realized_RR": 0.81,
+        "expectancy_R": -0.41
       },
       "8": {
-        "n": 29,
-        "win_rate": 0.1724,
-        "avg_R": -0.703,
-        "avg_winner_R": 0.706,
-        "avg_loser_R": 0.996,
-        "realized_RR": 0.71,
-        "expectancy_R": -0.703
+        "n": 39,
+        "win_rate": 0.4103,
+        "avg_R": -0.295,
+        "avg_winner_R": 0.726,
+        "avg_loser_R": 1.005,
+        "realized_RR": 0.72,
+        "expectancy_R": -0.295
       },
       "9": {
-        "n": 54,
-        "win_rate": 0.4815,
-        "avg_R": 0.039,
-        "avg_winner_R": 1.118,
-        "avg_loser_R": 0.963,
-        "realized_RR": 1.16,
-        "expectancy_R": 0.039
+        "n": 61,
+        "win_rate": 0.2295,
+        "avg_R": -0.549,
+        "avg_winner_R": 0.888,
+        "avg_loser_R": 0.977,
+        "realized_RR": 0.91,
+        "expectancy_R": -0.549
       },
       "10": {
-        "n": 86,
-        "win_rate": 0.3372,
-        "avg_R": -0.343,
-        "avg_winner_R": 0.974,
-        "avg_loser_R": 1.013,
-        "realized_RR": 0.96,
-        "expectancy_R": -0.343
+        "n": 107,
+        "win_rate": 0.2804,
+        "avg_R": -0.543,
+        "avg_winner_R": 0.791,
+        "avg_loser_R": 1.062,
+        "realized_RR": 0.74,
+        "expectancy_R": -0.543
       },
       "11": {
         "n": 72,
-        "win_rate": 0.4306,
-        "avg_R": -0.256,
-        "avg_winner_R": 0.744,
-        "avg_loser_R": 1.012,
-        "realized_RR": 0.74,
-        "expectancy_R": -0.256
+        "win_rate": 0.2639,
+        "avg_R": -0.492,
+        "avg_winner_R": 0.798,
+        "avg_loser_R": 0.954,
+        "realized_RR": 0.84,
+        "expectancy_R": -0.492
       },
       "12": {
-        "n": 57,
-        "win_rate": 0.4737,
-        "avg_R": -0.206,
-        "avg_winner_R": 0.657,
-        "avg_loser_R": 0.983,
-        "realized_RR": 0.67,
-        "expectancy_R": -0.206
+        "n": 51,
+        "win_rate": 0.4314,
+        "avg_R": -0.314,
+        "avg_winner_R": 0.652,
+        "avg_loser_R": 1.047,
+        "realized_RR": 0.62,
+        "expectancy_R": -0.314
       },
       "13": {
-        "n": 48,
-        "win_rate": 0.4583,
-        "avg_R": -0.265,
-        "avg_winner_R": 0.62,
-        "avg_loser_R": 1.015,
-        "realized_RR": 0.61,
-        "expectancy_R": -0.265
-      },
-      "14": {
-        "n": 33,
-        "win_rate": 0.3939,
-        "avg_R": -0.368,
-        "avg_winner_R": 0.652,
-        "avg_loser_R": 1.032,
-        "realized_RR": 0.63,
-        "expectancy_R": -0.368
-      },
-      "15": {
         "n": 38,
         "win_rate": 0.4211,
-        "avg_R": -0.294,
-        "avg_winner_R": 0.731,
-        "avg_loser_R": 1.039,
-        "realized_RR": 0.7,
-        "expectancy_R": -0.294
+        "avg_R": -0.289,
+        "avg_winner_R": 0.562,
+        "avg_loser_R": 0.909,
+        "realized_RR": 0.62,
+        "expectancy_R": -0.289
+      },
+      "14": {
+        "n": 27,
+        "win_rate": 0.3704,
+        "avg_R": -0.379,
+        "avg_winner_R": 0.611,
+        "avg_loser_R": 0.961,
+        "realized_RR": 0.64,
+        "expectancy_R": -0.379
+      },
+      "15": {
+        "n": 41,
+        "win_rate": 0.4146,
+        "avg_R": -0.342,
+        "avg_winner_R": 0.673,
+        "avg_loser_R": 1.061,
+        "realized_RR": 0.63,
+        "expectancy_R": -0.342
       },
       "16": {
-        "n": 37,
-        "win_rate": 0.4324,
-        "avg_R": -0.169,
-        "avg_winner_R": 0.797,
-        "avg_loser_R": 0.905,
-        "realized_RR": 0.88,
-        "expectancy_R": -0.169
+        "n": 39,
+        "win_rate": 0.4615,
+        "avg_R": -0.162,
+        "avg_winner_R": 0.756,
+        "avg_loser_R": 0.95,
+        "realized_RR": 0.8,
+        "expectancy_R": -0.162
       }
     },
     "by_regime": {
       "Regime_0_Low_Vol_Chop": {
-        "n": 202,
-        "win_rate": 0.4059,
-        "avg_R": -0.236,
-        "avg_winner_R": 0.854,
-        "avg_loser_R": 0.981,
-        "realized_RR": 0.87,
-        "expectancy_R": -0.236
+        "n": 199,
+        "win_rate": 0.3568,
+        "avg_R": -0.358,
+        "avg_winner_R": 0.735,
+        "avg_loser_R": 0.965,
+        "realized_RR": 0.76,
+        "expectancy_R": -0.358
       },
       "Regime_1_Bull_Trend": {
-        "n": 215,
-        "win_rate": 0.4047,
-        "avg_R": -0.277,
-        "avg_winner_R": 0.794,
-        "avg_loser_R": 1.006,
-        "realized_RR": 0.79,
-        "expectancy_R": -0.277
+        "n": 230,
+        "win_rate": 0.3087,
+        "avg_R": -0.476,
+        "avg_winner_R": 0.75,
+        "avg_loser_R": 1.023,
+        "realized_RR": 0.73,
+        "expectancy_R": -0.476
       },
       "Regime_2_High_Vol_Bear": {
-        "n": 71,
-        "win_rate": 0.4085,
-        "avg_R": -0.329,
-        "avg_winner_R": 0.696,
-        "avg_loser_R": 1.036,
-        "realized_RR": 0.67,
-        "expectancy_R": -0.329
+        "n": 68,
+        "win_rate": 0.3971,
+        "avg_R": -0.357,
+        "avg_winner_R": 0.65,
+        "avg_loser_R": 1.02,
+        "realized_RR": 0.64,
+        "expectancy_R": -0.357
       }
     }
   },
@@ -1067,35 +1131,35 @@
     ],
     "prediction_match": "NOT_TESTABLE",
     "causal_belief_update": "UNCHANGED",
-    "recommended_route": " council_refusal_streak=2"
+    "recommended_route": " council_refusal_streak=1"
   },
   "last_child_parent_delta": {
-    "parent_trades": 181,
-    "child_trades": 1272,
-    "delta_trades": 1091,
-    "pct_trade_change": 602.7624309392265,
-    "delta_wr_pct": 74.14,
-    "delta_pf": 1.16,
-    "same_trades": 15,
-    "removed_trades": 166,
-    "new_trades": 473,
-    "winner_removed": 78,
-    "loser_removed": 88,
+    "parent_trades": 0,
+    "child_trades": 1115,
+    "delta_trades": 0,
+    "pct_trade_change": 0.0,
+    "delta_wr_pct": 0.0,
+    "delta_pf": 0.0,
+    "same_trades": 3,
+    "removed_trades": 178,
+    "new_trades": 494,
+    "winner_removed": 86,
+    "loser_removed": 92,
     "loser_to_winner": 1,
-    "winner_to_loser": 4,
-    "net_R_delta": -123.7286,
-    "losers_removed_count": 88,
-    "winners_removed_count": 78,
-    "frequency_retention_pct": 702.76,
-    "same_trade_count": 15,
-    "new_trade_count": 473,
+    "winner_to_loser": 1,
+    "net_R_delta": -198.0486,
+    "losers_removed_count": 92,
+    "winners_removed_count": 86,
+    "frequency_retention_pct": 0.0,
+    "same_trade_count": 3,
+    "new_trade_count": 494,
     "is_freq_collapse": false,
     "is_sample_insufficient": false,
-    "verdict": "ALPHA IMPROVEMENT: Child increased PF by +1.16 and WR by +74.1% across 1272 trades.",
-    "primary_question": "Does the child improvement retain walk-forward stability and low drawdowns?"
+    "verdict": "INITIAL SEED BASELINE: N=1115 | WR=67.1% | PF=0.76 | DD=59.6%",
+    "primary_question": "Why does baseline produce catastrophic 59.6% DD despite 67.1% WR? Implied payoff is compressed to 0.37R."
   },
   "last_evidence_quality": {
-    "n_trades": 1272,
+    "n_trades": 1115,
     "wf_passed": false,
     "wf_evidence_available": true,
     "prediction_match": "CONTRADICTED",

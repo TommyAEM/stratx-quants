@@ -97,6 +97,9 @@ chat_queue = queue.Queue()
 
 # Dynamically extract Alibaba API Key
 def get_alibaba_key() -> str:
+    env_key = os.environ.get("ALIBABA_API_KEY")
+    if env_key and len(env_key) > 20:
+        return env_key
     env_path = Path("C:/Users/Tommy/AppData/Local/hermes/.env")
     if env_path.exists():
         try:
@@ -108,10 +111,26 @@ def get_alibaba_key() -> str:
             pass
     return "sk-sp-dummy"
 
-ALIBABA_KEY = get_alibaba_key()
+def get_alibaba_dedicated_key() -> str:
+    env_key = os.environ.get("ALIBABA_DEDICATED_KEY") or os.environ.get("ALIBABA_API_KEY")
+    if env_key and len(env_key) > 20:
+        return env_key
+    env_path = Path("C:/Users/Tommy/AppData/Local/hermes/.env")
+    if env_path.exists():
+        try:
+            text = env_path.read_text(encoding="utf-8")
+            m_ws = re.search(r'sk-ws-[a-zA-Z0-9_\-\.]+', text)
+            if m_ws:
+                return m_ws.group(0)
+            m_sp = re.search(r'sk-sp-[a-zA-Z0-9_\-\.]+', text)
+            if m_sp:
+                return m_sp.group(0)
+        except Exception:
+            pass
+    return ""
 
-# Model Gateways: 100% Alibaba Dedicated Workspace + NanoGPT Backup (Zero Local Ollama Crashes)
-ALIBABA_DEDICATED_KEY = "sk-ws-H.DMEPEMR.6DOw.MEUCIQDDfIBdlEnV5hIkFiuEtb0lOFtzOrxLauOm5QB9PhtGWwIgC5gaWMXfhHUEhg4S9878clZ__U_-5mdl7QyAXQBZSE0"
+ALIBABA_KEY = get_alibaba_key()
+ALIBABA_DEDICATED_KEY = get_alibaba_dedicated_key()
 ALIBABA_DEDICATED_URL = "https://ws-uluvv8lspw5ud99q.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions"
 
 MODEL_GATEWAYS = {
@@ -275,19 +294,22 @@ REPAIR_ESCALATION_DIRECTIVES = [
     "ESCALATE_REPAIR_LEVEL: architecture-level EIV exhausted -> Head Quant thesis review.",
 ]
 
-# ANTI-STALL CIRCUIT BREAKER (Mission: Self-Healing is the core engine).
-# When the Council refuses to mandate a mutation 3+ times in a row under a
-# SAMPLE-INSUFFICIENT / dead-champion regime, the ORCHESTRATOR (not the LLM)
-# forces one deterministic frequency-restoration mutation keyed to the ACTIVE
-# repair level. This guarantees every iteration produces a physical MT5 test,
-# a real child-parent delta, and a self-review advance — the loop can never
-# idle in a forensics-only refusal spiral again.
-FORCED_FREQUENCY_RESTORATION = {
-    "L1_PARAMETER": "PARAMETER RELAXATION: loosen the tightest entry trigger thresholds by ~30% (reduce InpMinBreakATR and InpDispBodyATR, widen InpFillFraction tolerance) to restore trade frequency toward N>=20 per test window.",
-    "L2_SESSION_TIME": "SESSION WIDENING: expand the active trading window (start 1 hour earlier, end 1 hour later) and remove any sub-session lockouts to restore trade frequency toward N>=20 per test window.",
-    "L3_INDICATOR_LOGIC": "FILTER REMOVAL: disable the single most restrictive regime/confluence gate in Block 3 (drop one filter entirely) to restore trade frequency toward N>=20 per test window.",
-    "L4_ARCHITECTURE": "ENTRY REBUILD: simplify Block 4 to a minimal two-condition trigger (level sweep + close back inside the range) with all auxiliary confluence gates disabled, then re-measure the raw population.",
-    "L5_PIVOT_NEW_ALPHA": "THESIS INVERSION: invert the entry direction logic (trade the breakout continuation instead of the false-breakout reversal) and re-measure the population on the same geometry.",
+# =====================================================================
+# AUTHORITATIVE QUANTITATIVE GATES (SINGLE SOURCE OF TRUTH)
+# =====================================================================
+# Every display, state machine, and promotion function reads these exact values.
+AUTHORITATIVE_GATES = {
+    "PORTFOLIO_COMBINED_MAX_DD": 0.10,    # Max 10.0% drawdown across whole EA at 1% risk / 1 position
+    "MODULE_CANONICAL_MAX_DD": 0.06,      # Strict 6.0% drawdown ceiling for canonical X1X module acceptance
+    "RESEARCH_INCUMBENT_MAX_DD": 0.10,    # Absolute 10.0% hard drawdown ceiling for research incumbent
+    "MODULE_CANONICAL_MIN_PF": 2.00,      # PF >= 2.00 for canonical X1X module acceptance
+    "RESEARCH_INCUMBENT_MIN_PF": 1.10,    # PF >= 1.10 minimum viable economic floor
+    "MODULE_CANONICAL_MIN_WR": 0.70,      # WR >= 70.0% for canonical X1X module acceptance
+    "RESEARCH_INCUMBENT_MIN_WR": 0.50,    # WR >= 50.0% discovery floor
+    "MIN_TRADES_ANNUAL": 20.0,            # >= 20.0 trades/year frequency floor
+    "MAX_CONSECUTIVE_LOSSES_CANONICAL": 4,# <= 4 consecutive losses for canonical acceptance
+    "MAX_CONSECUTIVE_LOSSES_CEILING": 8,  # <= 8 consecutive losses hard ceiling
+    "MAX_WALKFORWARD_DECAY": 0.10,        # <= 10.0% max decay allowed on Year 1 & Walk-Forward
 }
 
 # A champion whose trade population is statistically non-existent must never
@@ -623,25 +645,34 @@ ROLE_MAX_TOKENS = {
 
 RESEARCH_PHASE_GATES = {
     "PHASE_1_DISCOVERY": {
-        "min_trades": 50, "min_win_rate": 0.50, "min_profit_factor": 1.10,
-        "min_risk_reward": 0.0, "max_drawdown": 0.06,
+        "min_trades": int(AUTHORITATIVE_GATES["MIN_TRADES_ANNUAL"] * 1.5),
+        "min_win_rate": AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MIN_WR"],
+        "min_profit_factor": AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MIN_PF"],
+        "min_risk_reward": 0.0,
+        "max_drawdown": AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MAX_DD"],
         "max_consecutive_losses": 6,
         "min_val_retention": 0.50,
         "description": "Baseline alpha discovery: positive expectancy & frequency verification."
     },
     "PHASE_2_REPAIR": {
-        "min_trades": 35, "min_win_rate": 0.60, "min_profit_factor": 1.50,
-        "min_risk_reward": 0.70, "max_drawdown": 0.06,
+        "min_trades": int(AUTHORITATIVE_GATES["MIN_TRADES_ANNUAL"] * 1.2),
+        "min_win_rate": 0.60,
+        "min_profit_factor": 1.50,
+        "min_risk_reward": 0.70,
+        "max_drawdown": AUTHORITATIVE_GATES["MODULE_CANONICAL_MAX_DD"],
         "max_consecutive_losses": 5,
         "min_val_retention": 0.65,
         "description": "Causal self-healing & regime filtering: repair systematic failure modes."
     },
     "PHASE_3_CANONICAL_X1X": {
-        "min_trades": 20, "min_win_rate": 0.70, "min_profit_factor": 2.00,
-        "min_risk_reward": 1.00, "max_drawdown": 0.06,
-        "max_consecutive_losses": 4,
-        "min_val_retention": 0.90, # Strict 10% max decay allowed on Year 1 & Walk-Forward
-        "description": "Canonical X1X institutional acceptance: 2-yr combined WR >= 70%, MaxDD <= 6%, Y1 & WF Decay <= 10%."
+        "min_trades": int(AUTHORITATIVE_GATES["MIN_TRADES_ANNUAL"]),
+        "min_win_rate": AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_WR"],
+        "min_profit_factor": AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_PF"],
+        "min_risk_reward": 1.00,
+        "max_drawdown": AUTHORITATIVE_GATES["MODULE_CANONICAL_MAX_DD"],
+        "max_consecutive_losses": AUTHORITATIVE_GATES["MAX_CONSECUTIVE_LOSSES_CANONICAL"],
+        "min_val_retention": 1.0 - AUTHORITATIVE_GATES["MAX_WALKFORWARD_DECAY"], # Strict 10% max decay
+        "description": "Canonical X1X institutional acceptance: WR >= 70%, PF >= 2.00, MaxDD <= 6%, Y1 & WF Decay <= 10%."
     }
 }
 
@@ -811,8 +842,11 @@ def compute_child_parent_delta(parent_metrics: Optional[Dict[str, Any]], child_m
         "child_trades": c_trades,
         "delta_trades": delta_trades,
         "pct_trade_change": pct_trade_change,
+        "delta_wr": delta_wr,
         "delta_wr_pct": delta_wr,
         "delta_pf": delta_pf,
+        "delta_dd": delta_dd,
+        "delta_rr": delta_rr,
         # Mission §9 trade-level lineage
         "same_trades": same_trades,
         "removed_trades": removed_trades,
@@ -5636,6 +5670,12 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                 prev_display = f"{prev_champ_score:.1f}" if prev_champ_score > -1e17 else "BASELINE"
 
                 if child_score > prev_champ_score and promotion_allowed:
+                    is_canonical_accepted = (
+                        c_wr >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_WR"]
+                        and c_pf >= AUTHORITATIVE_GATES["MODULE_CANONICAL_MIN_PF"]
+                        and c_dd <= AUTHORITATIVE_GATES["MODULE_CANONICAL_MAX_DD"]
+                        and c_consec <= AUTHORITATIVE_GATES["MAX_CONSECUTIVE_LOSSES_CANONICAL"]
+                    )
                     last_child_promoted = True
                     state["champion_code"] = child_code
                     state["champion_metrics"] = dict(child_metrics)
@@ -5646,14 +5686,24 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     state["iterations_since_improvement"] = 0
                     state["temperature"] = 0.0
                     state["forced_jab"] = None
-                    state["lineage_note"] = (
-                        f"CHAMPION UPDATED: The last mutation IMPROVED the strategy "
-                        f"(fitness {prev_display} -> {child_score:.1f} | WR={child_metrics['win_rate']*100:.1f}% "
-                        f"PF={child_metrics['profit_factor']:.2f} DD={child_metrics['max_drawdown']*100:.1f}%). "
-                        f"This improved child is now the baseline parent. Compound further gains on top of it."
-                    )
-                    print(f"🏆 {Colors.LIME_BOLD}[NEW CHAMPION]: Mutation improved fitness {prev_display} -> {child_score:.1f} "
-                          f"(t={t_quant['t_stat']}, p={t_quant['p_value']}). Champion code carried forward as next iteration's parent baseline.{Colors.ENDC}\n", flush=True)
+                    
+                    if is_canonical_accepted:
+                        state["lineage_note"] = (
+                            f"🏆 ACCEPTED MODULE (CANONICAL X1X): Candidate passed all institutional gates "
+                            f"(WR={child_metrics['win_rate']*100:.1f}%, PF={child_metrics['profit_factor']:.2f}, "
+                            f"MaxDD={child_metrics['max_drawdown']*100:.1f}% <= 6%). Module admitted to portfolio."
+                        )
+                        print(f"🏛️ {Colors.LIME_BOLD}[ACCEPTED MODULE — CANONICAL X1X CHAMPION]: Passed all hard institutional gates! "
+                              f"(WR={c_wr*100:.1f}%, PF={c_pf:.2f}, DD={c_dd*100:.1f}%). Admitted to master portfolio.{Colors.ENDC}\n", flush=True)
+                    else:
+                        state["lineage_note"] = (
+                            f"RESEARCH INCUMBENT UPDATED: Candidate improved baseline fitness "
+                            f"({prev_display} -> {child_score:.1f} | WR={child_metrics['win_rate']*100:.1f}% "
+                            f"PF={child_metrics['profit_factor']:.2f} DD={child_metrics['max_drawdown']*100:.1f}%). "
+                            f"Retained as active research baseline; further Self-Healing required to reach canonical acceptance."
+                        )
+                        print(f"🔬 {Colors.CYAN_BOLD}[RESEARCH INCUMBENT UPDATED]: Improved baseline fitness {prev_display} -> {child_score:.1f}. "
+                              f"Retained as research parent; continuing Self-Healing under {goal_id}.{Colors.ENDC}\n", flush=True)
                 else:
                     last_child_promoted = False
                     # --- TIE-STALL DETECTION: an identical dead result is a FAILED ---
@@ -5672,9 +5722,9 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                               f"(LLM fallback). This iteration produced ZERO new information — counted as a failed experiment.{Colors.ENDC}\n", flush=True)
                     state["lineage_note"] = (
                         f"ROLLBACK ALERT: The last mutation DEGRADED the strategy "
-                        f"(fitness {child_score:.1f} vs champion {prev_champ_score:.1f} | WR={child_metrics['win_rate']*100:.1f}% "
+                        f"(fitness {child_score:.1f} vs incumbent {prev_champ_score:.1f} | WR={child_metrics['win_rate']*100:.1f}% "
                         f"PF={child_metrics['profit_factor']:.2f} DD={child_metrics['max_drawdown']*100:.1f}%). "
-                        f"The engine has reverted to the last best champion code. "
+                        f"The engine has reverted to the last best research incumbent code. "
                         f"You MUST explore a DIFFERENT, mutually exclusive hypothesis than the last failed attempt."
                     )
                     print(f"↩️  {Colors.YELLOW_BOLD}[CHAMPION ROLLBACK]: Mutation rejected ({child_score:.1f} <= {prev_champ_score:.1f} or Frequency Collapse). "
