@@ -4702,6 +4702,7 @@ void OnTick()
         last_child_df = pd.DataFrame()
         last_child_promoted = False
         last_delta_info = None
+        state["goal_status"] = "ACTIVE"  # Always active on interactive startup to resume seamlessly
 
         while state["goal_status"] == "ACTIVE" and state["iteration"] < 500:  # 14 theses x 35-iter incubation budget
             try:
