@@ -129,6 +129,12 @@ MODEL_GATEWAYS = {
             "model": "deepseek-v4-pro-0813"
         },
         {
+            "name": "Alibaba DashScope International (DeepSeek V4 Pro Backup 2)",
+            "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+            "key": ALIBABA_DEDICATED_KEY,
+            "model": "deepseek-v4-pro-0813"
+        },
+        {
             "name": "NanoGPT Backup (DeepSeek V4 Pro Thinking)",
             "url": f"{StratXLLMClient.NANOGPT_BASE_URL}/chat/completions",
             "key": StratXLLMClient.NANOGPT_KEY,
