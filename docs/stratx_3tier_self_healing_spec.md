@@ -1,12 +1,25 @@
-# 🏛️ StratX 3-Tier Self-Healing Architecture
+# 🏛️ StratX 3-Tier Self-Healing Hierarchy Specification
+
+> **Tier 1 heals until the strategy goal passes. Tier 2 ensures every attempt changes institutional memory. Tier 3 uses accumulated institutional experience to improve how future agents perform Tier 1.**  
+>  
+> **No Tier may declare success merely because its current tasks, experiment, generation, or iteration finished. The active goal owns completion.**
+
+---
+
+## 🗺️ High-Level Architectural Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ TIER 1 — STRATEGY SELF-HEALING (The Quantitative Loop)                      │
 │ "What is wrong with this EA and how do I repair it?"                        │
 │                                                                             │
+│ [SELF_REVIEW_GOAL_ID]                                                       │
+│      ↓                                                                      │
 │ MT5 Backtest → Analyse Losers → Matched Winners → Find Clusters →           │
-│ Child-Parent Delta → Single Causal Mutation → Test Child → Promote/Revert   │
+│ Child-Parent Delta → Isolated Causal Mutation → Test Child → Keep / Revert  │
+│      ↓                                                                      │
+│ Memory Commit → Re-Forensics → Goal Passed? (NO ──→ Loop back under Goal)  │
+│                                              (YES ─→ Review → Governor)    │
 └──────────────────────────────────────┬──────────────────────────────────────┘
                                        │
                                        ▼
@@ -31,53 +44,132 @@
 
 ---
 
-## 🔬 Deep Breakdown of the 3 Tiers
+## 🔬 TIER 1 — STRATEGY SELF-HEALING ENGINE (The Grinding Machine)
 
-### 🔵 Tier 1: Strategy Self-Healing (Live EA Adaptation)
-- **Question Answered**: *"What is wrong with this EA and how do I repair it?"*
-- **Operational Cycle**:
-  1. **Physical MT5 Execution**: Backtest EA on 28,213 real broker bars with real spread and slippage modeling.
-  2. **Loss & Matched-Winner Forensics**: Extract telemetry blotter, compute context (volatility, session, MAE/MFE).
-  3. **Sample Provenance Guard**: If $N < 5$, flag `SAMPLE_INSUFFICIENT` and prioritize frequency restoration.
-  4. **Child-Parent Delta Analysis**: Measure trade changes, gate restrictions, and isolate filter over-tightening.
-  5. **Single Causal Mutation**: Modify exactly one structural block in the 6-Block MQL5 architecture.
-  6. **Compounding TommyLoop**: Promote child if fitness improves and edge is statistically significant ($t \ge 2.5, p < 0.01$); otherwise rollback to champion.
+### 🎯 Core Purpose: *"What is wrong with this EA and how do I repair it?"*
 
----
+Tier 1 is an autonomous, persistent quantitative state machine. It does **NOT** run as a linear to-do checklist. It is governed by a persistent `SELF_REVIEW_GOAL_ID` (e.g. `SR_M1_001`) that stays active until the strategy satisfies all institutional module gates or is formally escalated/falsified.
 
-### 🟢 Tier 2: Brain / Experience Memory (Institutional Knowledge Graph)
-- **Question Answered**: *"What have we learned from previous experiments?"*
-- **Operational Cycle**:
-  1. **Tripartite Memory Record**:
-     - **`Strategy Memory`**: Source code, parameters, trade count, WR, PF, DD.
-     - **`Belief Memory`**: Prior belief vs posterior evidence with confidence delta ($\pm 0.15$ / $-0.20$).
-     - **`Research Policy Memory`**: Methodological takeaways (e.g. *"Indices require asymmetrical short gating"*).
-  2. **Evidence Dependency Lineage Graph**:
-     - Tracks nodes: `FEATURE` $\to$ `OBSERVATION` $\to$ `HYPOTHESIS` $\to$ `EXPERIMENT` $\to$ `REPORT` $\to$ `FREEZE`.
-     - Automatically cascades invalidation if an upstream foundation fails stress testing.
-  3. **Pre-Compute Proposal Gate**:
-     - Queries memory graph before compiling. Rejects duplicate or previously debunked experiments before burning compute.
-
----
-
-### 🟣 Tier 3: Meta Self-Healing / SkillOpt (Evolutionary Cognitive Adaptation)
-- **Question Answered**: *"How should the researcher itself become better at researching?"*
-- **Operational Cycle**:
-  1. **Session Harvesting (`SkillOpt-Sleep`)**: Collect research logs, LLM Council transcripts, and decision sequences across 50+ completed missions.
-  2. **Cognitive Error Pattern Mining**: Identify recurring researcher mistakes (e.g., Filter Accretion, Confirmation Bias, Early Thesis Abandonment, Over-Optimizing R-Multiples).
-  3. **Bounded Skill Mutation**: Propose minimal, high-impact edits to the agent's markdown skill instructions (`stratx-quant-self-heal.md`, `stratx-failure-autopsy.md`).
-  4. **`STRATX_RESEARCH_BENCHMARK` Replay**: Run the mutated skill against a battery of historical training episodes.
-  5. **Held-Out Validation Gate**: Evaluate the mutated skill against unseen research missions.
-     - If the mutated skill produces higher research efficiency, fewer wasted runs, and better holdout retention $\to$ **PROMOTE TO PRODUCTION SKILL**.
-     - If any regression occurs $\to$ **REJECT EDIT & RESTORE BASELINE SKILL**.
+```mermaid
+graph TD
+    GOAL["SELF_REVIEW_GOAL_ID (e.g. SR_M1_001)"] --> MT5["1. Physical MT5 Backtest (28k Real Broker Bars)"]
+    MT5 --> LOSS["2. Analyse Losing Clusters & Failure Modes"]
+    LOSS --> WIN["3. Matched-Winner Comparative Analysis"]
+    WIN --> CPD["4. Child-Parent Delta & Over-Filtering Guard"]
+    CPD --> REPAIR["5. Select Isolated Causal Repair"]
+    REPAIR --> CODE["6. Compile MQL5 & Re-Test on MT5"]
+    CODE --> EVAL{"MT5 Result Evaluation"}
+    
+    EVAL -- "IMPROVED" --> KEEP["KEEP Child (Promote to Champion Baseline)"]
+    EVAL -- "DEGRADED / FREQ COLLAPSE" --> REVERT["REVERT (Rollback to Champion Baseline)"]
+    
+    KEEP --> MEM["7. Mandatory Tripartite Memory Commit"]
+    REVERT --> MEM
+    
+    MEM --> REFOR["8. Re-Forensics & Audit"]
+    REFOR --> GATE{"Goal Passed? (WR>=70%, PF>=2.00, Freq>=20/yr)"}
+    
+    GATE -- "NO" --> GOAL
+    GATE -- "YES" --> REV["Independent Quant Review"]
+    REV --> GOV["Portfolio Governor Admission"]
+```
 
 ---
 
-## 🛡️ Invariant Ground Rules Across All 3 Tiers
+### 🔍 1. Forensic Discovery Taxonomy
+During trade telemetry analysis, the engine discovers specific empirical failure modes:
+- **Time/Session Failure**: Asian low-volatility drift, pre-open spread expansion, Friday evening illiquidity.
+- **Direction Asymmetry**: Short-side drag during structural index bull regimes.
+- **Volatility Failure**: False triggers during ultra-low volatility or high-volatility news spikes.
+- **Microstructure / Region**: Bad indicator region, stale FVG mitigation, illiquid price levels.
+- **Timing & Geometry**: Premature entry before liquidity sweep confirmation, chase entries.
+- **Exit & Order Dispatch**: Fixed TP too rigid, stop too tight for local ATR, premature BE trigger.
+- **Regime Failure**: Trend-following filters triggering inside choppy consolidation.
 
-| Layer | Type | Mutability | Ownership |
+---
+
+### 🛠️ 2. Comparative Matched-Winner Repair Spectrum
+The Council formulates an **isolated causal mutation where scientifically possible**:
+1. **Sharpen / Loosen Gates**: Adjust existing thresholds based on empirical trade distributions.
+2. **Add Evidence-Supported Gate**: Inject a single regime, session, or volatility filter verified by matched controls.
+3. **Remove Useless Filter**: Eliminate redundant conditions causing trade frequency collapse.
+4. **Session Window Refinement**: Block proven toxic hours (e.g. restrict to 07:00–16:30 GMT).
+5. **Entry Geometry Calibration**: Require clean sweep rejection wick and equilibrium mitigation.
+6. **Stop / Target Calibration**: Adapt SL/TP to local ATR dynamics and structural swing points.
+7. **Exit Architecture Overhaul**: Deploy FBL (Flagship Balanced Logic) 50% partial close at 1.0R + BE buffer + trailing stop.
+8. **Component / Architecture Replacement**: Overhaul Block 3 (Regime) or Block 4 (Alpha Trigger).
+9. **Thesis Inversion (Level-5)**: If breakout persistently fails, invert to fade breakouts.
+
+---
+
+### ⚖️ 3. Execution & Evaluation Protocol:
+- **`IF CHILD IMPROVES`**:
+  - Promote child as the new parent champion baseline.
+  - Re-analyse the new trade population under the **SAME** `SELF_REVIEW_GOAL_ID`.
+- **`IF CHILD DEGRADES OR FREQUENCY COLLAPSES`**:
+  - Rollback immediately to last champion baseline.
+  - Write failure signature and debunked hypothesis to StratX Brain.
+  - Select a mutually exclusive repair and continue under the **SAME** `SELF_REVIEW_GOAL_ID`.
+
+---
+
+## 🧠 TIER 2 — BRAIN / EXPERIENCE MEMORY (The Knowledge Graph)
+
+### 🎯 Core Purpose: *"What have we learned from previous experiments?"*
+
+The StratX Brain prevents circular research by enforcing an auditable, append-only knowledge graph:
+
+1. **Tripartite Memory Engine**:
+   - **`Strategy Memory`**: Complete compilable source code, verified SET parameters, trade count, WR, PF, Realised Payoff, and Drawdown.
+   - **`Belief Memory`**: Prior hypothesis vs posterior empirical outcome, updating confidence based on **evidence quality** (sample size, out-of-sample stability, matched controls, contradictions, implementation fidelity, provenance).
+   - **`Research Policy Memory`**: Empirical methodological lessons (e.g., *"Filter accretion destroys out-of-sample robustness"*).
+2. **Evidence Dependency Lineage Graph**:
+   - Graph nodes: `FEATURE` $\to$ `FORENSIC_OBSERVATION` $\to$ `HYPOTHESIS` $\to$ `EXPERIMENT` $\to$ `MT5_REPORT` $\to$ `REVIEW_VERDICT` $\to$ `MODULE_FREEZE`.
+   - **Cascade Invalidation**: If an upstream foundation fails stress testing, all derived downstream rules are automatically invalidated.
+3. **Pre-Compute Proposal Gate**:
+   - Queries `stratx_brain.json` before compilation. Blocks repeat trials of debunked experiments unless justified by material context difference.
+
+---
+
+## 🧬 TIER 3 — META SELF-HEALING / SKILLOPT (Researcher Cognitive Evolution)
+
+### 🎯 Core Purpose: *"How should the researcher itself become better at researching?"*
+
+SkillOpt is an offline meta-learning engine that treats the agent’s skill documents (`SKILL.md`) as trainable state:
+
+```
+Harvest Many Missions
+        ↓
+Mine Recurring Cognitive Errors (e.g. Filter Accretion, Confirmation Bias)
+        ↓
+Propose Bounded Skill Mutation (Markdown Diff)
+        ↓
+Replay STRATX_RESEARCH_BENCHMARK Episodes (Train Set)
+        ↓
+Held-Out Validation Gate (Unseen Historical Research Missions)
+        │
+    NO ─┴─→ REJECT EDIT (Restore Baseline Skill)
+        │
+       YES
+        ↓
+PROMOTE NEW CANONICAL SKILL VERSION
+```
+
+---
+
+## 🛡️ Strict System Boundaries: Frozen Invariants vs Evolvable Intelligence
+
+SkillOpt optimizes the **cognitive reasoning and heuristics**, but NEVER touches the deterministic execution harness:
+
+| Layer | Component | Status | Description |
 | :--- | :--- | :--- | :--- |
-| **System Invariants** | State Machine, 1% Risk, MT5 Exec, Pass Gates | **IMMUTABLE (Frozen)** | Deterministic Python & C++ Harness |
-| **Tier 1 (Strategy)** | MQL5 Logic, Parameters, Rules, Indicators | **EVOLVABLE (Per Iteration)** | LLM Council & Physical MT5 Tester |
-| **Tier 2 (Brain)** | Facts, Provenance, Historical Trials, Beliefs | **APPEND-ONLY (Per Experiment)** | Knowledge Graph (`stratx_brain.json`) |
-| **Tier 3 (SkillOpt)** | Researcher Heuristics, Skill MDs, Prompt Guides | **EVOLVABLE (Per Epoch)** | Meta-Learner via Validation Gates |
+| **IMMUTABLE INVARIANTS** | `SELF_REVIEW_GOAL` State Machine | **FROZEN** | Controls goal ownership, persistence, and termination. |
+| **IMMUTABLE INVARIANTS** | Risk & Position Sizing | **FROZEN** | Strict 1.0% dynamic equity risk, 1 concurrent position. |
+| **IMMUTABLE INVARIANTS** | Physical MT5 Execution & Harness | **FROZEN** | Real Vantage broker ticks, spread, slippage, and swap modeling. |
+| **IMMUTABLE INVARIANTS** | Module Pass Gates | **FROZEN** | $\text{WR} \ge 70.0\%, \text{PF} \ge 2.00, \text{Freq} \ge 20.0/\text{yr}, \text{Payoff} \ge 1.00$. |
+| **IMMUTABLE INVARIANTS** | Mathematical Calculations | **FROZEN** | Trade accounting, portfolio DD, child-parent deltas, statistical tests. |
+| **IMMUTABLE INVARIANTS** | Evidence Integrity & Invariants | **FROZEN** | SHA-256 report hashing, sample provenance ($N \ge 5$), mandatory memory commits. |
+| **IMMUTABLE INVARIANTS** | Institutional Governance | **FROZEN** | Independent Reviewer & Portfolio Governor gates. |
+| **EVOLVABLE TIER 1** | Strategy Logic (`.mq5`) | **EVOLVABLE** | Alpha triggers, regime filters, entry/exit parameters. |
+| **APPEND-ONLY TIER 2** | Knowledge Graph (`stratx_brain.json`)| **APPEND-ONLY**| Institutional memories, belief states, lineage graph nodes. |
+| **EVOLVABLE TIER 3** | Researcher Skills (`.md`) | **EVOLVABLE** | Cognitive skill instructions, prompt heuristics, failure classification guides. |
