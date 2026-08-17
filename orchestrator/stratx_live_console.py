@@ -1472,9 +1472,8 @@ class StratXLiveConsole:
         self.ea_path = Path("C:/Trading/DE40-Research/ea/DE40_StratX.mq5")
         self.REPAIR_LEVELS = ["L1_PARAMETER", "L2_SESSION_TIME", "L3_INDICATOR_LOGIC", "L4_ARCHITECTURE", "L5_PIVOT_NEW_ALPHA"]
         self.MAX_FAILS_PER_LEVEL = 3
-        # Deep Strategy Incubation Budget: thesis pivot is FORBIDDEN until this many
-        # consecutive compounding iterations (each with a physical backtest) are exhausted.
-        self.MAX_ITERATIONS_PER_THESIS = 35
+        # Deep Strategy Incubation Budget: maximum compounding iterations before pivoting to the next thesis candidate
+        self.MAX_ITERATIONS_PER_THESIS = 8
         # Sobol QMC samples per optimization round (Stage 1). Power of 2 for Sobol balance.
         # WARNING: each sample = 1 sequential physical MT5 tester run (~10-40s each):
         # 1024 samples ≈ 3-10 hours per iteration. Lower to 128/256 for faster cycles.
@@ -1500,10 +1499,8 @@ class StratXLiveConsole:
 
     def _escalate_repair_ladder(self, state: Dict[str, Any], thesis_name: str) -> None:
         """
-        Shared escalation pressure valve. Reachable from EVERY failure path
-        (non-mutation verdict, debunked gate, compile failure, gate failure) —
-        previously only reachable after a full backtest iteration, which let
-        forensics-only refusal spirals stall the repair level forever.
+        Shared escalation pressure valve. Reachable from EVERY failure path.
+        When a thesis exhausts its incubation budget, it pivots to the next module thesis.
         """
         if state["consecutive_fails_at_level"] < self.MAX_FAILS_PER_LEVEL:
             return
@@ -1515,18 +1512,15 @@ class StratXLiveConsole:
         else:
             incubation_used = state.get("thesis_iteration_count", 0)
             if incubation_used < self.MAX_ITERATIONS_PER_THESIS:
-                # DEEP INCUBATION LOCK: pivoting is FORBIDDEN. Restart the repair
-                # ladder from L1 on the retained champion baseline (gains compound).
-                print(f"🔒 {Colors.CYAN_BOLD}[DEEP INCUBATION LOCK]: L5 ceiling reached, but only "
-                      f"{incubation_used}/{self.MAX_ITERATIONS_PER_THESIS} compounding iterations exhausted on "
-                      f"{thesis_name}. Thesis pivot FORBIDDEN — restarting repair ladder from L1 "
-                      f"on the champion baseline (improvements retained).{Colors.ENDC}\n", flush=True)
+                print(f"🔒 {Colors.CYAN_BOLD}[INCUBATION ESCALATION]: L5 reached ({incubation_used}/{self.MAX_ITERATIONS_PER_THESIS} iters). "
+                      f"Restarting ladder from L1 on champion baseline with adaptive temperature.{Colors.ENDC}\n", flush=True)
                 state["repair_level_idx"] = 0
                 state["consecutive_fails_at_level"] = 0
             else:
-                print(f"{Colors.YELLOW_BOLD}🛑 DEEP INCUBATION BUDGET EXHAUSTED ({incubation_used} iterations, "
-                      f"physical backtest on every step). Thesis still below the institutional gate — "
-                      f"discarding lineage and pivoting to a fresh Alpha concept...{Colors.ENDC}\n", flush=True)
+                next_idx = state.get("active_thesis_index", 0) + 1
+                state["active_thesis_index"] = next_idx
+                print(f"{Colors.YELLOW_BOLD}🛑 THESIS INCUBATION BUDGET EXHAUSTED ({incubation_used} iterations on {thesis_name}). "
+                      f"Pivoting to next quantitative thesis #{next_idx + 1} in institutional roster...{Colors.ENDC}\n", flush=True)
                 state["repair_level_idx"] = 0
                 state["consecutive_fails_at_level"] = 0
                 state["champion_thesis"] = None
@@ -4128,7 +4122,7 @@ void OnTick()
                 current_phase = state.get("research_phase", "PHASE_1_DISCOVERY")
                 
                 # Active Module Thesis Selection
-                current_mod_idx = len(state["portfolio_modules"])
+                current_mod_idx = state.get("active_thesis_index", 0)
                 active_thesis = MODULE_THESES[current_mod_idx % len(MODULE_THESES)]
                 goal_id = f"SR_M{current_mod_idx + 1}_001"
                 attempt_num = state.get("thesis_iteration_count", 0) + 1
@@ -5131,6 +5125,7 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     state["research_phase"] = "PHASE_1_DISCOVERY"
                     state["repair_level_idx"] = 0
                     state["consecutive_fails_at_level"] = 0
+                    state["active_thesis_index"] = state.get("active_thesis_index", 0) + 1
                     # Module admitted -> next thesis starts fresh from its own raw template
                     state["champion_thesis"] = None
                     state["champion_code"] = None
