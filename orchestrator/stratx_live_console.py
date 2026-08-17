@@ -559,14 +559,15 @@ def get_quant_knowledge() -> str:
 ROLE_MODEL_TIER = {
     # --- 7 CANONICAL STRATX LLM COUNCIL ROLES ---
     "QUANT RESEARCHER": "alibaba_pro",               # Evaluates economic rationale & anomaly validity via Alibaba Dedicated Pro (DeepSeek V4 Pro 0813)
-    "STATISTICIAN": "nanogpt_glm_thinking",          # Audits sample size, DSR, overfitting & math via GLM-5.2 Thinking
+    "STATISTICIAN": "nanogpt_muse_spark",            # Audits sample size, DSR, overfitting & math via Meta Muse Spark 1.2 on NanoGPT
     "MARKET STRUCTURE SPECIALIST": "alibaba_pro",    # Validates order flow & session sweeps via Alibaba Dedicated Pro
     "EXECUTION SPECIALIST": "alibaba_pro",           # Audits spread sensitivity, tick points & slippage via Alibaba Dedicated Pro
     "RED TEAM SKEPTIC": "nanogpt_glm_thinking",      # Deep adversarial thinking to disprove edge via GLM-5.2 Thinking
     "STRATX HISTORIAN": "alibaba_pro",               # Deep memory synthesis via Alibaba Dedicated Pro
     "COUNCIL JUDGE": "alibaba_pro",                  # Synthesizes consensus & research question via Alibaba Dedicated Pro
     "MQL5 ARCHITECT": "alibaba_pro",                 # Complete 6-Block C++/MQL5 code synthesis via Alibaba Dedicated Pro
-    "MQL5 ARCHITECT (SYNTAX FIX)": "alibaba_pro"     # Fast MetaEditor syntax repair via Alibaba Dedicated Pro
+    "MQL5 ARCHITECT (SYNTAX FIX)": "alibaba_pro",    # Fast MetaEditor syntax repair via Alibaba Dedicated Pro
+    "MQL5 ARCHITECT (PRO ESCALATION)": "alibaba_pro" # 1-shot deep architectural rebuild via Alibaba Dedicated Pro
 }
 
 # Output token caps per council specialist
@@ -578,8 +579,14 @@ ROLE_MAX_TOKENS = {
     "RED TEAM SKEPTIC": 1500,
     "STRATX HISTORIAN": 1500,
     "COUNCIL JUDGE": 2000,
-    "MQL5 ARCHITECT": 8000,
-    "MQL5 ARCHITECT (SYNTAX FIX)": 8000
+    # Full-file MQL5 emission needs headroom: the parent EA is ~330 lines /
+    # ~13 KB, and reasoning models spend tokens on the thinking monologue
+    # BEFORE the code. At 8000 the closing fence was being truncated mid-file,
+    # the parser found no complete block, and the child silently reverted to
+    # parent (the observed zero-diff no-op stall). 16000 restores full files.
+    "MQL5 ARCHITECT": 16000,
+    "MQL5 ARCHITECT (SYNTAX FIX)": 16000,
+    "MQL5 ARCHITECT (PRO ESCALATION)": 16000  # was falling back to the 2000 default — could never emit a full file
 }
 
 RESEARCH_PHASE_GATES = {
