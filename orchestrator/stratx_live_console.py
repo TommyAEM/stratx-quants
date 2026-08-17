@@ -1465,11 +1465,11 @@ input long   InpMagic              = 260101; // Magic number
 input string InpComment            = "X1X_M1_FBO";
 
 // Core Geometry
-input double InpMinBreakATR        = 0.8;    // Min breakout beyond level (ATR)
+input double InpMinBreakATR        = 0.15;   // Min breakout beyond level (ATR)
 input double InpMaxBreakATR        = 2.5;    // Max breakout (beyond = real breakout)
 input int    InpMaxBarsOutside     = 8;      // Max bars outside before abort
-input double InpDispBodyATR        = 0.8;    // Displacement candle body min (ATR)
-input double InpFillFraction       = 0.5;    // Equilibrium retrace depth into zone (50%)
+input double InpDispBodyATR        = 0.20;   // Displacement candle body min (ATR)
+input double InpFillFraction       = 0.60;   // Equilibrium retrace depth into zone
 
 // Sessions (Frankfurt / London European Core Hours GMT)
 input int    InpAsiaStartGMT       = 0;      // Asian session start (GMT)
@@ -1555,23 +1555,30 @@ void UpdateAsiaLevels()
 {
    MqlDateTime dt;
    TimeToStruct(TimeCurrent(), dt);
-   datetime day_start = StringToTime(StringFormat("%04d.%02d.%02d 00:00", dt.year, dt.mon, dt.day));
-   if(day_start == last_asia_calc && asia_high > 0.0) return;
-
-   int start_bar = iBarShift(_Symbol, PERIOD_M15, day_start + InpAsiaStartGMT * 3600);
-   int end_bar   = iBarShift(_Symbol, PERIOD_M15, day_start + InpAsiaEndGMT * 3600);
-   if(start_bar <= 0 || end_bar <= 0 || start_bar <= end_bar) return;
-
-   asia_high = iHigh(_Symbol, PERIOD_M15, end_bar);
-   asia_low  = iLow(_Symbol, PERIOD_M15, end_bar);
+   datetime today_00 = StringToTime(StringFormat("%04d.%02d.%02d 00:00", dt.year, dt.mon, dt.day));
+   datetime asia_end = StringToTime(StringFormat("%04d.%02d.%02d 07:00", dt.year, dt.mon, dt.day));
+   
+   if(today_00 == last_asia_calc && asia_high > 0.0) return;
+   
+   int end_bar = iBarShift(_Symbol, _Period, asia_end, false);
+   int start_bar = iBarShift(_Symbol, _Period, today_00, false);
+   
+   if(start_bar < 0 || end_bar < 0 || start_bar < end_bar) return;
+   
+   double hi = -1e9, lo = 1e9;
    for(int b = end_bar; b <= start_bar; b++)
    {
-      double h = iHigh(_Symbol, PERIOD_M15, b);
-      double l = iLow(_Symbol, PERIOD_M15, b);
-      if(h > asia_high) asia_high = h;
-      if(l < asia_low && l > 0.0) asia_low = l;
+      double h = iHigh(_Symbol, _Period, b);
+      double l = iLow(_Symbol, _Period, b);
+      if(h > hi) hi = h;
+      if(l < lo && l > 0.0) lo = l;
    }
-   last_asia_calc = day_start;
+   if(hi > 0.0 && lo < 1e8)
+   {
+      asia_high = hi;
+      asia_low = lo;
+      last_asia_calc = today_00;
+   }
 }
 
 //=== BLOCK 5: RISK & SIZING ===
