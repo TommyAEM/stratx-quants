@@ -4062,7 +4062,13 @@ void OnTick()
                 # -----------------------------------------------------------------
                 # FORENSIC AUTOPSY (MARKET STRUCTURE SPECIALIST)
                 # -----------------------------------------------------------------
-                autopsy_prompt = f"""[STRATX FORENSICS & FAILURE CLASSIFICATION]
+                if not sample_is_sufficient:
+                    print(f"⚡ {Colors.YELLOW_BOLD}[SAMPLE INSUFFICIENT BYPASS]: Trade count N={trade_count} < 5. Skipping single-trade autopsy to prevent hallucination. Mandating immediate frequency restoration.{Colors.ENDC}\n", flush=True)
+                    failure_class = "FREQUENCY_COLLAPSE"
+                    causal_failure = f"Trade population collapsed to N={trade_count} trades. Over-restrictive gating in Block 2/3 or tight triggers in Block 4 eliminated market execution."
+                    trade_autopsies = f"Individual trade forensics blocked for N={trade_count}. Primary imperative is loosening filters to restore statistical sample size (N >= 20)."
+                else:
+                    autopsy_prompt = f"""[STRATX FORENSICS & FAILURE CLASSIFICATION]
 Active Goal: {goal_id} ({active_thesis['name']} - {active_thesis['title']})
 Evidence Provenance: {provenance_tag}
 
@@ -4091,10 +4097,10 @@ Output JSON with neutral structure:
   "causal_failure_statement": "<single factual explanation of why the failure occurred>"
 }}
 """
-                autopsy_raw = stream_llm("MARKET STRUCTURE SPECIALIST", autopsy_prompt)
-                failure_class = autopsy_raw.get("failure_classification", "REGIME_FAILURE" if sample_is_sufficient else "FREQUENCY_COLLAPSE")
-                causal_failure = autopsy_raw.get("causal_failure_statement", "Over-restrictive gating detected." if not sample_is_sufficient else "Loss cluster identified.")
-                trade_autopsies = autopsy_raw.get("trade_autopsy", "")
+                    autopsy_raw = stream_llm("MARKET STRUCTURE SPECIALIST", autopsy_prompt)
+                    failure_class = autopsy_raw.get("failure_classification", "REGIME_FAILURE")
+                    causal_failure = autopsy_raw.get("causal_failure_statement", "Loss cluster identified.")
+                    trade_autopsies = autopsy_raw.get("trade_autopsy", "")
 
                 # -----------------------------------------------------------------
                 # STATISTICIAN AUDIT (GLM-5.2 Thinking via NanoGPT)
