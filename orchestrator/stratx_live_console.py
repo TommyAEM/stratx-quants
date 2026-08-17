@@ -584,16 +584,16 @@ def get_quant_knowledge() -> str:
 # =====================================================================
 ROLE_MODEL_TIER = {
     # --- 7 CANONICAL STRATX LLM COUNCIL ROLES ---
-    "QUANT RESEARCHER": "alibaba_pro",               # Evaluates economic rationale & anomaly validity via Alibaba Dedicated Pro (DeepSeek V4 Pro 0813)
+    "QUANT RESEARCHER": "ollama_pro",                # Evaluates economic rationale & anomaly validity via Ollama Pro (deepseek-v4-pro:0813-cloud)
     "STATISTICIAN": "nanogpt_glm_thinking",          # Audits sample size, DSR, overfitting & math via GLM-5.2 Thinking on NanoGPT
-    "MARKET STRUCTURE SPECIALIST": "alibaba_pro",    # Validates order flow & session sweeps via Alibaba Dedicated Pro
+    "MARKET STRUCTURE SPECIALIST": "ollama_pro",     # Validates order flow & session sweeps via Ollama Pro (deepseek-v4-pro:0813-cloud)
     "EXECUTION SPECIALIST": "ollama_pro",            # Audits spread sensitivity, tick points & slippage via Ollama Pro (deepseek-v4-pro:0813-cloud)
     "RED TEAM SKEPTIC": "nanogpt_glm_thinking",      # Deep adversarial thinking to disprove edge via GLM-5.2 Thinking on NanoGPT
-    "STRATX HISTORIAN": "alibaba_pro",               # Deep memory synthesis via Alibaba Dedicated Pro
-    "COUNCIL JUDGE": "alibaba_pro",                  # Synthesizes consensus & research question via Alibaba Dedicated Pro
-    "MQL5 ARCHITECT": "alibaba_pro",                 # Complete 6-Block C++/MQL5 code synthesis via Alibaba Dedicated Pro
-    "MQL5 ARCHITECT (SYNTAX FIX)": "alibaba_pro",    # Fast MetaEditor syntax repair via Alibaba Dedicated Pro
-    "MQL5 ARCHITECT (PRO ESCALATION)": "alibaba_pro" # 1-shot deep architectural rebuild via Alibaba Dedicated Pro
+    "STRATX HISTORIAN": "ollama_pro",                # Deep memory synthesis via Ollama Pro (deepseek-v4-pro:0813-cloud)
+    "COUNCIL JUDGE": "ollama_pro",                   # Synthesizes consensus & research question via Ollama Pro (deepseek-v4-pro:0813-cloud)
+    "MQL5 ARCHITECT": "ollama_pro",                  # Complete 6-Block C++/MQL5 code synthesis via Ollama Pro (deepseek-v4-pro:0813-cloud)
+    "MQL5 ARCHITECT (SYNTAX FIX)": "ollama_pro",     # Fast MetaEditor syntax repair via Ollama Pro (deepseek-v4-pro:0813-cloud)
+    "MQL5 ARCHITECT (PRO ESCALATION)": "ollama_pro"  # 1-shot deep architectural rebuild via Ollama Pro (deepseek-v4-pro:0813-cloud)
 }
 
 # Output token caps per council specialist
