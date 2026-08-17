@@ -67,6 +67,7 @@ from orchestrator.stratx_live_console import (
     run_independent_review,
     safe_parse_json,
     check_pass_gates,
+    rank_theses_by_discovery,
     MODULE_MIN_TRADES_PER_YEAR,
     CHAMPION_MIN_TRADES,
     FORCED_FREQUENCY_RESTORATION,
@@ -572,6 +573,77 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
         block = format_edge_screen_block({"data": {"bars": 10, "from": "2023-01-01", "to": "2023-02-01"},
                                           "ranked_edges": []})
         self.assertIn("No anomaly candidate", block)
+
+    def test_U_discovery_driven_incubation_order(self):
+        """TEST U (PHASE_0 -> PHASE_1 handoff): the incubation queue must be
+        reordered by MEASURED support, deterministically.
+        - A CONTINUATION thesis whose reversal screen measured strongly
+          negative must rank FIRST (support = -mean_fwd_atr > 0, n >= 100).
+        - A thesis trading in the screened direction only ranks first when
+          the screen itself is positive.
+        - Unsupported theses keep their original relative order.
+        - No screen / no probe / tiny sample -> original order, empty report."""
+        screen = {"screens": [
+            {"screen": "PREV_DAY_HL_SWEEP_REVERSAL", "occurrences": 991,
+             "win_rate": 0.4541, "mean_fwd_atr": -0.402, "p_value": 0.998},
+            {"screen": "ASIA_FAKEOUT_REVERSAL (clock=as-is)", "occurrences": 1765,
+             "win_rate": 0.472, "mean_fwd_atr": 0.005, "p_value": 0.991},
+        ]}
+        theses = [
+            {"name": "AAA_LEGACY"},  # no probe
+            {"name": "BBB_FADE", "screen_probe": "ASIA_FAKEOUT_REVERSAL"},  # direction = screened (fade); screen ~zero -> unsupported
+            {"name": "CCC_PDC", "screen_probe": "PREV_DAY_HL_SWEEP_REVERSAL", "screen_direction": "CONTINUATION"},
+            {"name": "DDD_TRAIL"},
+        ]
+        ordered, report = rank_theses_by_discovery(theses, screen)
+        self.assertEqual([t["name"] for t in ordered],
+                         ["CCC_PDC", "AAA_LEGACY", "BBB_FADE", "DDD_TRAIL"])
+        self.assertEqual(len(report), 1)
+        self.assertEqual(report[0]["name"], "CCC_PDC")
+        self.assertAlmostEqual(report[0]["support"], 0.402, places=3)
+        # Prefix matching: probe matches screen name with a suffix
+        self.assertEqual(report[0]["screen"]["screen"], "PREV_DAY_HL_SWEEP_REVERSAL")
+        # In-direction thesis only boosted when screen is positive
+        screen_pos = {"screens": [{"screen": "PROBE_X", "occurrences": 500,
+                                   "win_rate": 0.56, "mean_fwd_atr": 0.31, "p_value": 0.01}]}
+        t2 = [{"name": "ZZZ"}, {"name": "DIR", "screen_probe": "PROBE_X"}]
+        o2, r2 = rank_theses_by_discovery(t2, screen_pos)
+        self.assertEqual([t["name"] for t in o2], ["DIR", "ZZZ"])
+        self.assertAlmostEqual(r2[0]["support"], 0.31, places=3)
+        # In-direction thesis NOT boosted when screen is negative (anti-edge)
+        screen_neg = {"screens": [{"screen": "PROBE_X", "occurrences": 500,
+                                   "win_rate": 0.44, "mean_fwd_atr": -0.31, "p_value": 0.99}]}
+        o3, r3 = rank_theses_by_discovery(t2, screen_neg)
+        self.assertEqual([t["name"] for t in o3], ["ZZZ", "DIR"])
+        self.assertEqual(r3, [])
+        # Sub-material effect (0.005 ATR, huge n) -> NO boost: noise is not an edge
+        screen_noise = {"screens": [{"screen": "PROBE_X", "occurrences": 5000,
+                                     "win_rate": 0.51, "mean_fwd_atr": 0.005, "p_value": 0.30}]}
+        o3b, r3b = rank_theses_by_discovery(t2, screen_noise)
+        self.assertEqual([t["name"] for t in o3b], ["ZZZ", "DIR"])
+        self.assertEqual(r3b, [])
+        # Small sample -> no boost even with big effect
+        screen_tiny = {"screens": [{"screen": "PROBE_X", "occurrences": 12,
+                                    "win_rate": 0.9, "mean_fwd_atr": 2.0, "p_value": 0.001}]}
+        o4, r4 = rank_theses_by_discovery(t2, screen_tiny)
+        self.assertEqual([t["name"] for t in o4], ["ZZZ", "DIR"])
+        self.assertEqual(r4, [])
+        # No screen at all -> untouched order, empty report
+        o5, r5 = rank_theses_by_discovery(theses, None)
+        self.assertEqual([t["name"] for t in o5],
+                         ["AAA_LEGACY", "BBB_FADE", "CCC_PDC", "DDD_TRAIL"])
+        self.assertEqual(r5, [])
+        # Multiple supported theses sort by descending support, stable by original index
+        screen_two = {"screens": [
+            {"screen": "P1", "occurrences": 300, "mean_fwd_atr": 0.20, "win_rate": 0.55, "p_value": 0.01},
+            {"screen": "P2", "occurrences": 300, "mean_fwd_atr": 0.50, "win_rate": 0.58, "p_value": 0.001},
+        ]}
+        t6 = [{"name": "FIRST", "screen_probe": "P1"},
+              {"name": "MID"},
+              {"name": "SECOND", "screen_probe": "P2"}]
+        o6, r6 = rank_theses_by_discovery(t6, screen_two)
+        self.assertEqual([t["name"] for t in o6], ["SECOND", "FIRST", "MID"])
+        self.assertEqual([r["name"] for r in r6], ["SECOND", "FIRST"])
 
 
 if __name__ == "__main__":

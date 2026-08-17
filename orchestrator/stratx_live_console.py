@@ -850,6 +850,59 @@ def format_matched_winner_block(mw: Optional[Dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def rank_theses_by_discovery(theses: List[Dict[str, Any]],
+                             edge_screen: Optional[Dict[str, Any]],
+                             min_occurrences: int = 100,
+                             min_effect_atr: float = 0.05) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    DISCOVERY-DRIVEN INCUBATION ORDER (PHASE_0 -> PHASE_1 handoff).
+
+    A human quant builds around MEASURED anomalies first. Theses that declare
+    a `screen_probe` are matched against the PHASE_0 edge screen by name
+    prefix. Measured support:
+      - screen_direction == "CONTINUATION": support = -mean_fwd_atr
+        (a strongly NEGATIVE reversal drift means the continuation
+        direction is the measured regularity)
+      - otherwise (the thesis trades in the screened direction):
+        support = +mean_fwd_atr
+    A thesis is SUPPORTED only when support >= min_effect_atr (a material
+    drift, not noise) with occurrences >= min_occurrences. Supported theses
+    incubate first, sorted by descending support; every other thesis keeps
+    its original relative order. Pure and deterministic: same inputs ->
+    same order. Returns (ordered_theses, support_report).
+    """
+    screens = (edge_screen or {}).get("screens") or []
+
+    def _support(thesis: Dict[str, Any]) -> Optional[Tuple[float, Dict[str, Any]]]:
+        probe = thesis.get("screen_probe")
+        if not probe:
+            return None
+        for s in screens:
+            if str(s.get("screen", "")).startswith(str(probe)):
+                occ = int(s.get("occurrences") or 0)
+                eff = float(s.get("mean_fwd_atr") or 0.0)
+                if thesis.get("screen_direction") == "CONTINUATION":
+                    eff = -eff
+                if occ >= min_occurrences and eff >= min_effect_atr:
+                    return eff, s
+                return None  # measured but NOT supportive — no boost
+        return None
+
+    decorated = []
+    for idx, t in enumerate(theses):
+        sup = _support(t)
+        decorated.append({"thesis": t, "idx": idx,
+                          "support": sup[0] if sup else None,
+                          "screen": sup[1] if sup else None})
+    supported = sorted([d for d in decorated if d["support"] is not None],
+                       key=lambda d: (-d["support"], d["idx"]))
+    unsupported = [d for d in decorated if d["support"] is None]
+    ordered = [d["thesis"] for d in supported + unsupported]
+    report = [{"name": d["thesis"].get("name"), "support": d["support"],
+               "screen": d["screen"]} for d in supported]
+    return ordered, report
+
+
 def compute_population_enrichment(trade_df: pd.DataFrame) -> Optional[Dict[str, Any]]:
     """
     FULL-POPULATION WR/RR/TRADE ENRICHMENT (Self-Heal core behaviour).
@@ -4365,8 +4418,242 @@ void OnTick()
       }
    }
 }"""
+            },
+            {
+                "id": 17,
+                "name": "X1X_M1_PDC",
+                "title": "X1X Prior-Day Sweep CONTINUATION (PHASE_0 measured edge)",
+                "session": "07:00 - 16:30 GMT (Frankfurt/London Active Hours)",
+                "screen_probe": "PREV_DAY_HL_SWEEP_REVERSAL",
+                "screen_direction": "CONTINUATION",
+                "danger_critique": "Continuation chases extended moves; late entries after a matured sweep get trapped in the pullback. Displacement confirmation and session timing are critical.",
+                "quant_mandate": "PHASE_0 discovery measured prior-day H/L sweep CONTINUATION at +0.40 ATR mean forward move (n=991; the reversal side is strongly NEGATIVE, WR 45.4%). Trade WITH the sweep: when price closes beyond the prior-day high/low with displacement, enter in the break direction.",
+                "base_code": """//+------------------------------------------------------------------+
+//| X1X_M1_PDC.mq5 - DE40 Prior-Day Sweep CONTINUATION (Measured Edge) |
+//| PHASE_0 discovery verdict: PDH/PDL sweeps CONTINUE (not reverse).  |
+//| Measured: +0.40 ATR mean fwd move, n=991 on 28k real broker bars.  |
+//+------------------------------------------------------------------+
+#property copyright "StratX Institutional Quant Desk"
+#property version   "1.00-DE40"
+#property strict
+#include <Trade/Trade.mqh>
+
+CTrade trade;
+
+//=== BLOCK 1: INPUTS & GLOBAL HANDLES ===
+input double InpRiskPercent        = 1.0;    // 1.0% equity risk per trade
+input long   InpMagic              = 260117; // Magic number
+input string InpComment            = "X1X_M1_PDC";
+
+// Continuation Geometry
+input double InpMinCloseBeyondATR  = 0.10;   // Close must clear PDH/PDL by this ATR fraction
+input double InpDispBodyATR        = 0.30;   // Breakout bar body min (ATR)
+input double InpMaxExtensionATR    = 1.50;   // Skip entries already extended this far beyond the level
+
+// Sessions (Frankfurt / London European Core Hours GMT)
+input int    InpTradeStartGMT      = 7;      // Trading start
+input int    InpTradeEndGMT        = 16;     // Trading end
+input int    InpTradeEndMin        = 30;
+
+// Risk & Exit
+input double InpStopATR            = 1.0;    // Initial stop distance (ATR)
+input double InpTrailATR           = 1.5;    // ATR trailing stop after activation
+input double InpPartialR           = 1.0;    // Partial close trigger (R)
+input double InpPartialFrac        = 0.5;    // Partial close fraction
+
+int atr_handle;
+double pdh = 0.0, pdl = 0.0;
+datetime last_levels_day = 0;
+datetime last_bar_time = 0;
+
+//=== BLOCK HELPERS ===
+int OnInit()
+{
+   atr_handle = iATR(_Symbol, _Period, 14);
+   if(atr_handle == INVALID_HANDLE) return INIT_FAILED;
+   trade.SetExpertMagicNumber(InpMagic);
+   return INIT_SUCCEEDED;
+}
+
+void OnDeinit(const int reason) { if(atr_handle != INVALID_HANDLE) IndicatorRelease(atr_handle); }
+
+bool IsNewBar()
+{
+   datetime t = iTime(_Symbol, _Period, 0);
+   if(t != last_bar_time) { last_bar_time = t; return true; }
+   return false;
+}
+
+double GetATR()
+{
+   double buf[];
+   if(CopyBuffer(atr_handle, 0, 1, 1, buf) < 1) return 0.0;
+   return buf[0];
+}
+
+//=== BLOCK 2: EXECUTION GUARDS ===
+bool InTradingSession()
+{
+   MqlDateTime dt;
+   TimeToStruct(TimeCurrent(), dt);
+   int now_m = dt.hour * 60 + dt.min;
+   int start_m = InpTradeStartGMT * 60;
+   int end_m = InpTradeEndGMT * 60 + InpTradeEndMin;
+   return (now_m >= start_m && now_m <= end_m);
+}
+
+//=== BLOCK 3: PRIOR DAY LEVELS ===
+bool UpdatePriorDayLevels()
+{
+   MqlDateTime dt;
+   TimeToStruct(TimeCurrent(), dt);
+   datetime today = StringToTime(StringFormat("%04d.%02d.%02d 00:00", dt.year, dt.mon, dt.day));
+   if(today == last_levels_day && pdh > 0.0) return true;
+
+   double hi[], lo[];
+   // Prior completed daily bar (shift 1 = yesterday)
+   if(CopyHigh(_Symbol, PERIOD_D1, 1, 1, hi) < 1) return false;
+   if(CopyLow(_Symbol, PERIOD_D1, 1, 1, lo) < 1) return false;
+   pdh = hi[0];
+   pdl = lo[0];
+   last_levels_day = today;
+   return (pdh > 0.0 && pdl > 0.0 && pdh > pdl);
+}
+
+//=== BLOCK 5: RISK & POSITION SIZING ===
+double CalcLots(double entry, double stop)
+{
+   double risk_money = AccountInfoDouble(ACCOUNT_BALANCE) * (InpRiskPercent / 100.0);
+   double dist = MathAbs(entry - stop);
+   if(dist <= 0.0) return 0.0;
+   double tick_val = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+   double tick_size = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+   if(tick_val <= 0.0 || tick_size <= 0.0) return 0.0;
+   double lots = risk_money / ((dist / tick_size) * tick_val);
+   double min_lot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double max_lot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
+   double step = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+   lots = MathFloor(lots / step) * step;
+   return MathMax(min_lot, MathMin(max_lot, lots));
+}
+
+//=== BLOCK 6: ORDER DISPATCH & EXIT MANAGEMENT ===
+void ManagePositions(double atr)
+{
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      if(!trade.PositionModify) continue;
+      ulong ticket = PositionGetTicket(i);
+      if(ticket == 0) continue;
+      if(PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol) continue;
+
+      double open_price = PositionGetDouble(POSITION_PRICE_OPEN);
+      double cur_sl = PositionGetDouble(POSITION_SL);
+      long type = PositionGetInteger(POSITION_TYPE);
+      double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+      double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+
+      double one_r = InpStopATR * atr;
+      if(one_r <= 0.0) continue;
+
+      // Partial close at +1R, then trail
+      if(type == POSITION_TYPE_BUY)
+      {
+         if(bid - open_price >= InpPartialR * one_r && PositionGetDouble(POSITION_VOLUME) > SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN))
+         {
+            double vol = PositionGetDouble(POSITION_VOLUME);
+            double close_vol = MathFloor(vol * InpPartialFrac / SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP)) * SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+            if(close_vol >= SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN))
+               trade.PositionClosePartial(ticket, close_vol);
+         }
+         double trail = bid - InpTrailATR * atr;
+         if(bid - open_price >= InpPartialR * one_r && (cur_sl < trail))
+            trade.PositionModify(ticket, trail, PositionGetDouble(POSITION_TP));
+      }
+      else if(type == POSITION_TYPE_SELL)
+      {
+         if(open_price - ask >= InpPartialR * one_r && PositionGetDouble(POSITION_VOLUME) > SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN))
+         {
+            double vol = PositionGetDouble(POSITION_VOLUME);
+            double close_vol = MathFloor(vol * InpPartialFrac / SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP)) * SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+            if(close_vol >= SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN))
+               trade.PositionClosePartial(ticket, close_vol);
+         }
+         double trail = ask + InpTrailATR * atr;
+         if(open_price - ask >= InpPartialR * one_r && (cur_sl > trail || cur_sl == 0.0))
+            trade.PositionModify(ticket, trail, PositionGetDouble(POSITION_TP));
+      }
+   }
+}
+
+//=== BLOCK 4: ALPHA TRIGGER — SWEEP CONTINUATION ===
+void OnTick()
+{
+   double atr = GetATR();
+   if(atr <= 0.0) return;
+   ManagePositions(atr);
+   if(!IsNewBar()) return;
+   if(!InTradingSession()) return;
+   if(!UpdatePriorDayLevels()) return;
+
+   // One position at a time for this module
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      ulong tk = PositionGetTicket(i);
+      if(tk > 0 && PositionGetInteger(POSITION_MAGIC) == InpMagic && PositionGetString(POSITION_SYMBOL) == _Symbol)
+         return;
+   }
+
+   double close1 = iClose(_Symbol, _Period, 1);
+   double open1  = iOpen(_Symbol, _Period, 1);
+   double high1  = iHigh(_Symbol, _Period, 1);
+   double low1   = iLow(_Symbol, _Period, 1);
+   double body1  = MathAbs(close1 - open1);
+
+   // BULLISH CONTINUATION: prior bar closed beyond PDH with displacement body
+   if(close1 > pdh + InpMinCloseBeyondATR * atr && body1 >= InpDispBodyATR * atr && close1 > open1)
+   {
+      if(close1 - pdh <= InpMaxExtensionATR * atr)  // not over-extended
+      {
+         double entry = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+         double sl = entry - InpStopATR * atr;
+         double lots = CalcLots(entry, sl);
+         if(lots > 0.0)
+            trade.Buy(lots, _Symbol, entry, sl, 0.0, InpComment);
+      }
+   }
+   // BEARISH CONTINUATION: prior bar closed beyond PDL with displacement body
+   else if(close1 < pdl - InpMinCloseBeyondATR * atr && body1 >= InpDispBodyATR * atr && close1 < open1)
+   {
+      if(pdl - close1 <= InpMaxExtensionATR * atr)
+      {
+         double entry = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+         double sl = entry + InpStopATR * atr;
+         double lots = CalcLots(entry, sl);
+         if(lots > 0.0)
+            trade.Sell(lots, _Symbol, entry, sl, 0.0, InpComment);
+      }
+   }
+}"""
             }
         ]
+
+        # --- DISCOVERY-DRIVEN INCUBATION ORDER (PHASE_0 handoff) ----------
+        # PHASE_0 measured the raw data; incubation order must follow measured
+        # support, not list position. Theses backed by a measured edge
+        # (positive adjusted drift, n>=100) incubate FIRST, strongest edge
+        # first; unsupported theses keep their original relative order.
+        MODULE_THESES, discovery_rank_report = rank_theses_by_discovery(MODULE_THESES, edge_screen)
+        if discovery_rank_report:
+            print(f"🔬 {Colors.CYAN_BOLD}[DISCOVERY-DRIVEN INCUBATION ORDER]: PHASE_0 measured support reorders the build queue.{Colors.ENDC}")
+            for rank_i, entry in enumerate(discovery_rank_report, 1):
+                scr = entry.get("screen") or {}
+                print(f"   #{rank_i} {entry['name']}  ←  measured: {scr.get('screen')} | "
+                      f"adjusted drift {entry['support']:+.3f} ATR | n={scr.get('occurrences')} | "
+                      f"screen WR {float(scr.get('win_rate') or 0.0) * 100:.1f}%", flush=True)
+            print(f"   ({len(MODULE_THESES) - len(discovery_rank_report)} unproven theses follow in original order — "
+                  f"they must EARN incubation via the landscape mapper or an L5 pivot.)\n", flush=True)
 
         # Initialize tracking for persistent Self-Review goals
         last_child_metrics = None
