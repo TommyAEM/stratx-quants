@@ -558,12 +558,12 @@ def get_quant_knowledge() -> str:
 # =====================================================================
 ROLE_MODEL_TIER = {
     # --- 7 CANONICAL STRATX LLM COUNCIL ROLES ---
-    "QUANT RESEARCHER": "nanogpt_muse_spark",        # Long-Horizon Investigator: Evaluates economic rationale & anomaly validity via Meta Muse Spark 1.2
+    "QUANT RESEARCHER": "alibaba_pro",               # Evaluates economic rationale & anomaly validity via Alibaba Dedicated Pro (DeepSeek V4 Pro 0813)
     "STATISTICIAN": "nanogpt_glm_thinking",          # Audits sample size, DSR, overfitting & math via GLM-5.2 Thinking
     "MARKET STRUCTURE SPECIALIST": "alibaba_pro",    # Validates order flow & session sweeps via Alibaba Dedicated Pro
-    "EXECUTION SPECIALIST": "ollama_pro",            # Audits spread sensitivity, tick points & slippage via Ollama Pro
+    "EXECUTION SPECIALIST": "alibaba_pro",           # Audits spread sensitivity, tick points & slippage via Alibaba Dedicated Pro
     "RED TEAM SKEPTIC": "nanogpt_glm_thinking",      # Deep adversarial thinking to disprove edge via GLM-5.2 Thinking
-    "STRATX HISTORIAN": "nanogpt_muse_spark",        # Long-Horizon Investigator: Deep memory synthesis via Meta Muse Spark 1.2
+    "STRATX HISTORIAN": "alibaba_pro",               # Deep memory synthesis via Alibaba Dedicated Pro
     "COUNCIL JUDGE": "alibaba_pro",                  # Synthesizes consensus & research question via Alibaba Dedicated Pro
     "MQL5 ARCHITECT": "alibaba_pro",                 # Complete 6-Block C++/MQL5 code synthesis via Alibaba Dedicated Pro
     "MQL5 ARCHITECT (SYNTAX FIX)": "alibaba_pro"     # Fast MetaEditor syntax repair via Alibaba Dedicated Pro
