@@ -312,6 +312,8 @@ AUTHORITATIVE_GATES = {
     "MAX_CONSECUTIVE_LOSSES_CANONICAL": 4,# <= 4 consecutive losses for canonical acceptance
     "MAX_CONSECUTIVE_LOSSES_CEILING": 8,  # <= 8 consecutive losses hard ceiling
     "MAX_WALKFORWARD_DECAY": 0.10,        # <= 10.0% max decay allowed on Year 1 & Walk-Forward
+    "RESEARCH_INCUMBENT_MIN_RR": 1.00,    # realised payoff < 1.0R = auto-reject, never incumbent
+    "THESIS_KILL_MAX_PF": 1.00,           # best population below break-even = thesis dead on arrival
 }
 
 # Backwards-compatible alias — the dict above is the single source of truth.
@@ -1007,6 +1009,33 @@ def find_impossible_breakout_triggers(code: str) -> List[str]:
     return findings
 
 
+def is_hopeless_thesis(metrics: Optional[Dict[str, Any]], min_sample: int = 20) -> bool:
+    """
+    THESIS KILL GATE (anti turd-polishing): a thesis whose BEST measured
+    population is miles off the canonical profile cannot be healed into
+    WR>=70% & PF>=2.00 & RR>=1.00 — crossing that gap requires a different
+    thesis, not another repair iteration. Hopeless when, on a real sample
+    (N >= min_sample):
+      - PF < THESIS_KILL_MAX_PF (net negative after costs), or
+      - WR < 50% AND realised RR < RESEARCH_INCUMBENT_MIN_RR (losing on
+        both axes at once — no leverage point to heal from).
+    Pure and deterministic: same metrics -> same verdict.
+    """
+    if not metrics:
+        return False
+    n = int(metrics.get("total_trades", 0) or 0)
+    if n < min_sample:
+        return False
+    pf = float(metrics.get("profit_factor", 0.0) or 0.0)
+    wr = float(metrics.get("win_rate", 0.0) or 0.0)
+    rr = float(metrics.get("risk_reward", 0.0) or 0.0)
+    if pf < AUTHORITATIVE_GATES["THESIS_KILL_MAX_PF"]:
+        return True
+    if wr < 0.50 and rr < AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MIN_RR"]:
+        return True
+    return False
+
+
 def build_evidence_derived_directive(cur_level: str, failure_class: Optional[str],
                                      metrics: Optional[Dict[str, Any]]) -> str:
     """
@@ -1025,6 +1054,7 @@ def build_evidence_derived_directive(cur_level: str, failure_class: Optional[str
     pf = float(m.get("profit_factor", 0.0) or 0.0)
     dd = float(m.get("max_drawdown", 0.0) or 0.0)
     consec = int(m.get("max_consecutive_losses", 0) or 0)
+    rr = float(m.get("risk_reward", 0.0) or 0.0)
     implied_payoff = (pf * (1.0 - wr) / wr) if 0.0 < wr < 1.0 else 0.0
     dd_ceiling = AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MAX_DD"]
     consec_ceiling = AUTHORITATIVE_GATES["MAX_CONSECUTIVE_LOSSES_CEILING"]
@@ -1046,6 +1076,16 @@ def build_evidence_derived_directive(cur_level: str, failure_class: Optional[str
             f"distribution. Localise WHERE the tail lives (hours, regimes, entry type) from the losing-cluster "
             f"and matched-winner evidence, then repair the mechanism producing it. The repair lever is chosen "
             f"from that evidence — frequency restoration is FORBIDDEN (population N={n} is not the problem)."
+        )
+    if n >= CHAMPION_MIN_TRADES and 0.0 < rr < AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MIN_RR"]:
+        return (
+            f"EVIDENCE-DERIVED REPAIR TARGET [{cur_level}] — PAYOFF BELOW HARD FLOOR: realised payoff "
+            f"{rr:.2f}R is under the {AUTHORITATIVE_GATES['RESEARCH_INCUMBENT_MIN_RR']:.2f}R minimum — winners are "
+            f"structurally paid less than losers cost (WR={wr*100:.1f}%, PF={pf:.2f}, N={n}). This exit geometry "
+            f"is FORBIDDEN: any child below the floor is auto-rejected. Rebuild the exit/risk structure so a "
+            f"winner pays at least a full 1R (fixed RR target, stop placement, or exit timing — the lever is "
+            f"yours, chosen from the enrichment evidence); a repair that does not lift realised payoff above "
+            f"1.0R will be discarded without debate."
         )
     if wr >= 0.70 and pf < 1.30:
         return (
@@ -4639,23 +4679,27 @@ void OnTick()
 CTrade trade;
 
 //=== BLOCK 1: INPUTS & GLOBAL HANDLES ===
-input double InpRiskPercent        = 1.0;    // 1.0% equity risk per trade
+// STAGE 1 prototype grid (864 variants on 28k real bars, evidence/prototype_grid_X1X_M1_PDC.json)
+// seeded these defaults: measured viable region = 8-12 GMT, disp 0.50, beyond 0.05, RR 3.0
+// (N=206, PF 1.42, +0.30R/trade, payoff 2.70). Prototype maxDD 14.4R -> risk 0.4%
+// keeps model DD <= 5.8% inside the 6% canonical module ceiling.
+input double InpRiskPercent        = 0.4;    // equity risk per trade (prototype DD-scaled)
 input long   InpMagic              = 260117; // Magic number
 input string InpComment            = "X1X_M1_PDC";
 
 // Continuation Geometry
-input double InpMinCloseBeyondATR  = 0.10;   // Close must clear PDH/PDL by this ATR fraction
-input double InpDispBodyATR        = 0.30;   // Breakout bar body min (ATR)
+input double InpMinCloseBeyondATR  = 0.05;   // Close must clear PDH/PDL by this ATR fraction
+input double InpDispBodyATR        = 0.50;   // Breakout bar body min (ATR)
 input double InpMaxExtensionATR    = 1.50;   // Skip entries already extended this far beyond the level
 
 // Sessions (Frankfurt / London European Core Hours GMT)
-input int    InpTradeStartGMT      = 7;      // Trading start
-input int    InpTradeEndGMT        = 16;     // Trading end
-input int    InpTradeEndMin        = 30;
+input int    InpTradeStartGMT      = 8;      // Trading start (measured: 8-12 GMT window wins)
+input int    InpTradeEndGMT        = 12;     // Trading end
+input int    InpTradeEndMin        = 0;
 
 // Risk & Exit — FIXED RR GEOMETRY (canonical gate requires realised RR >= 1.0)
 input double InpStopATR            = 1.0;    // Initial stop distance (ATR)
-input double InpTargetRR           = 2.0;    // Fixed take-profit: winners pay 2.0x the stop
+input double InpTargetRR           = 3.0;    // Fixed take-profit: winners pay 3.0x the stop
 input int    InpMaxDailyLosses     = 3;      // Streak circuit-breaker: stop opening after N losing closes/day
 
 int atr_handle;
@@ -4833,6 +4877,48 @@ void OnTick()
                       f"screen WR {float(scr.get('win_rate') or 0.0) * 100:.1f}%", flush=True)
             print(f"   ({len(MODULE_THESES) - len(discovery_rank_report)} unproven theses follow in original order — "
                   f"they must EARN incubation via the landscape mapper or an L5 pivot.)\n", flush=True)
+
+        # --- STAGE 1: PROTOTYPE GATE (cheap kill/seed before ANY MT5 burn) ---
+        # A thesis with a measured screen probe must survive a direct simulation
+        # of its hypothesis on the real bars (hundreds of parameter variants,
+        # seconds, no LLM/MetaEditor/MT5). No viable region -> SHELVED this
+        # mission. Viable -> base defaults seeded from the measured best cell.
+        try:
+            from orchestrator.prototype_lab import (load_bars as _pl_load, run_pdc_grid,
+                                                    viable_region, format_grid_report, PROTO_OUT)
+            proto_grid = None
+            if PROTO_OUT.exists():
+                proto_grid = json.loads(PROTO_OUT.read_text(encoding="utf-8"))
+                print(f"🧫 {Colors.CYAN_BOLD}[PROTOTYPE GATE]: loaded cached STAGE 1 grid ({PROTO_OUT.name}).{Colors.ENDC}", flush=True)
+            else:
+                print(f"🧫 {Colors.CYAN_BOLD}[PROTOTYPE GATE]: running STAGE 1 simulation grid (no MT5 burn)...{Colors.ENDC}", flush=True)
+                _df_pl = _pl_load()
+                proto_grid = {"grid": run_pdc_grid(_df_pl, verbose=False)}
+                proto_grid["viable"] = viable_region(proto_grid["grid"])
+                PROTO_OUT.write_text(json.dumps(proto_grid, indent=1))
+            best_cell = proto_grid.get("viable")
+            screened = [t for t in MODULE_THESES if t.get("screen_probe") == "PREV_DAY_HL_SWEEP_REVERSAL"]
+            for t in screened:
+                if best_cell:
+                    t["base_code"] = apply_params_to_code(t["base_code"], {
+                        "InpStopATR": best_cell["stop_atr"], "InpTargetRR": best_cell["target_rr"],
+                        "InpDispBodyATR": best_cell["disp_body_atr"], "InpMinCloseBeyondATR": best_cell["min_beyond_atr"],
+                        "InpTradeStartGMT": int(best_cell["session"].split("-")[0]),
+                        "InpTradeEndGMT": int(best_cell["session"].split("-")[1]),
+                        "InpTradeEndMin": 0, "InpMaxDailyLosses": best_cell["daily_loss_cap"]})
+                    print(f"🧫 {Colors.LIME_BOLD}[PROTOTYPE SEED — {t['name']}]: viable region found at STAGE 1 — "
+                          f"session {best_cell['session']}GMT, stop {best_cell['stop_atr']}ATR, RR {best_cell['target_rr']}, "
+                          f"disp {best_cell['disp_body_atr']} | N={best_cell['n']} PF={best_cell['profit_factor']} "
+                          f"exp={best_cell['expectancy_r']:+.3f}R maxDD={best_cell['max_dd_r']}R. "
+                          f"Base defaults seeded from measurement, not intuition.{Colors.ENDC}\n", flush=True)
+                else:
+                    MODULE_THESES.remove(t)
+                    print(f"🧫 {Colors.RED_BOLD}[PROTOTYPE SHELVED — {t['name']}]: NO parameter region survived costs at "
+                          f"STAGE 1 (min N=100, PF>=1.30, exp>=+0.05R). Thesis removed from this mission's queue "
+                          f"with ZERO MT5 compute burned. This is what a cheap kill looks like.{Colors.ENDC}\n", flush=True)
+            state["prototype_grid_file"] = str(PROTO_OUT)
+        except Exception as e:
+            print(f"⚠️ Prototype gate failed ({e}); continuing without STAGE 1.", flush=True)
 
         # Initialize tracking for persistent Self-Review goals
         last_child_metrics = None
@@ -5836,10 +5922,12 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                 c_pf = child_metrics.get("profit_factor", 0.0)
                 c_wr = child_metrics.get("win_rate", 0.0)
                 c_consec = child_metrics.get("max_consecutive_losses", 0)
+                c_rr = child_metrics.get("risk_reward", 0.0)
 
                 dd_blocked = (c_dd > AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MAX_DD"])
                 pf_blocked = (c_pf < AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MIN_PF"])
                 consec_blocked = (c_consec > AUTHORITATIVE_GATES["MAX_CONSECUTIVE_LOSSES_CEILING"])
+                rr_blocked = (c_rr < AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MIN_RR"])
 
                 promotion_allowed = (
                     (t_quant["passed"] or not has_champion) 
@@ -5848,6 +5936,7 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     and not dd_blocked
                     and not pf_blocked
                     and not consec_blocked
+                    and not rr_blocked
                 )
 
                 if complexity_pen > 0:
@@ -5862,6 +5951,8 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — SUB-ECONOMIC PF]: Child PF={c_pf:.2f} < {AUTHORITATIVE_GATES['RESEARCH_INCUMBENT_MIN_PF']:.2f} minimum floor. Self-heal required.{Colors.ENDC}", flush=True)
                 elif consec_blocked:
                     print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — LOSS CLUSTER BLOWOUT]: Child consecutive losses={c_consec} > {AUTHORITATIVE_GATES['MAX_CONSECUTIVE_LOSSES_CEILING']}. Self-heal required.{Colors.ENDC}", flush=True)
+                elif rr_blocked:
+                    print(f"📉 {Colors.RED_BOLD}[PROMOTION FORBIDDEN — PAYOFF BELOW HARD FLOOR]: Child realised payoff {c_rr:.2f}R < {AUTHORITATIVE_GATES['RESEARCH_INCUMBENT_MIN_RR']:.2f}R minimum. Winners paid less than losers cost — auto-rejected, no incumbency.{Colors.ENDC}", flush=True)
                 elif not t_quant["passed"] and has_champion:
                     print(f"📉 {Colors.YELLOW}[T-QUANT BLOCK]: t={t_quant['t_stat']}, p={t_quant['p_value']} — edge not statistically significant; champion promotion FORBIDDEN.{Colors.ENDC}", flush=True)
 
@@ -5984,6 +6075,44 @@ Output the COMPLETE fixed MQL5 file inside markdown fences:
                     "predicted_damage": "Potential frequency reduction from tightened gating",
                     "parameter_changes": {"mutation": str(causal_mutation)[:120]}
                 }
+                # --- THESIS KILL GATE (anti turd-polishing, deterministic) ---
+                # When the BEST population this thesis has produced is hopeless —
+                # net-negative PF, or losing on WR and RR simultaneously — after a
+                # fair minimal shake (2 physical evaluations or a landscape map),
+                # the thesis is DEAD ON ARRIVAL. Healing cannot double WR and PF
+                # at once. Kill it, record why in the Brain (so the Historian
+                # stops re-nominating it), and advance to the next thesis.
+                _best_known = champ_metrics or child_metrics
+                if (is_hopeless_thesis(_best_known)
+                        and (state.get("thesis_iteration_count", 0) >= 2 or state.get("landscape_maps_used", 0) >= 1)):
+                    next_idx = state.get("active_thesis_index", 0) + 1
+                    print(f"🛑 {Colors.RED_BOLD}[THESIS KILLED — HOPELESS BASE PROFILE]: {active_thesis['name']} best "
+                          f"measured population N={_best_known.get('total_trades')} WR={_best_known.get('win_rate', 0)*100:.1f}% "
+                          f"PF={_best_known.get('profit_factor', 0):.2f} RR={_best_known.get('risk_reward', 0):.2f} — miles off "
+                          f"canonical (WR>=70%, PF>=2.00, RR>=1.00R). No repair ladder crosses that gap; "
+                          f"advancing to thesis #{next_idx + 1}.{Colors.ENDC}\n", flush=True)
+                    write_to_brain(
+                        memory_id=f"MEM_{it:04d}_THESIS_KILLED_{active_thesis['name']}",
+                        tags=["THESIS_KILLED", "HOPELESS_PROFILE", active_thesis["name"].upper()],
+                        fix=f"Thesis killed on evidence: hopeless best population (N={_best_known.get('total_trades')}, PF={_best_known.get('profit_factor', 0):.2f})",
+                        success=False,
+                        metrics=_best_known,
+                    )
+                    state["active_thesis_index"] = next_idx
+                    state["repair_level_idx"] = 0
+                    state["consecutive_fails_at_level"] = 0
+                    self._reset_champion_lineage(state, note=(
+                        f"THESIS KILLED: {active_thesis['name']} hopeless best profile "
+                        f"(N={_best_known.get('total_trades')}, PF={_best_known.get('profit_factor', 0):.2f}, "
+                        f"WR={_best_known.get('win_rate', 0)*100:.1f}%, RR={_best_known.get('risk_reward', 0):.2f}). "
+                        f"Do NOT re-nominate this thesis without NEW measured evidence."))
+                    state["thesis_iteration_count"] = 0
+                    state["iterations_since_improvement"] = 0
+                    state["temperature"] = 0.0
+                    state["forced_jab"] = None
+                    save_checkpoint(state)
+                    continue
+
                 sr_result = self.self_review.evaluate_goal(
                     sr_session,
                     candidate_id=f"{active_thesis['name']}_IT{it}",

@@ -70,10 +70,12 @@ from orchestrator.stratx_live_console import (
     rank_theses_by_discovery,
     build_evidence_derived_directive,
     find_impossible_breakout_triggers,
+    is_hopeless_thesis,
     MODULE_MIN_TRADES_PER_YEAR,
     CHAMPION_MIN_TRADES,
     AUTHORITATIVE_GATES,
 )
+from orchestrator.prototype_lab import simulate_pdc, metrics_from_r, viable_region
 import orchestrator.stratx_live_console as console_mod
 from orchestrator.stratx_goal_loop import StratXGoalLoopOrchestrator
 from skills.self_review_engine import SelfReviewEngine
@@ -765,6 +767,66 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
         for t in theses:
             self.assertEqual(find_impossible_breakout_triggers(t.get("base_code", "")), [],
                              f"{t.get('name')} ships an impossible breakout trigger")
+
+    def test_Y_prototype_lab(self):
+        """TEST Y (STAGE 1 prototype): deterministic R-accounting and PDC
+        simulation semantics on synthetic bars — fixed RR geometry, stop-first
+        conservatism, one-position-at-a-time, viable-region thresholds."""
+        m = metrics_from_r([2.0, 2.0, -1.0, -1.0, 3.0], pd.DataFrame({"date": [pd.Timestamp("2024-01-01").date(), pd.Timestamp("2024-12-31").date()]}))
+        self.assertAlmostEqual(m["profit_factor"], round(7.0 / 2.0, 3))
+        self.assertAlmostEqual(m["win_rate"], 0.6)
+        self.assertEqual(m["n"], 5)
+        self.assertGreaterEqual(m["max_dd_r"], 2.0)
+        self.assertEqual(metrics_from_r([], pd.DataFrame({"date": [pd.Timestamp("2024-01-01").date(), pd.Timestamp("2024-01-02").date()]}))["n"], 0)
+        # synthetic bars: two prior days range 100-110; signal day 09:00 closes
+        # at 111 with displacement body; entry next open; 2R target hit first
+        rows = []
+        base = pd.Timestamp("2024-01-02 08:00")
+        for d in range(2):
+            day = base + pd.Timedelta(days=d)
+            for b in range(8):
+                rows.append({"time": day + pd.Timedelta(minutes=15 * b),
+                             "open": 105.0, "high": 110.0, "low": 100.0, "close": 105.0})
+        sig_day = base + pd.Timedelta(days=2)
+        rows.append({"time": sig_day.replace(hour=9), "open": 105.0, "high": 111.5, "low": 104.5, "close": 111.0})
+        rows.append({"time": sig_day.replace(hour=9, minute=15), "open": 111.2, "high": 113.0, "low": 110.8, "close": 112.5})
+        rows.append({"time": sig_day.replace(hour=9, minute=30), "open": 112.5, "high": 117.0, "low": 112.0, "close": 116.5})
+        df = pd.DataFrame(rows)
+        df["atr"] = 2.0
+        df["date"] = df["time"].dt.date
+        df["hour"] = df["time"].dt.hour
+        out = simulate_pdc(df, stop_atr=1.0, target_rr=2.0, min_beyond_atr=0.05,
+                           disp_body_atr=0.3, max_ext_atr=3.0, start_hour=7, end_hour=12,
+                           max_daily_losses=0, cost_r=0.0)
+        self.assertEqual(out["n"], 1)
+        self.assertEqual(out["win_rate"], 1.0)
+        self.assertAlmostEqual(out["total_r"], 2.0)
+        grid = [{"n": 206, "profit_factor": 1.42, "expectancy_r": 0.30},
+                {"n": 50, "profit_factor": 2.50, "expectancy_r": 0.90}]
+        self.assertEqual(viable_region(grid)["n"], 206)
+        self.assertIsNone(viable_region([{"n": 500, "profit_factor": 1.10, "expectancy_r": 0.02}]))
+
+    def test_Z_hopeless_thesis_kill_gate(self):
+        """TEST Z (anti turd-polishing + RR hard floor): theses whose best
+        measured population is net-negative or losing on both axes are dead
+        on arrival; high-RR profiles survive; the directive names the floor."""
+        self.assertFalse(is_hopeless_thesis(None))
+        self.assertFalse(is_hopeless_thesis({"total_trades": 7, "profit_factor": 0.5}))
+        self.assertTrue(is_hopeless_thesis({"total_trades": 155, "win_rate": 0.316,
+                                            "profit_factor": 0.90, "risk_reward": 1.9}))
+        self.assertTrue(is_hopeless_thesis({"total_trades": 100, "win_rate": 0.40,
+                                            "profit_factor": 1.05, "risk_reward": 0.8}))
+        self.assertFalse(is_hopeless_thesis({"total_trades": 100, "win_rate": 0.34,
+                                             "profit_factor": 1.42, "risk_reward": 2.7}))
+        self.assertFalse(is_hopeless_thesis({"total_trades": 100, "win_rate": 0.65,
+                                             "profit_factor": 1.20, "risk_reward": 1.1}))
+        d = build_evidence_derived_directive("L3_INDICATOR_LOGIC", None,
+                                             {"total_trades": 400, "win_rate": 0.74, "profit_factor": 1.16,
+                                              "max_drawdown": 0.05, "max_consecutive_losses": 3,
+                                              "risk_reward": 0.41})
+        self.assertIn("PAYOFF BELOW HARD FLOOR", d)
+        self.assertIn("auto-rejected", d)
+        self.assertEqual(AUTHORITATIVE_GATES["RESEARCH_INCUMBENT_MIN_RR"], 1.00)
 
 
 if __name__ == "__main__":
