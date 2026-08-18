@@ -69,6 +69,7 @@ from orchestrator.stratx_live_console import (
     check_pass_gates,
     rank_theses_by_discovery,
     build_evidence_derived_directive,
+    find_impossible_breakout_triggers,
     MODULE_MIN_TRADES_PER_YEAR,
     CHAMPION_MIN_TRADES,
     AUTHORITATIVE_GATES,
@@ -728,6 +729,42 @@ class TestDeepSelfHealingWorkflow(unittest.TestCase):
         review_record["recommended_route"] = "CONTINUE"
         out4 = engine.validate_workflow_gates({}, review_record, None)
         self.assertTrue(out4["is_allowed"])
+
+    def test_X_dead_template_linter(self):
+        """TEST X (impossible-breakout class): a Donchian/BOS channel that
+        INCLUDES the signal bar (iHighest/iLowest start shift 1) compared
+        against that bar's close can never fire — observed live as Module_5
+        burning L1-L5 + landscape mapping at N=0. The linter must catch the
+        pre-fix pattern and pass all shipped module templates."""
+        buggy = ("int h = iHighest(_Symbol, PERIOD_H1, MODE_HIGH, 20, 1);\n"
+                 "double d_high = iHigh(_Symbol, PERIOD_H1, h);\n"
+                 "if(iClose(_Symbol, PERIOD_H1, 1) > d_high) { OpenBuy(); }")
+        findings = find_impossible_breakout_triggers(buggy)
+        self.assertTrue(any("IMPOSSIBLE LONG BREAKOUT" in f for f in findings))
+        buggy_short = ("int l = iLowest(_Symbol, _Period, MODE_LOW, 20, 1);\n"
+                       "double d_low = iLow(_Symbol, _Period, l);\n"
+                       "if(iClose(_Symbol, _Period, 1) < d_low) { OpenSell(); }")
+        findings_s = find_impossible_breakout_triggers(buggy_short)
+        self.assertTrue(any("IMPOSSIBLE SHORT BREAKOUT" in f for f in findings_s))
+        # fixed pattern (channel excludes signal bar) is clean
+        fixed = buggy.replace("MODE_HIGH, 20, 1)", "MODE_HIGH, 20, 2)")
+        self.assertEqual(find_impossible_breakout_triggers(fixed), [])
+        # fib-style usage (extremes define levels, not breakout barriers) is clean
+        fib = ("int h = iHighest(_Symbol, PERIOD_CURRENT, MODE_HIGH, 50, 1);\n"
+               "double swing_high = iHigh(_Symbol, PERIOD_CURRENT, h);\n"
+               "if(iClose(_Symbol, PERIOD_CURRENT, 1) > fib_618) { OpenBuy(); }")
+        self.assertEqual(find_impossible_breakout_triggers(fib), [])
+        # every shipped module template must pass (thesis list is function-local;
+        # extract it from source exactly as the runtime defines it)
+        import re as _re
+        src = open(str(Path(console_mod.__file__)), encoding="utf-8").read()
+        i = src.find("MODULE_THESES = [")
+        j = src.find("\n        ]", i)
+        theses = eval(src[i + len("MODULE_THESES = "):j + len("\n        ]")])
+        self.assertGreaterEqual(len(theses), 10)
+        for t in theses:
+            self.assertEqual(find_impossible_breakout_triggers(t.get("base_code", "")), [],
+                             f"{t.get('name')} ships an impossible breakout trigger")
 
 
 if __name__ == "__main__":

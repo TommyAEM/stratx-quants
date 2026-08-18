@@ -985,6 +985,28 @@ def rank_theses_by_discovery(theses: List[Dict[str, Any]],
     return ordered, report
 
 
+def find_impossible_breakout_triggers(code: str) -> List[str]:
+    """
+    DEAD-TEMPLATE LINTER (deterministic): flags the mathematically impossible
+    trigger class — a breakout comparing the signal bar's close against an
+    iHighest/iLowest channel whose window INCLUDES the signal bar (start
+    shift 1). close1 <= high1 always, so `close1 > channel_including_bar_1`
+    can never fire: the EA trades zero times and self-heal burns the whole
+    repair ladder on a corpse (observed live: Module_5, 0 trades across
+    L1-L5 + landscape mapping). Returns a list of findings (empty = clean).
+    """
+    findings = []
+    if not code:
+        return findings
+    inclusive_high = re.search(r"iHighest\([^)]*MODE_HIGH[^)]*,\s*1\s*\)", code)
+    inclusive_low = re.search(r"iLowest\([^)]*MODE_LOW[^)]*,\s*1\s*\)", code)
+    if inclusive_high and re.search(r"iClose\([^)]*,\s*1\s*\)\s*>\s*\w*[Hh]igh", code):
+        findings.append("IMPOSSIBLE LONG BREAKOUT: close(1) > iHighest(...,1) channel includes the signal bar (close <= high always); start the channel at shift 2")
+    if inclusive_low and re.search(r"iClose\([^)]*,\s*1\s*\)\s*<\s*\w*[Ll]ow", code):
+        findings.append("IMPOSSIBLE SHORT BREAKOUT: close(1) < iLowest(...,1) channel includes the signal bar (close >= low always); start the channel at shift 2")
+    return findings
+
+
 def build_evidence_derived_directive(cur_level: str, failure_class: Optional[str],
                                      metrics: Optional[Dict[str, Any]]) -> str:
     """
@@ -2974,8 +2996,10 @@ void OnTick()
    if(!InSession(InpStartHour, InpStartMinute, InpEndHour, InpEndMinute)) return;
    if(HasOpenPosition()) return;
 
-   int hi_shift = iHighest(_Symbol, _Period, MODE_HIGH, 20, 1);
-   int lo_shift = iLowest(_Symbol, _Period, MODE_LOW, 20, 1);
+   // Channel EXCLUDES the signal bar (start=2): comparing close1 against a
+   // channel containing bar 1 is mathematically impossible (close <= high).
+   int hi_shift = iHighest(_Symbol, _Period, MODE_HIGH, 20, 2);
+   int lo_shift = iLowest(_Symbol, _Period, MODE_LOW, 20, 2);
    if(hi_shift < 0 || lo_shift < 0) return;
    double d_high = iHigh(_Symbol, _Period, hi_shift);
    double d_low  = iLow(_Symbol, _Period, lo_shift);
@@ -3917,9 +3941,10 @@ void OnTick()
    double adx = GetH1ADX(1);
    if(adx < InpAdxMin) return;
 
-   // 2. Donchian channel over closed H1 bars
-   int hi_idx = iHighest(_Symbol, PERIOD_H1, MODE_HIGH, InpDonchianPeriod, 1);
-   int lo_idx = iLowest(_Symbol, PERIOD_H1, MODE_LOW, InpDonchianPeriod, 1);
+   // 2. Donchian channel over closed H1 bars, EXCLUDING the signal bar
+   //    (start=2): close1 can never exceed a channel that contains bar 1.
+   int hi_idx = iHighest(_Symbol, PERIOD_H1, MODE_HIGH, InpDonchianPeriod, 2);
+   int lo_idx = iLowest(_Symbol, PERIOD_H1, MODE_LOW, InpDonchianPeriod, 2);
    if(hi_idx < 0 || lo_idx < 0) return;
    double dc_high = iHigh(_Symbol, PERIOD_H1, hi_idx);
    double dc_low  = iLow(_Symbol, PERIOD_H1, lo_idx);
