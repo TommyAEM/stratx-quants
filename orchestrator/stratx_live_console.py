@@ -4627,6 +4627,9 @@ void OnTick()
 //| X1X_M1_PDC.mq5 - DE40 Prior-Day Sweep CONTINUATION (Measured Edge) |
 //| PHASE_0 discovery verdict: PDH/PDL sweeps CONTINUE (not reverse).  |
 //| Measured: +0.40 ATR mean fwd move, n=991 on 28k real broker bars.  |
+//| Exit architecture v2: FIXED 1:2 RR (SL 1xATR, TP 2R) + daily streak |
+//| circuit-breaker (max 3 losing closes/day). No partial/trail — those |
+//| manufactured the 74% WR / PF 1.16 / DD 25.6% payoff pathology.      |
 //+------------------------------------------------------------------+
 #property copyright "StratX Institutional Quant Desk"
 #property version   "1.00-DE40"
@@ -4650,11 +4653,10 @@ input int    InpTradeStartGMT      = 7;      // Trading start
 input int    InpTradeEndGMT        = 16;     // Trading end
 input int    InpTradeEndMin        = 30;
 
-// Risk & Exit
+// Risk & Exit — FIXED RR GEOMETRY (canonical gate requires realised RR >= 1.0)
 input double InpStopATR            = 1.0;    // Initial stop distance (ATR)
-input double InpTrailATR           = 1.5;    // ATR trailing stop after activation
-input double InpPartialR           = 1.0;    // Partial close trigger (R)
-input double InpPartialFrac        = 0.5;    // Partial close fraction
+input double InpTargetRR           = 2.0;    // Fixed take-profit: winners pay 2.0x the stop
+input int    InpMaxDailyLosses     = 3;      // Streak circuit-breaker: stop opening after N losing closes/day
 
 int atr_handle;
 double pdh = 0.0, pdl = 0.0;
@@ -4732,53 +4734,34 @@ double CalcLots(double entry, double stop)
    return MathMax(min_lot, MathMin(max_lot, lots));
 }
 
-//=== BLOCK 6: ORDER DISPATCH & EXIT MANAGEMENT ===
-void ManagePositions(double atr)
+//=== BLOCK 6: STREAK CIRCUIT-BREAKER (consecutive-loss DD control) ===
+// Exits are the broker-side fixed SL/TP placed at order dispatch — no
+// premature breakeven moves, no partial close at +1R, no tight trailing:
+// those converted 2R winners into 0.4R scratches and manufactured the
+// 74% WR / PF 1.16 / DD 25.6% pathology this base replaces.
+datetime TodayStart()
 {
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   MqlDateTime dt;
+   TimeToStruct(TimeCurrent(), dt);
+   return StringToTime(StringFormat("%04d.%02d.%02d 00:00", dt.year, dt.mon, dt.day));
+}
+
+int TodaysLosses()
+{
+   if(!HistorySelect(TodayStart(), TimeCurrent())) return 0;
+   int losses = 0;
+   int n = HistoryDealsTotal();
+   for(int i = 0; i < n; i++)
    {
-      ulong ticket = PositionGetTicket(i);
-      if(ticket == 0) continue;
-      if(PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
-      if(PositionGetString(POSITION_SYMBOL) != _Symbol) continue;
-
-      double open_price = PositionGetDouble(POSITION_PRICE_OPEN);
-      double cur_sl = PositionGetDouble(POSITION_SL);
-      long type = PositionGetInteger(POSITION_TYPE);
-      double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-      double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-
-      double one_r = InpStopATR * atr;
-      if(one_r <= 0.0) continue;
-
-      // Partial close at +1R, then trail
-      if(type == POSITION_TYPE_BUY)
-      {
-         if(bid - open_price >= InpPartialR * one_r && PositionGetDouble(POSITION_VOLUME) > SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN))
-         {
-            double vol = PositionGetDouble(POSITION_VOLUME);
-            double close_vol = MathFloor(vol * InpPartialFrac / SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP)) * SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
-            if(close_vol >= SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN))
-               trade.PositionClosePartial(ticket, close_vol);
-         }
-         double trail = bid - InpTrailATR * atr;
-         if(bid - open_price >= InpPartialR * one_r && (cur_sl < trail))
-            trade.PositionModify(ticket, trail, PositionGetDouble(POSITION_TP));
-      }
-      else if(type == POSITION_TYPE_SELL)
-      {
-         if(open_price - ask >= InpPartialR * one_r && PositionGetDouble(POSITION_VOLUME) > SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN))
-         {
-            double vol = PositionGetDouble(POSITION_VOLUME);
-            double close_vol = MathFloor(vol * InpPartialFrac / SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP)) * SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
-            if(close_vol >= SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN))
-               trade.PositionClosePartial(ticket, close_vol);
-         }
-         double trail = ask + InpTrailATR * atr;
-         if(open_price - ask >= InpPartialR * one_r && (cur_sl > trail || cur_sl == 0.0))
-            trade.PositionModify(ticket, trail, PositionGetDouble(POSITION_TP));
-      }
+      ulong d = HistoryDealGetTicket(i);
+      if(d == 0) continue;
+      if(HistoryDealGetInteger(d, DEAL_MAGIC) != InpMagic) continue;
+      if(HistoryDealGetString(d, DEAL_SYMBOL) != _Symbol) continue;
+      if(HistoryDealGetInteger(d, DEAL_ENTRY) != DEAL_ENTRY_OUT) continue;
+      double p = HistoryDealGetDouble(d, DEAL_PROFIT) + HistoryDealGetDouble(d, DEAL_SWAP) + HistoryDealGetDouble(d, DEAL_COMMISSION);
+      if(p < 0.0) losses++;
    }
+   return losses;
 }
 
 //=== BLOCK 4: ALPHA TRIGGER — SWEEP CONTINUATION ===
@@ -4786,10 +4769,10 @@ void OnTick()
 {
    double atr = GetATR();
    if(atr <= 0.0) return;
-   ManagePositions(atr);
    if(!IsNewBar()) return;
    if(!InTradingSession()) return;
    if(!UpdatePriorDayLevels()) return;
+   if(TodaysLosses() >= InpMaxDailyLosses) return;  // streak circuit-breaker caps loss-cluster DD
 
    // One position at a time for this module
    for(int i = PositionsTotal() - 1; i >= 0; i--)
@@ -4812,9 +4795,10 @@ void OnTick()
       {
          double entry = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
          double sl = entry - InpStopATR * atr;
+         double tp = entry + InpTargetRR * (entry - sl);   // fixed 2R target
          double lots = CalcLots(entry, sl);
          if(lots > 0.0)
-            trade.Buy(lots, _Symbol, entry, sl, 0.0, InpComment);
+            trade.Buy(lots, _Symbol, entry, sl, tp, InpComment);
       }
    }
    // BEARISH CONTINUATION: prior bar closed beyond PDL with displacement body
@@ -4824,9 +4808,10 @@ void OnTick()
       {
          double entry = SymbolInfoDouble(_Symbol, SYMBOL_BID);
          double sl = entry + InpStopATR * atr;
+         double tp = entry - InpTargetRR * (sl - entry);   // fixed 2R target
          double lots = CalcLots(entry, sl);
          if(lots > 0.0)
-            trade.Sell(lots, _Symbol, entry, sl, 0.0, InpComment);
+            trade.Sell(lots, _Symbol, entry, sl, tp, InpComment);
       }
    }
 }"""
