@@ -112,6 +112,21 @@ def get_alibaba_key() -> str:
             pass
     return "sk-sp-dummy"
 
+def get_alibaba_token_plan_key() -> str:
+    env_path = Path("C:/Users/Tommy/AppData/Local/hermes/.env")
+    if env_path.exists():
+        try:
+            text = env_path.read_text(encoding="utf-8")
+            m_sp = re.search(r'sk-sp-[a-zA-Z0-9_\-\.]+', text)
+            if m_sp:
+                return m_sp.group(0)
+        except Exception:
+            pass
+    env_key = os.environ.get("ALIBABA_API_KEY")
+    if env_key and len(env_key) > 20:
+        return env_key
+    return ""
+
 def get_alibaba_dedicated_key() -> str:
     env_key = os.environ.get("ALIBABA_DEDICATED_KEY") or os.environ.get("ALIBABA_API_KEY")
     if env_key and len(env_key) > 20:
@@ -131,27 +146,49 @@ def get_alibaba_dedicated_key() -> str:
     return ""
 
 ALIBABA_KEY = get_alibaba_key()
+ALIBABA_TOKEN_PLAN_KEY = get_alibaba_token_plan_key()
 ALIBABA_DEDICATED_KEY = get_alibaba_dedicated_key()
+ALIBABA_TOKEN_PLAN_URL = "https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions"
 ALIBABA_DEDICATED_URL = "https://ws-uluvv8lspw5ud99q.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions"
 
 MODEL_GATEWAYS = {
     "ollama_pro": [
         {
+            "name": "Alibaba Token Plan (DeepSeek V4 Pro 0813 Primary)",
+            "url": ALIBABA_TOKEN_PLAN_URL,
+            "key": ALIBABA_TOKEN_PLAN_KEY,
+            "model": "deepseek-v4-pro-0813"
+        },
+        {
+            "name": "NanoGPT DeepSeek V4 Pro Thinking",
+            "url": f"{StratXLLMClient.NANOGPT_BASE_URL}/chat/completions",
+            "key": StratXLLMClient.NANOGPT_KEY,
+            "model": StratXLLMClient.NANOGPT_MODEL
+        },
+        {
+            "name": "NanoGPT GLM-5.2 Thinking (Reliable Backup)",
+            "url": f"{StratXLLMClient.NANOGPT_BASE_URL}/chat/completions",
+            "key": StratXLLMClient.NANOGPT_KEY,
+            "model": "zai-org/glm-5.2:thinking"
+        },
+        {
             "name": "Ollama Cloud Pro (deepseek-v4-pro:0813-cloud)",
             "url": "http://localhost:11434/v1/chat/completions",
             "key": "ollama",
             "model": "deepseek-v4-pro:0813-cloud"
+        }
+    ],
+    "ollama_glm": [
+        {
+            "name": "NanoGPT GLM-5.2 Thinking (Primary GLM)",
+            "url": f"{StratXLLMClient.NANOGPT_BASE_URL}/chat/completions",
+            "key": StratXLLMClient.NANOGPT_KEY,
+            "model": "zai-org/glm-5.2:thinking"
         },
         {
-            "name": "Alibaba Dedicated Workspace (DeepSeek V4 Pro 0813 Backup)",
-            "url": ALIBABA_DEDICATED_URL,
-            "key": ALIBABA_DEDICATED_KEY,
-            "model": "deepseek-v4-pro-0813"
-        },
-        {
-            "name": "Alibaba DashScope International (DeepSeek V4 Pro Backup 2)",
-            "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
-            "key": ALIBABA_DEDICATED_KEY,
+            "name": "Alibaba Token Plan (DeepSeek V4 Pro 0813 Backup)",
+            "url": ALIBABA_TOKEN_PLAN_URL,
+            "key": ALIBABA_TOKEN_PLAN_KEY,
             "model": "deepseek-v4-pro-0813"
         },
         {
@@ -159,32 +196,6 @@ MODEL_GATEWAYS = {
             "url": f"{StratXLLMClient.NANOGPT_BASE_URL}/chat/completions",
             "key": StratXLLMClient.NANOGPT_KEY,
             "model": StratXLLMClient.NANOGPT_MODEL
-        }
-    ],
-    "ollama_glm": [
-        {
-            "name": "Ollama GLM-5.2 (glm-5.2 / glm-4)",
-            "url": "http://localhost:11434/v1/chat/completions",
-            "key": "ollama",
-            "model": "glm-5.2"
-        },
-        {
-            "name": "Ollama Cloud Pro Backup (deepseek-v4-pro:0813-cloud)",
-            "url": "http://localhost:11434/v1/chat/completions",
-            "key": "ollama",
-            "model": "deepseek-v4-pro:0813-cloud"
-        },
-        {
-            "name": "NanoGPT Thinking Backup (GLM-5.2 Thinking)",
-            "url": f"{StratXLLMClient.NANOGPT_BASE_URL}/chat/completions",
-            "key": StratXLLMClient.NANOGPT_KEY,
-            "model": "zai-org/glm-5.2:thinking"
-        },
-        {
-            "name": "Alibaba Dedicated Workspace (DeepSeek V4 Pro 0813 Backup)",
-            "url": ALIBABA_DEDICATED_URL,
-            "key": ALIBABA_DEDICATED_KEY,
-            "model": "deepseek-v4-pro-0813"
         }
     ],
     "nanogpt_glm_thinking": [
@@ -195,9 +206,9 @@ MODEL_GATEWAYS = {
             "model": "zai-org/glm-5.2:thinking"
         },
         {
-            "name": "Alibaba Dedicated Workspace (DeepSeek V4 Pro 0813 Backup)",
-            "url": ALIBABA_DEDICATED_URL,
-            "key": ALIBABA_DEDICATED_KEY,
+            "name": "Alibaba Token Plan (DeepSeek V4 Pro 0813 Backup)",
+            "url": ALIBABA_TOKEN_PLAN_URL,
+            "key": ALIBABA_TOKEN_PLAN_KEY,
             "model": "deepseek-v4-pro-0813"
         }
     ],
